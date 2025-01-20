@@ -3,17 +3,22 @@ Type: Package
 Title: MultiCelligner: Global computational alignment of tumor and cell line data
 Version: 1.0.0
 Author: Massimiliano Romano, Giovanni Scala, Aurora Brandi
-Maintainer: Massimiliano Romano
+Maintainer: Massimiliano Romano <massimiliano.romano98@hotmail.com>
 Description: Tool for find the best cell line model for a given cancer type,
     exploiting alignment and projections of omics and multiomics data.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: dplyr, stats, fontawesome, htmltools,
          BiocNeighbors, BiocParallel, reactable,
          shiny, plotly, tidyverse, reshape2,
-         stats, SNFtool, crosstalk, ggplot2
+         stats, SNFtool, crosstalk, ggplot2,
+         MoNETA, SeuratObject, Seurat, magrittr,
+         readr, future, furrr, purrr, S4Vectors,
+         foreach, doParallel, batchelor, MOFA2, 
+         gplots, BSgenome.Hsapiens.UCSC.hg19,
+         mutSignatures, sigminer, GenomicRanges, impute
 Suggests: 
     rmarkdown,
     knitr

@@ -9,33 +9,6 @@
 #' @import magrittr
 #' @import dplyr
 
-############################################################################################ Get TCGA matrix
-
-pancancer_meth <- read.delim("~/celligner/celligner_meth_1/celligner_meth/file/GDC-PANCAN_meth450.tsv.gz", header=FALSE)
-id_tcga_pancan <- read_table("file/id_tcga_pancan", col_names = FALSE)
-name_pancancer <- c("cpg_id", id_tcga_pancan$X1)
-colnames(pancancer_meth) <- name_pancancer
-
-pancancer_meth_ann <- left_join(ann_cpg, pancancer_meth, by = "cpg_id", multiple = "all")
-pancancer_meth_ann_sum <- pancancer_meth_ann %>%  group_by(gene) %>% summarise_at(.vars = colnames(pancancer_meth_ann[, -c(1,2)]), .funs = mean)
-pancancer_meth_ann_sum_narm <- pancancer_meth_ann %>%  group_by(gene) %>% summarise_at(.vars = colnames(pancancer_meth_ann[, -c(1,2)]), .funs = ~mean(., na.rm = TRUE))
-
-mat_pancancer <- pancancer_meth_ann_sum_narm[, -1]
-mat_pancancer <- as.matrix(mat_pancancer)
-pancancer_meth_norm <- as.data.frame(mat_pancancer)
-rownames(pancancer_meth_norm) <- pancancer_meth_ann_sum$gene
-
-id_pancancer <- colnames(pancancer_meth_norm)
-id_pancancer <- substr(id_pancancer, 1, nchar(id_pancancer) -1)
-colnames(pancancer_meth_norm) <- id_pancancer
-
-pancancer_meth_ann_index <- which(ann$sampleID %in% colnames(pancancer_meth_norm))
-pancancer_ann <- ann[pancancer_meth_ann_index, ]
-to_remove_pan <- which(!colnames(pancancer_meth_norm) %in% pancancer_ann$sampleID)
-pancancer_meth_norm_filtered <- pancancer_meth_norm[, -to_remove_pan]
-pancancer_meth_norm_filtered <- t(pancancer_meth_norm_filtered)
-
-############################################################################################ Get CCLE matrix
 ################################################################################## Get the cpg_id from RRBS reads
 
 CCLE_RRBS_1kb <- read_delim("CCLE_RRBS_TSS_1kb_20180614.txt", 
@@ -71,6 +44,32 @@ ann_cpg <- merged_1[, c("cpg_id","gene")]
 rownames(ann_cpg) <- 1:nrow(ann_cpg) 
 ann_cpg <- as_tibble(ann_cpg)
 
+############################################################################################ Get TCGA matrix
+
+pancancer_meth <- read.delim("~/celligner/celligner_meth_1/celligner_meth/file/GDC-PANCAN_meth450.tsv.gz", header=FALSE)
+id_tcga_pancan <- read_table("file/id_tcga_pancan", col_names = FALSE)
+name_pancancer <- c("cpg_id", id_tcga_pancan$X1)
+colnames(pancancer_meth) <- name_pancancer
+
+pancancer_meth_ann <- left_join(ann_cpg, pancancer_meth, by = "cpg_id", multiple = "all")
+pancancer_meth_ann_sum <- pancancer_meth_ann %>%  group_by(gene) %>% summarise_at(.vars = colnames(pancancer_meth_ann[, -c(1,2)]), .funs = mean)
+pancancer_meth_ann_sum_narm <- pancancer_meth_ann %>%  group_by(gene) %>% summarise_at(.vars = colnames(pancancer_meth_ann[, -c(1,2)]), .funs = ~mean(., na.rm = TRUE))
+
+mat_pancancer <- pancancer_meth_ann_sum_narm[, -1]
+mat_pancancer <- as.matrix(mat_pancancer)
+pancancer_meth_norm <- as.data.frame(mat_pancancer)
+rownames(pancancer_meth_norm) <- pancancer_meth_ann_sum$gene
+
+id_pancancer <- colnames(pancancer_meth_norm)
+id_pancancer <- substr(id_pancancer, 1, nchar(id_pancancer) -1)
+colnames(pancancer_meth_norm) <- id_pancancer
+
+pancancer_meth_ann_index <- which(ann$sampleID %in% colnames(pancancer_meth_norm))
+pancancer_ann <- ann[pancancer_meth_ann_index, ]
+to_remove_pan <- which(!colnames(pancancer_meth_norm) %in% pancancer_ann$sampleID)
+pancancer_meth_norm_filtered <- pancancer_meth_norm[, -to_remove_pan]
+pancancer_meth_norm_filtered <- t(pancancer_meth_norm_filtered)
+
 ############################################################################################ Get CCLE matrix
 
 CCLE_meth_filtered_1 <- left_join(ann_cpg, CCLE_RRBS_1kb, by = "gene", multiple = "all")
@@ -105,7 +104,12 @@ CCLE_meth_ann <- ann[index_ann_CCLE, ]
 
 ######################################################################### feature selection
 
+# if the number of NA for sample is less then 30% of the number of gene so that sample will be keeped
+
 pancancer_meth_norm_filtered_2 <- pancancer_meth_norm_filtered[rowSums(is.na(pancancer_meth_norm_filtered)) < (0.3*ncol(pancancer_meth_norm_filtered)),]
+
+# if the number of NA for gene is less then 80% of the total number of the sample so that gene will be keeped
+
 pancancer_meth_norm_filtered_3 <- pancancer_meth_norm_filtered_2[,colSums(is.na(pancancer_meth_norm_filtered)) < (0.8*nrow(pancancer_meth_norm_filtered))]
 
 meth_mat_CCLE_2_1 <- meth_mat_CCLE_1[rowSums(is.na(meth_mat_CCLE_1)) < (0.1*ncol(meth_mat_CCLE_1)),]

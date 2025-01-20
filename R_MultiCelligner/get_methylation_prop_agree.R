@@ -17,18 +17,19 @@
 #' @import doParallel
 #' @import batchelor
 
-source("~/celligner/fun_celligner/celligner_base/Celligner_helpers.R")
-source("~/celligner/fun_celligner/celligner_base/Celligner_method.R")
-source("~/celligner/fun_celligner/get_prop_agree_v6.R")
-source("~/celligner/fun_celligner/get_dist_eu_foreach_parallel.R")
+source("~/R_MultiCelligner/celligner_based_function/Celligner_helpers.R")
+source("~/R_MultiCelligner/celligner_based_function/Celligner_method.R")
+source("~/R_MultiCelligner/MultiCelligner_function/get_prop_agree_v6.R")
+source("~R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
 
-CCLE_cor_meth <- readRDS("~/celligner/celligner_multiomics/definitive_version/metilazione/script_meth_mat/background_prop_agree/file/CCLE_cor_meth.rds")
-ccle_meth_ann_1 <- readRDS("~/celligner/celligner_multiomics/definitive_version/metilazione/script_meth_mat/background_prop_agree/file/ccle_meth_ann_1.rds")
-comb_ann_meth <- readRDS("~/celligner/celligner_multiomics/definitive_version/metilazione/script_meth_mat/background_prop_agree/file/comb_ann_meth.rds")
-DE_gene_set_meth <- readRDS("~/celligner/celligner_multiomics/definitive_version/metilazione/script_meth_mat/background_prop_agree/file/DE_gene_set_meth.rds")
-pancancer_ann <- readRDS("~/celligner/celligner_multiomics/definitive_version/metilazione/script_meth_mat/background_prop_agree/file/pancancer_ann.rds")
-TCGA_cor_meth <- readRDS("~/celligner/celligner_multiomics/definitive_version/metilazione/script_meth_mat/background_prop_agree/file/TCGA_cor_meth.rds")
+CCLE_cor_meth <- readRDS('CCLE_cor_meth.rds') # CCLE matrix with the frist 4 cPCs regressed out
+ccle_meth_ann_1 <- readRDS('CCLE_ann_meth.rds') # CCLE annotation file
+comb_ann_meth <- readRDS('comb_ann_meth.rds') # TCGA e CCLE annotation file
+DE_gene_set_meth <- readRDS('DE_gene_set_meth.rds') # Vector of genes that have higher variance in both dataset
+pancancer_ann <- readRDS('TCGA_ann_meth.rds') # TCGA annotation file
+TCGA_cor_meth <- readRDS('TCGA_cor_meth.rds') # TCGA matrix with the frist 4 cPCs regressed out
 
+################################# Grid serach of the best combination of parameter (k1,k2,ndist) for the mutual nearest neighbors alignment  
 ################################################################################## v1
 
 grid_k1 <- seq(5,40, by = 5)

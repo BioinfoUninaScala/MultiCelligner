@@ -1,3 +1,14 @@
+#' 
+#' Method to take in a Seurat object and run default Seurat clustering algorithm for mutational signature data
+#' 
+#' Adapted from: https://github.com/broadinstitute/celligner/blob/d9c9246f8a1b6885d07f2f28bbdca24253e57cf1/R/Celligner_methods.R
+#' 
+#' @import Seurat
+#' @import SeuratObject
+#' @param seu_obj Seurat object which contain mutational signature data
+#' @return a Seurat object
+#' @export
+
 signature_cluster_data <- function (seu_obj) 
   
 {

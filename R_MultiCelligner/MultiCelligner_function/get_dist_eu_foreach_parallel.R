@@ -1,14 +1,23 @@
-library(foreach)
-library(doParallel)
+#' 
+#' Function to calculate in parallel the Euclidean distance for each TCGA sample form each CL sample
+#' 
+#' @import foreach
+#' @import doParallel
+#' @import stats
+#' @param mnn_res TCGA matrix corrected by MNN
+#' @param CCLE_cor CCLE matrix with the frist 4 cPCs regressed out
+#' @param core number of core
+#' @return a list of a list: the euclidean distance for each TCGA sample from each CL sample
+#' @export
 
-get_fastdist_eu <- function(mnn_res, CCLE_cor) {
+get_fastdist_eu <- function(mnn_res, CCLE_cor, cores) {
   
-  cl <- makeCluster(30)
+  cl <- makeCluster(cores)
   registerDoParallel(cl)
   
   result <- foreach(i = 1:nrow(mnn_res$corrected), .packages = 'stats') %dopar% {
     
-    coppie_distanze <- list() # la lista dove si salvano i risultati deve essere all'interno del foreach
+    coppie_distanze <- list() 
     
     campione_2 <- rownames(mnn_res$corrected)[i]
     
@@ -20,19 +29,11 @@ get_fastdist_eu <- function(mnn_res, CCLE_cor) {
       
       coppie_distanze[[h]] <- list(CCLEsample = campione_1, TCGAsample = campione_2, dist_eu = dist_1)
     }
-    return(coppie_distanze) # e deve essere restituita alla fine del for innestato più esterno !
+    return(coppie_distanze) 
   }
   
   stopCluster(cl)
   
   return(result)
 }
-
-########################################################################################## 
-
-#ottieni una lista di liste di liste, in cui hai un singolo TCGA associato a tutti e 770 CCLE
-
-################## mnn_ress$corrected sono solo i TCGA 
-
-
 

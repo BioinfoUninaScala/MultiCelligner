@@ -1,17 +1,30 @@
-library(foreach)
-library(doParallel)
-library(dplyr)
-library(readr)
-library(tidyverse)
-library(magrittr)
-library(Seurat)
-library(SeuratObject)
-library(stats)
-library(S4Vectors)
+#' 
+#' Function to calculate the proportion of agreement based both on correlation and euclidean distance:
+#' the euclidean distance will be not calculate in parallel
+#' 
+#' @import tidyverse
+#' @import dplyr
+#' @import doParallel
+#' @import foreach
+#' @import readr
+#' @import magrittr
+#' @import Seurat
+#' @import SeuratObject
+#' @import stats
+#' @import S4Vectors
+#' @param mnn_param a vector of value for MNN param (k1,k2,ndist)
+#' @param CCLE_cor CCLE matrix with the frist 4 cPCs regressed out
+#' @param TCGA_cor TCGA matrix with the frist 4 cPCs regressed out
+#' @param TCGA_ann TCGA annotation file
+#' @param CCLE_ann CCLE annotation file
+#' @param comb_ann TCGA e CCLE annotation file
+#' @param subset_genes Vector of genes that have higher variance in both dataset
+#' @return a list that contains the value of prop_agree_dist, prop_agree_weighted_dist, prop_agree_cor and prop_agree_weigh_cor
+#' @export
 
-source("~/celligner/fun_celligner/get_dist_eu.R")
+source("R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
 
-get_prop_agree_nofast_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann, comb_ann, subset_genes) {
+get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann, comb_ann, subset_genes) {
   
   mnn_res <- run_MNN(CCLE_cor, TCGA_cor,
                      k1 = mnn_param[1], 
@@ -54,8 +67,6 @@ get_prop_agree_nofast_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CC
     oneccle_topcor_25tcga[[colonna_orig_nam]] <- df_ccle_cor
   }
   
-  # conti quante volte quel lineage e presente per la singola linea cellulare nei 25tcga piu vicini
-  
   table_oneccle_topcor_25tcga <- oneccle_topcor_25tcga
   
   lineage_col <- "lineage_tcga"
@@ -70,13 +81,11 @@ get_prop_agree_nofast_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CC
     
     as_df <- as.data.frame(conteggio)
     
-    as_df$Freq <- as_df$Freq / 25 # da aggiungere se vuoi la freq e non i conteggi
+    as_df$Freq <- as_df$Freq / 25 
     
     table_oneccle_topcor_25tcga[[nome_df]] <- as_df
     
   }
-  
-  ###################################### fai la stessa cosa per CCLE
   
   table_oneccle_topcor_25tcga_ccle <- oneccle_topcor_25tcga
   
@@ -92,13 +101,11 @@ get_prop_agree_nofast_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CC
     
     as_df <- as.data.frame(conteggio)
     
-    as_df$Freq <- as_df$Freq / 25 # da aggiungere se vuoi la freq e non i conteggi
+    as_df$Freq <- as_df$Freq / 25 
     
     table_oneccle_topcor_25tcga_ccle[[nome_df]] <- as_df
     
   }
-  
-  ############## matrice di frequenza dei 25tcga piu vicini ad un singolo CCLE
   
   mat_freq_heatmap <- bind_rows(table_oneccle_topcor_25tcga, .id = "sampleID")
   
@@ -110,7 +117,7 @@ get_prop_agree_nofast_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CC
   colnames(mat_freq_heatmap_all)[c(3,5)] <- c("freq_tcga", "freq_ccle")
   
   m1_cor <- mat_freq_heatmap_all %>% group_by(sampleID) %>% 
-    filter(freq_tcga == max(freq_tcga)) %>% 
+    dplyr::filter(freq_tcga == max(freq_tcga)) %>% 
     ungroup() %>%
     select(lineage_ccle, lineage_tcga) %>% 
     table 
@@ -118,7 +125,7 @@ get_prop_agree_nofast_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CC
   
   m2_cor <- m1_cor/rowSums(m1_cor) 
   
-  m3_cor <- as.data.frame(m2_cor) %>% filter(! is.nan(Freq)) %>% 
+  m3_cor <- as.data.frame(m2_cor) %>% dplyr::filter(! is.nan(Freq)) %>% 
     mutate(lineage_ccle = as.character(lineage_ccle), 
            lineage_tcga = as.character(lineage_tcga))
   
@@ -127,7 +134,7 @@ get_prop_agree_nofast_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CC
   
   ####################################################################
   
-  mat_m3_cor <- pivot_wider(m3_cor, names_from = lineage_ccle, values_from = Freq) #names from lineage_ccle è giusto!!!
+  mat_m3_cor <- pivot_wider(m3_cor, names_from = lineage_ccle, values_from = Freq) 
   mat_m3_cor <- as.matrix(mat_m3_cor)
   
   rownames(mat_m3_cor) <- mat_m3_cor[,1]
@@ -173,13 +180,13 @@ get_prop_agree_nofast_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CC
   
   print("Dist_couple: did it!")
   
-  dist_df <- lapply(dist_couple, function(x) do.call(rbind, lapply(x, unlist))) # devi modificare questo perchè gli output di get_dist_eu e
-  rm(dist_couple)                                                           ##### l'output di get_fast_disteu sono diversi !!!!!!
+  dist_df <- lapply(dist_couple, function(x) do.call(rbind, lapply(x, unlist)))
+  rm(dist_couple)
   dist_df <- do.call(rbind, dist_df)
   dist_df <- as.data.frame(dist_df)
   
-  dist_df_top25 <- dist_df %>% # con questo codice subsetti dalla mat_dist i 25 TCGA più vicini a ogni singolo CCLE
-    group_by(ref_ID) %>%
+  dist_df_top25 <- dist_df %>% 
+    group_by(CCLEsample) %>%
     arrange(dist_eu) %>%  
     slice_head(n = 25)
   
@@ -197,31 +204,28 @@ get_prop_agree_nofast_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CC
   
   dist_top25_lin <- dist_top25_lin[,-3]
   
-  dist_top25_lin_v2 <- dist_top25_lin %>% # con questo codice conti quante volte un lineage TCGA compare nei 25 più vicini
-    group_by(CCLEsample) %>%                  ## ad ogni singola CCLE
+  dist_top25_lin_v2 <- dist_top25_lin %>% 
+    group_by(ref_ID) %>%                  
     select(lineage_ccle, lineage_tcga) %>%
     table() %>% as.data.frame()
   
   
-  score_lineage <- dist_top25_lin_v2 %>% group_by(ref_ID) %>% # con questo codice selezioni il lineage più rappresentato nei
-    filter(Freq == max(Freq)) %>%                             ## 25 TCGA più vicini per quella singola CL
+  score_lineage <- dist_top25_lin_v2 %>% group_by(ref_ID) %>% 
+    dplyr::filter(Freq == max(Freq)) %>%                            
     ungroup() %>%
-    select(lineage_ccle, lineage_tcga) %>%  # perdi l'informazione sulle singole CL e fai la conta di quante volte un lineage TCGA
-    table                                   ## viene rappresentato con which.max per quel lineage CCLE. 
+    select(lineage_ccle, lineage_tcga) %>%  
+    table                                   
   
   rm(dist_top25_lin_v2)
   
-  m2_dist <- score_lineage/rowSums(score_lineage) # qui ottieni la percentuale, dividendo le singole conte per il totale di conte della riga.
+  m2_dist <- score_lineage/rowSums(score_lineage)
   
-  m3_dist <- as.data.frame(m2_dist) %>% filter(! is.nan(Freq)) %>% 
+  m3_dist <- as.data.frame(m2_dist) %>% dplyr::filter(! is.nan(Freq)) %>% 
     mutate(lineage_ccle = as.character(lineage_ccle), 
            lineage_tcga = as.character(lineage_tcga))
   
   diag_m3_dist <- m3_dist[which(m3_dist$lineage_ccle == m3_dist$lineage_tcga),] 
   prop_agree_dist <- sum(diag_m3_dist$Freq) /sum(m3_dist$Freq)               
-  
-  # il prop_agree rappresenta la percentuale, di quante volte, nei 25 TCGA più vicini, prevale il corrispettivo lineage dei 
-  ## lineage delle linee cellulari, dunque rappresenta una bontà dell'allineamento svolto dall MNN.
   
   ########################################################
   

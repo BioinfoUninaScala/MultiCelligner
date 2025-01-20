@@ -1,10 +1,13 @@
 #' 
-#' MultiCelligner shiny app
+#' MultiCelligner Shiny App
 #'
 #' @import dplyr
 #' @import plotly
 #' @import shiny
 #' @import tidyverse
+#' @import crosstalk
+#' @import htmltools
+#' @import fontawesome
 #' @return Shiny app
 #' @export
 

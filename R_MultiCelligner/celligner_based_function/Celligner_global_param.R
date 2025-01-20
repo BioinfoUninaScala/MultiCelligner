@@ -1,3 +1,9 @@
+#' 
+#' Global parameters for expression data
+#' 
+#' Take from https://github.com/broadinstitute/celligner/blob/d9c9246f8a1b6885d07f2f28bbdca24253e57cf1/R/global_params.R
+#'
+
 # Parameters
 celligner_global <- list(
   n_genes = 'all', # set to 'all' to use all protein coding genes found in both datasets

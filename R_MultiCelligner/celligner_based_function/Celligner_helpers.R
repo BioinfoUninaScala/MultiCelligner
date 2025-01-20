@@ -1,5 +1,11 @@
-library(magrittr)
-library(tidyverse)
+#' 
+#' Helpers Function of Celligner
+#' 
+#' Take from https://github.com/broadinstitute/celligner/blob/d9c9246f8a1b6885d07f2f28bbdca24253e57cf1/R/Celligner_helpers.R
+#' 
+#'@import tidyverse
+#'@import magrittr
+#'
 
 #' check for NAs in the expression data and remove samples with NAs
 #' @name check_NAs

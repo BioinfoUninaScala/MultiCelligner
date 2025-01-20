@@ -1,8 +1,23 @@
-createSeuObj_signature <- function(exp_mat, ann, type = NULL) {
+#' 
+#' Method to create seurat objects given Mutational signature matrix and annotation table
+#' 
+#' Adapted from: https://github.com/broadinstitute/celligner/blob/d9c9246f8a1b6885d07f2f28bbdca24253e57cf1/R/Celligner_methods.R
+#' 
+#' @import Seurat
+#' @import SeuratObject
+#' @import magrittr
+#' @import tidyverse 
+#' @param mat matrix of mutational signature data
+#' @param ann annotation file: Expects column 'sampleID' which matches the rownames of mat.
+#' @param type optional parameter: string specifying the data type of the current data (ex. 'tumor'), which is added to the annotation matrix.
+#' @return a Seurat object with mutational signature data
+#' @export
+
+createSeuObj_signature <- function(mat, ann, type = NULL) {
   
   options(Seurat.object.assay.version = "v3")
   
-  seu_obj <- Seurat::CreateSeuratObject(t(exp_mat),
+  seu_obj <- Seurat::CreateSeuratObject(t(mat),
                                         min.cells = 0,
                                         min.features = 0,
                                         meta.data = ann %>%

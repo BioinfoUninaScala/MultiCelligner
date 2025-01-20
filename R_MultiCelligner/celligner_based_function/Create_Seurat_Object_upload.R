@@ -1,10 +1,23 @@
+#' 
+#' Method to create seurat objects in 'v3' assay version of Seurat
+#'  
+#' Adapted from: 
+#' 
+#' @import Seurat
+#' @import SeuratObject
+#' @import magrittr
+#' @import tidyverse 
+#' @param mat matrix 
+#' @param ann annotation file: Expects column 'sampleID' which matches the rownames of mat.
+#' @param type optional parameter: string specifying the data type of the current data (ex. 'tumor'), which is added to the annotation matrix.
+#' @return a 'v3' assay version Seurat object 
+#' @export
 
-
-create_Seurat_object <- function(exp_mat, ann, type = NULL) {
+create_Seurat_object <- function(mat, ann, type = NULL) {
   
   options(Seurat.object.assay.version = "v3")
   
-  seu_obj <- Seurat::CreateSeuratObject(t(exp_mat),
+  seu_obj <- Seurat::CreateSeuratObject(t(mat),
                                         min.cells = 0,
                                         min.features = 0,
                                         meta.data = ann %>%
