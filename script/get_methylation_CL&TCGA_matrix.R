@@ -1,13 +1,13 @@
 #' 
 #' Get the matrix for CCLE samples and TCGA samples
 #'
-#' @import IlluminaHumanMethylation450kanno.ilmn12.hg19
-#' @import GenomicRanges
-#' @import tidyverse
-#' @import impute
-#' @import MoNETA
-#' @import magrittr
-#' @import dplyr
+
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+library(GenomicRanges)
+library(tidyverse)
+library(impute)
+library(magrittr)
+library(dplyr)
 
 ################################################################################## Get the cpg_id from RRBS reads
 

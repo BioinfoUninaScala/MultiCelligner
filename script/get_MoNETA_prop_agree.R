@@ -1,13 +1,14 @@
 #' 
 #' Get Proportion of Agreement score for multiomics MoNETA similarity matrix 
 #'
-#' @importFrom reshape2 melt
-#' @import MoNETA
-#' @import magrittr
-#' @import dplyr
-#' @import tidyverse
-#' @import ggplot2
-#' 
+
+library(reshape2)
+library(MoNETA)
+library(magrittr)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+
 
 ####################################################################### get_similarity matrix
 

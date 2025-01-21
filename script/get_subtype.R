@@ -1,8 +1,9 @@
 #' 
 #' Get annotation file with subtype
 #'
-#' @import tidyverse
-#' @import dplyr
+ 
+library(tidyverse)
+library(dplyr)
 
 ############################################################################# create celligner_res with subtype
 ################################################################## expression sample subtype:

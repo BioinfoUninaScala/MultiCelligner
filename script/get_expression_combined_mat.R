@@ -1,21 +1,22 @@
 #' 
 #' Get expression combined_mat
 #'
-#' @import Seurat
-#' @import SeuratObject
-#' @import MoNETA
-#' @import magrittr
-#' @import dplyr
-#' @import readr
-#' @import tidyverse
-#' 
 
-source('R_MultiCelligner/celligner_based_function/Celligner_helpers.R')
-source('R_MultiCelligner/celligner_based_function/Celligner_method.R')
-source('R_MultiCelligner/celligner_based_function/Create_Seurat_Object_upload.R')
-source('R_MultiCelligner/MultiCelligner_function/get_heatmap_umap_v6.R')
+library(Seurat)
+library(SeuratObject)
+library(MoNETA)
+library(magrittr)
+library(dplyr)
+library(readr)
+library(tidyverse)
 
-TCGA_mat_exp <- readRDS("~/celligner/celligner_19Q4_exp/data/TCGA_mat_exp.rds")
+
+source('Celligner_helpers.R')
+source('Celligner_method.R')
+source('Create_Seurat_Object_upload.R')
+source('get_heatmap_umap_v6.R')
+
+TCGA_mat_exp <- readRDS("~/celligner/celligner_19Q4_exp/data/TCGA_mat_exp.rds") 
 hgnc_complete_set <- readRDS("~/celligner/celligner_19Q4_exp/data/hgnc_complete_set.rds")
 
 common_genes <- intersect(colnames(TCGA_mat_exp), hgnc_complete_set$Gene)

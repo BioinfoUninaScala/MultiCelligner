@@ -1,11 +1,11 @@
 #' 
 #' Get Proportion of Agreement score for multiomics MOFA2 matrix 
 #'
-#' @import dplyr
-#' @import tidyverse
-#' 
 
-source("R_MultiCelligner/MultiCelligner_function/get_MOFA_fastdist_eu.R")
+library(tidyverse)
+library(magrittr) 
+
+source("get_MOFA_fastdist_eu.R")
 
 MOFA <- readRDS("MOFA_mat.rds") # load the MOFA2 matrix
 ann_multiomics <- readRDS("ann_multiomics.rds") # load multiomics annotation file

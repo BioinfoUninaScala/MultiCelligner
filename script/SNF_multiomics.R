@@ -1,9 +1,10 @@
 #' 
 #' Get multiomics Similarity Network Fusion (SNF) matrix
 #'
-#' @import SNFtool
-#' @import dplyr
-#' @import tidyverse
+
+library(SNFtool)
+library(tidyverse)
+library(magrittr)
 
 ### Calculate the pair-wise distance;
 

@@ -1,28 +1,29 @@
 #' 
 #' Tuning MNN parameter using Proportion Agreement as alignment quality score
 #'
-#' @import readr
-#' @import tidyverse
-#' @import MoNETA
-#' @import magrittr
-#' @import dplyr
-#' @import Seurat
-#' @import SeuratObject
-#' @import future
-#' @import furrr
-#' @import purrr
-#' @import stats
-#' @import S4Vectors
-#' @import foreach
-#' @import doParallel
-#' @import batchelor
 
-source("~/R_MultiCelligner/celligner_based_function/Celligner_helpers.R")
-source("~/R_MultiCelligner/celligner_based_function/Celligner_method.R")
-source("~/R_MultiCelligner/MultiCelligner_function/get_prop_agree_v6.R")
-source("~R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
-source('R_MultiCelligner/celligner_based_function/signature_cluster_data.R')
-source('R_MultiCelligner/celligner_based_function/CreateSeuObj_signature.R')
+library(readr)
+library(tidyverse)
+library(MoNETA)
+library(magrittr)
+library(dplyr)
+library(Seurat)
+library(SeuratObject)
+library(future)
+library(furrr)
+library(purrr)
+library(stats)
+library(S4Vectors)
+library(foreach)
+library(doParallel)
+library(batchelor)
+
+source("Celligner_helpers.R")
+source("Celligner_method.R")
+source("get_prop_agree_v6.R")
+source("get_dist_eu_foreach_parallel.R")
+source('signature_cluster_data.R')
+source('/CreateSeuObj_signature.R')
 
 comb_ann_mut<- readRDS('comb_ann_mut.rds') # TCGA and CCLE annotation file
 CCLE_cor_mut<- readRDS('CCLE_cor_mut.rds') # CCLE matrix with the frist 4 cPCs regressed out

@@ -1,12 +1,13 @@
 #' 
 #' Get Proportion of Agreement score for SNF matrix
 #'
-#' @import magrittr
-#' @import dplyr
-#' @import tidyverse
+
+library(tidyverse)
+library(magrittr)
+library(dplyr)
 
 
-SNF_dist <- readRDS("SNF_dist.rds")
+SNF_dist <- readRDS("SNF_dist.rds") # load the 'melted' SNF similarity matrix
 ann_multiomics <- readRDS('ann_multiomics.rds')
 
 colnames(SNF_dist)[3] <- "dist_eu"

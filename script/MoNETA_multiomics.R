@@ -1,8 +1,9 @@
 #' 
 #' Get multiomics MoNETA similarity matrix
 #'
-#' @import MoNETA
-#' @import dplyr
+
+library(MoNETA)
+library(dplyr)
 
 
 ############################################################################## 

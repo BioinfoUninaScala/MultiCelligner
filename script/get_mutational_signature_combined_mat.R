@@ -1,25 +1,26 @@
 #' 
 #' Get mutational signature matrix, get mutational signature combined_mat, get_mutational signature confusion matrix and proportion of agreement
 #'
-#' @import Seurat
-#' @import SeuratObject
-#' @import MoNETA
-#' @import magrittr
-#' @import dplyr
-#' @import sigminer
-#' @import BSgenome.Hsapiens.UCSC.hg19
-#' @import mutSignatures
-#' @import foreach
-#' @import doParallel
-#' @import tidyverse
-#' 
 
-source('R_MultiCelligner/celligner_based_function/signature_cluster_data.R')
-source('R_MultiCelligner/celligner_based_function/CreateSeuObj_signature.R')
-source('R_MultiCelligner/celligner_based_function/Celligner_helpers.R')
-source('R_MultiCelligner/celligner_based_function/Celligner_method.R')
-source('R_MultiCelligner/celligner_based_function/Create_Seurat_Object_upload.R')
-source('R_MultiCelligner/MultiCelligner_function/get_heatmap_signature.R')
+library(Seurat)
+library(SeuratObject)
+library(magrittr)
+library(dplyr)
+library(readr)
+library(tidyverse)
+library(sigminer)
+library(BSgenome.Hsapiens.UCSC.hg19)
+library(mutSignatures)
+library(foreach)
+library(doParallel)
+ 
+
+source('signature_cluster_data.R')
+source('CreateSeuObj_signature.R')
+source('Celligner_helpers.R')
+source('Celligner_method.R')
+source('Create_Seurat_Object_upload.R')
+source('get_heatmap_signature.R')
 
 
 mut_pancancer_maf <- sigminer::read_xena_variants(path = "~/celligner/celligner_somatic_mut/data/mc3.v0.2.8.PUBLIC.xena.gz")

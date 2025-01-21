@@ -1,16 +1,16 @@
 #' 
 #' Get the methylation combined_mat from the TCGA_meth_impute & CCLE_meth_impute
 #'
-#' @import Seurat
-#' @import SeuratObject
-#' @import MoNETA
-#' @import magrittr
-#' @import dplyr
-#' 
 
-source('R_MultiCelligner/celligner_based_function/Celligner_helpers.R')
-source('R_MultiCelligner/celligner_based_function/Celligner_method.R')
-source('R_MultiCelligner/celligner_based_function/Create_Seurat_Object_upload.R')
+library(tidyverse)
+library(magrittr)
+library(dplyr)
+library(Seurat)
+library(SeuratObject)
+
+source('Celligner_helpers.R')
+source('Celligner_method.R')
+source('Create_Seurat_Object_upload.R')
 
 common_genes_meth <- colnames(TCGA_meth_impute)
 
