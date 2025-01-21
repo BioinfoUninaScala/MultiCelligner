@@ -12,6 +12,10 @@
 
 ################# intersect the omics samples
 
+combined_mat <- readRDS('combined_mat.rds')
+combined_mat_meth <- readRDS('combined_mat_meth.rds') # Methylation matrix of MNN-corrected data
+combined_mat_mut <- readRDS('combined_mat_mut.rds')
+
 omics_sample <- intersect(rownames(combined_mat), rownames(combined_mat_meth))
 omics_sample_1 <- intersect(omics_sample, rownames(combined_mat_mut))
 

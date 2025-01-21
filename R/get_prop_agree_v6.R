@@ -1,6 +1,5 @@
 #' 
-#' Function to calculate the proportion of agreement based both on correlation and euclidean distance:
-#' the euclidean distance will be not calculate in parallel
+#' Function to calculate the proportion of agreement based both on correlation and euclidean distance
 #' 
 #' @import tidyverse
 #' @import dplyr
@@ -22,7 +21,7 @@
 #' @return a list that contains the value of prop_agree_dist, prop_agree_weighted_dist, prop_agree_cor and prop_agree_weigh_cor
 #' @export
 
-source("R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
+#source("R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
 
 get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann, comb_ann, subset_genes) {
   
@@ -176,7 +175,7 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
   
   ######################################################## start dist_eu
   
-  dist_couple <- get_dist_eu(mnn_res = mnn_res, CCLE_cor = CCLE_cor)
+  dist_couple <- get_fastdist_eu(mnn_res = mnn_res, CCLE_cor = CCLE_cor, core = 50)
   
   print("Dist_couple: did it!")
   

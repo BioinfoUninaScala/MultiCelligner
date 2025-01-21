@@ -8,7 +8,7 @@
 #' @return a list which contains prop_agree scores, confusion matrixs and a dataframe with the top 25 neighbors
 #' @export
 
-source("R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
+#source("R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
 
 get_confusion_matrix <- function(combined_mat, ann_multiomics) {
 

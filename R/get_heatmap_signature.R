@@ -21,10 +21,10 @@
 #' @return a list that contains the confusion matrix, celligner_based plot, proportion of agreement based on correlation and euclidean distance
 #' @export
 
-source("R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
-source("R_MultiCelligner/celligner_based_function/Celligner_method.R")
-source("R_MultiCelligner/celligner_based_function/CreateSeuObj_signature.R")
-source("R_MultiCelligner/celligner_based_function/signature_cluster_data.R")
+#source("R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
+#source("R_MultiCelligner/celligner_based_function/Celligner_method.R")
+#source("R_MultiCelligner/celligner_based_function/CreateSeuObj_signature.R")
+#source("R_MultiCelligner/celligner_based_function/signature_cluster_data.R")
 
 
 get_heatmap_signature <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann, comb_ann, subset_genes) {

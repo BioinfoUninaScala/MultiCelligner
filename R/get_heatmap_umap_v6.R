@@ -1,5 +1,5 @@
 #' 
-#' Function to calculate the proportion of agreement based both on correlation and euclidean distance
+#' Function to generate confusion matrix, Celligner_based_plot, proportion of agreement based on correlation and euclidean distance
 #' 
 #' @import tidyverse
 #' @import dplyr
@@ -18,13 +18,15 @@
 #' @param CCLE_ann CCLE annotation file
 #' @param comb_ann TCGA e CCLE annotation file
 #' @param subset_genes Vector of genes that have higher variance in both dataset
-#' @return a list that contains the value of prop_agree_dist, prop_agree_weighted_dist, prop_agree_cor and prop_agree_weigh_cor
+#' @return a list that contains the confusion matrix, celligner_based plot, proportion of agreement based on correlation and euclidean distance
 #' @export
 
-source("R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
+#source("R_MultiCelligner/MultiCelligner_function/get_dist_eu_foreach_parallel.R")
+#source("R_MultiCelligner/celligner_based_function/Celligner_method.R")
 
-get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann, comb_ann, subset_genes) {
-  
+
+get_heatmap_umap_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann, comb_ann, subset_genes) {
+
   mnn_res <- run_MNN(CCLE_cor, TCGA_cor,
                      k1 = mnn_param[1], 
                      k2 = mnn_param[2], 
@@ -33,6 +35,44 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
   )
   
   combined_mat <- rbind(mnn_res$corrected, CCLE_cor)
+  
+  comb_obj <- create_Seurat_object(combined_mat, comb_ann)
+  comb_obj <- cluster_data(comb_obj)
+  
+  Celligner_res <- Seurat::Embeddings(comb_obj, reduction = "umap") %>%
+    as.data.frame() %>%
+    magrittr::set_colnames(c("UMAP_1", "UMAP_2")) %>%
+    tibble::rownames_to_column(var = "sampleID") %>%
+    dplyr::left_join(comb_obj@meta.data, by = "sampleID")
+  
+  lineage_averages <- Celligner_res %>%
+    dplyr::filter(!lineage %in% c(
+      "embryo", "endocrine", "engineered", "engineered_blood",
+      "engineered_breast", "engineered_central_nervous_system", "engineered_kidney",
+      "engineered_lung", "engineered_ovary", "engineered_prostate", "epidermoid_carcinoma",
+      "nasopharynx", "nerve", "pineal", "teratoma", "unknown"
+    )) %>%
+    dplyr::group_by(lineage) %>%
+    dplyr::summarise(
+      UMAP_1 = median(UMAP_1, na.rm = T),
+      UMAP_2 = median(UMAP_2, na.rm = T)
+    )
+  lineage_averages$lineage <- gsub("_", " ", lineage_averages$lineage)
+  lineage_lab_aes <- ggplot2::geom_text(data = lineage_averages, mapping = aes(x = UMAP_1, y = UMAP_2, label = lineage), size = 3, color = "#000000")
+  
+  celligner_plot <- ggplot2::ggplot(Celligner_res, ggplot2::aes(UMAP_1, UMAP_2)) +
+    ggplot2::geom_point(alpha = 0.7, pch = 21, ggplot2::aes(color = type, fill = lineage, size = type)) +
+    ggplot2::scale_color_manual(values = c(tumor = "white", CL = "black")) +
+    ggplot2::scale_size_manual(values = c(tumor = 0.75, CL = 1.5)) +
+    ggplot2::xlab("UMAP 1") +
+    ggplot2::ylab("UMAP 2") +
+    ggplot2::guides(
+      fill = "none",
+      color = ggplot2::guide_legend(override.aes = list(color = c("black", "white"), fill = c("white", "black")))
+    ) +
+    ggplot2::theme_classic()
+  
+  print("UMAP: did it!")
   
   tumor_CL_cor <- calc_tumor_CL_cor(combined_mat, comb_ann)
   
@@ -86,6 +126,8 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
     
   }
   
+  ###################################### 
+  
   table_oneccle_topcor_25tcga_ccle <- oneccle_topcor_25tcga
   
   lineage_col <- "lineage_ccle"
@@ -106,6 +148,8 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
     
   }
   
+  ############## freq mat CL neighbors
+  
   mat_freq_heatmap <- bind_rows(table_oneccle_topcor_25tcga, .id = "sampleID")
   
   mat_freq_heatmap_1 <- bind_rows(table_oneccle_topcor_25tcga_ccle, .id = "sampleID")
@@ -116,7 +160,7 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
   colnames(mat_freq_heatmap_all)[c(3,5)] <- c("freq_tcga", "freq_ccle")
   
   m1_cor <- mat_freq_heatmap_all %>% group_by(sampleID) %>% 
-    dplyr::filter(freq_tcga == max(freq_tcga)) %>% 
+    filter(freq_tcga == max(freq_tcga)) %>% 
     ungroup() %>%
     select(lineage_ccle, lineage_tcga) %>% 
     table 
@@ -124,7 +168,7 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
   
   m2_cor <- m1_cor/rowSums(m1_cor) 
   
-  m3_cor <- as.data.frame(m2_cor) %>% dplyr::filter(! is.nan(Freq)) %>% 
+  m3_cor <- as.data.frame(m2_cor) %>% filter(! is.nan(Freq)) %>% 
     mutate(lineage_ccle = as.character(lineage_ccle), 
            lineage_tcga = as.character(lineage_tcga))
   
@@ -175,7 +219,7 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
   
   ######################################################## start dist_eu
   
-  dist_couple <- get_fastdist_eu(mnn_res = mnn_res, CCLE_cor = CCLE_cor, core = 50)
+  dist_couple <- get_fastdist_eu(mnn_res = mnn_res, CCLE_cor = CCLE_cor, cores = 35)
   
   print("Dist_couple: did it!")
   
@@ -194,10 +238,10 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
   colnames(dist_df_top25)[1] <- "ref_ID"
   colnames(dist_df_top25)[2] <- "sampleID"
   
-  dist_top25_lin <- dplyr::left_join(dist_df_top25, TCGA_ann[, c(1,3)], by = "sampleID")
+  dist_top25_lin <- dplyr::left_join(dist_df_top25, TCGA_ann[, c(1,3)], by = "sampleID") 
   colnames(dist_top25_lin)[4] <- "lineage_tcga"
   
-  dist_top25_lin <- dplyr::left_join(dist_top25_lin, CCLE_ann[, c(1,3)], by = "ref_ID", )
+  dist_top25_lin <- dplyr::left_join(dist_top25_lin, CCLE_ann[, c(1,3)], by = "ref_ID", ) 
   colnames(dist_top25_lin)[5] <- "lineage_ccle"
   
   
@@ -210,16 +254,16 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
   
   
   score_lineage <- dist_top25_lin_v2 %>% group_by(ref_ID) %>% 
-    dplyr::filter(Freq == max(Freq)) %>%                            
+    filter(Freq == max(Freq)) %>%                            
     ungroup() %>%
-    select(lineage_ccle, lineage_tcga) %>%  
-    table                                   
+    select(lineage_ccle, lineage_tcga) %>% 
+    table                                  
   
   rm(dist_top25_lin_v2)
   
-  m2_dist <- score_lineage/rowSums(score_lineage)
+  m2_dist <- score_lineage/rowSums(score_lineage) 
   
-  m3_dist <- as.data.frame(m2_dist) %>% dplyr::filter(! is.nan(Freq)) %>% 
+  m3_dist <- as.data.frame(m2_dist) %>% filter(! is.nan(Freq)) %>% 
     mutate(lineage_ccle = as.character(lineage_ccle), 
            lineage_tcga = as.character(lineage_tcga))
   
@@ -264,10 +308,58 @@ get_prop_agree_v6 <- function(mnn_param, CCLE_cor, TCGA_cor, TCGA_ann, CCLE_ann,
   x_dist <- m4_dist[which(m4_dist$lineage_ccle == m4_dist$lineage_tcga),]
   prop_agree_weigh_dist <- sum(x_dist$Freq /sum(m4_dist$Freq))
   
+  #################################################################################
+  
+  print("im doing the heatmap")
+  
+  ccle_heatmap_m3_cor <- ggplot2::ggplot(m3_cor, aes(x = lineage_ccle, y = lineage_tcga, fill = Freq)) +
+    geom_tile(color = "black") +
+    coord_fixed() +
+    theme_dark() +
+    scale_fill_gradient(low = "white", high = "red") + 
+    labs(x = "CCLE", y = "TCGA", title = "prop_agree_cor") + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + #ruota i nomi sull'asse x
+    guides(fill = guide_colourbar(barwidth = 0.5,barheight = 20)) 
+  
+  ccle_heatmap_m4_cor <- ggplot2::ggplot(m4_cor, aes(x = lineage_ccle, y = lineage_tcga, fill = Freq)) +
+    geom_tile(color = "black") +
+    coord_fixed() +
+    theme_dark() +
+    scale_fill_gradient(low = "white", high = "red") + 
+    labs(x = "CCLE", y = "TCGA", title = "prop_agree_weigh_cor") + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + #ruota i nomi sull'asse x
+    guides(fill = guide_colourbar(barwidth = 0.5,barheight = 20)) 
+  
+  ccle_heatmap_m3_dist <- ggplot2::ggplot(m3_dist, aes(x = lineage_ccle, y = lineage_tcga, fill = Freq)) +
+    geom_tile(color = "black") +
+    coord_fixed() +
+    theme_dark() +
+    scale_fill_gradient(low = "white", high = "red") + 
+    labs(x = "CCLE", y = "TCGA", title = "prop_agree_dist") + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + #ruota i nomi sull'asse x
+    guides(fill = guide_colourbar(barwidth = 0.5,barheight = 20)) 
+  
+  ccle_heatmap_m4_dist <- ggplot2::ggplot(m4_dist, aes(x = lineage_ccle, y = lineage_tcga, fill = Freq)) +
+    geom_tile(color = "black") +
+    coord_fixed() +
+    theme_dark() +
+    scale_fill_gradient(low = "white", high = "red") + 
+    labs(x = "CCLE", y = "TCGA", title = "prop_agree_weigh_dist") + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + #ruota i nomi sull'asse x
+    guides(fill = guide_colourbar(barwidth = 0.5,barheight = 20)) 
+  
+  print("Heatmap: did it!")
   
   #################################################################################
   
-  return(c(prop_agree_cor = prop_agree_cor , prop_agree_weigh_cor = prop_agree_weigh_cor, 
-           prop_agree_dist = prop_agree_dist, prop_agree_weigh_dist = prop_agree_weigh_dist))
+  return(list(c(prop_agree_cor = prop_agree_cor, prop_agree_weigh_cor = prop_agree_weigh_cor, 
+                prop_agree_dist = prop_agree_dist, prop_agree_weigh_dist = prop_agree_weigh_dist),
+              ccle_heatmap_cor = ccle_heatmap_m3_cor,
+              ccle_heatmap_weighted_cor = ccle_heatmap_m4_cor,
+              ccle_heatmap_dist = ccle_heatmap_m3_dist,
+              ccle_heatmap_weighted_dist = ccle_heatmap_m4_dist,
+              celligner_plot = celligner_plot + lineage_lab_aes))
   
 }
+
+

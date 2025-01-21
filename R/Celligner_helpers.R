@@ -3,13 +3,9 @@
 #' 
 #' Take from https://github.com/broadinstitute/celligner/blob/d9c9246f8a1b6885d07f2f28bbdca24253e57cf1/R/Celligner_helpers.R
 #' 
-#'@import tidyverse
-#'@import magrittr
 #'
-
 #' check for NAs in the expression data and remove samples with NAs
 #' @name check_NAs
-#'
 #' @param mat: matrix of gene expression data that is samples by genes
 #' @return matrix of gene expression data, removing samples that have NAs
 #' @export

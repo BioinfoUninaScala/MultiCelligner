@@ -11,7 +11,7 @@
 #' @return Shiny app
 #' @export
 
-MultiCellignerShiny = shiny::shinyApp(ui, server)
+MultiCellignerShiny <- function() {shiny::shinyApp(ui, server)}
 
 ui <- fluidPage(
   
