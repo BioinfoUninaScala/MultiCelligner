@@ -25,7 +25,6 @@ Remotes:
     bioc::BiocNeighbors,
     bioc::BiocParallel,
     bioc::batchelor,
-    bioc::batchelor,
     bioc::MOFA2
 Suggests: 
     rmarkdown,
