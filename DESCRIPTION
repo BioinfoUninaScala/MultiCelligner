@@ -14,14 +14,11 @@ Imports: dplyr, stats, fontawesome, htmltools,
          BiocNeighbors, BiocParallel, reactable,
          shiny, plotly, tidyverse, reshape2,
          stats, SNFtool, crosstalk, ggplot2,
-         MoNETA, SeuratObject, Seurat, magrittr,
-         readr, future, furrr, purrr, S4Vectors,
-         foreach, doParallel, batchelor, MOFA2, 
-         gplots, BSgenome.Hsapiens.UCSC.hg19,
-         mutSignatures, sigminer, GenomicRanges, impute
+         MoNETA, magrittr,
+         readr, S4Vectors, MOFA2, 
+         gplots
 Remotes: 
     github::BioinfoUninaScala/MoNETA,
-    github::Przemol/BSgenome.Hsapiens.UCSC.hg19,
     bioc::BiocNeighbors,
     bioc::BiocParallel,
     bioc::maftools,
@@ -30,4 +27,5 @@ Suggests:
     rmarkdown,
     knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5.0)
+    
