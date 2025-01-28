@@ -123,27 +123,27 @@ server <- function(input, output, session) {
   
   selected_combined_mat <- reactive({
     switch(input$omics_plot,
-           "Expression" = t(exp_index@data),
-           "Methylation" = t(meth_index@data),
-           "Mutational_process" = t(mut_index@data),
-           "MoNETA_multiomics_tSNE" = t(MoNETA_index@data),
-           "MoNETA_multiomics_UMAP" = t(MoNETA_index@data),
-           "MOFA_multiomics_tSNE" = t(MOFA_index@data),
-           "MOFA_multiomics_UMAP" = t(MOFA_index@data),
-           "SNF_multiomics_UMAP" = t(SNF_index@data)
+           "Expression" = t(index_exp@data),
+           "Methylation" = t(index_meth@data),
+           "Mutational_process" = t(index_mut@data),
+           "MoNETA_multiomics_tSNE" = t(index_MoNETA@data),
+           "MoNETA_multiomics_UMAP" = t(index_MoNETA@data),
+           "MOFA_multiomics_tSNE" = t(index_MOFA@data),
+           "MOFA_multiomics_UMAP" = t(index_MOFA@data),
+           "SNF_multiomics_UMAP" = t(index_SNF@data)
     )
   })
   
   selected_BNindex <- reactive({
     switch(input$omics_plot,
-           "Expression" = exp_index,
-           "Methylation" = meth_index,
-           "Mutational_process" = mut_index,
-           "MoNETA_multiomics_tSNE" = MoNETA_index,
-           "MoNETA_multiomics_UMAP" = MoNETA_index,
-           "MOFA_multiomics_tSNE" = MOFA_index,
-           "MOFA_multiomics_UMAP" = MOFA_index,
-           "SNF_multiomics_UMAP" = SNF_index
+           "Expression" = index_exp,
+           "Methylation" = index_meth,
+           "Mutational_process" = index_mut,
+           "MoNETA_multiomics_tSNE" = index_MoNETA,
+           "MoNETA_multiomics_UMAP" = index_MoNETA,
+           "MOFA_multiomics_tSNE" = index_MOFA,
+           "MOFA_multiomics_UMAP" = index_MOFA,
+           "SNF_multiomics_UMAP" = index_SNF
     )
   })
   
