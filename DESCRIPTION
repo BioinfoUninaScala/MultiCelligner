@@ -24,7 +24,6 @@ Remotes:
     github::Przemol/BSgenome.Hsapiens.UCSC.hg19,
     bioc::BiocNeighbors,
     bioc::BiocParallel,
-    bioc::batchelor,
     bioc::maftools,
     bioc::MOFA2
 Suggests: 
