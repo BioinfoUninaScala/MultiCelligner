@@ -19,6 +19,13 @@ Imports: dplyr, stats, fontawesome, htmltools,
          foreach, doParallel, batchelor, MOFA2, 
          gplots, BSgenome.Hsapiens.UCSC.hg19,
          mutSignatures, sigminer, GenomicRanges, impute
+Remotes: 
+    github::BioinfoUninaScala/MoNETA,
+    github::Przemol/BSgenome.Hsapiens.UCSC.hg19,
+    bioc::BiocNeighbors,
+    bioc::BiocParallel,
+    bioc::batchelor,
+    bioc::MOFA2
 Suggests: 
     rmarkdown,
     knitr
