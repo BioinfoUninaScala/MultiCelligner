@@ -49,7 +49,7 @@ get_piechart_tumor <- function(combined_mat, input_sample, k, ann, BNindex, samp
            label = paste0(round(percentage, 1), "%"))
   
   dist_top25_4 <- dist_top25_4 %>%
-    filter(Freq > 0)
+    dplyr::filter(Freq > 0)
   
   y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = lineage_tcga)) +
     geom_bar(width = 1, stat = "identity") +
