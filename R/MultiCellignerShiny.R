@@ -41,21 +41,21 @@ ui <- fluidPage(
                  "df_selection_input", 
                  "query sample type:", 
                  choices = c("CL", "tumor"), 
-                 selected = NULL)),
+                 selected = 'CL')),
         column(6,
                checkboxGroupInput(
                  "df_selection_output", 
                  "neighbors type:", 
                  choices = c("CL", "tumor"), 
-                 selected = NULL))),
+                 selected = 'tumor'))),
       hr(), 
       
       fluidRow(
         column(6, 
                selectizeInput("both_sample", 
-                              "get neighbors: write or select the sample", 
+                              "get neighbors: select the sample/s", 
                               choices = NULL, 
-                              multiple = FALSE)),
+                              multiple = TRUE)),
         column(3, 
                numericInput("num_neighbors", 
                             "number of neighbors:", 
@@ -63,33 +63,10 @@ ui <- fluidPage(
         column(3, 
                actionButton("subset_btn", "show"))),
       
-      
-      hr(),
-      
-      fluidRow(
-        column(6,
-               selectizeInput("multiple_samples", 
-                              "find neighbors for multiple_samples", 
-                              choices = NULL, 
-                              multiple = TRUE)),
-        column(3,
-               numericInput("num_neighbors_multiple", 
-                            "number of neighbors:", 
-                            value = 25, min = 1)),
-        column(3,
-               actionButton("get_centroid", "show"))),
-      
       div(style = "max-height: 500px; overflow-y: scroll; overflow-x: hidden;",
           tableOutput("top_k_tumors")),
       hr(),
-      plotOutput("piechart"),
-      
-      hr(),
-      
-      div(style = "max-height: 500px; overflow-y: scroll; overflow-x: hidden;",
-          tableOutput("dist_top_n_1")),
-      hr(),
-      plotOutput("piechart_2")),
+      plotOutput("piechart")),
     
     mainPanel(
       
@@ -197,14 +174,16 @@ server <- function(input, output, session) {
     }
     
     updateSelectizeInput(session, "both_sample", choices = choices)
-    updateSelectizeInput(session, "multiple_samples", choices = choices)
+    #updateSelectizeInput(session, "multiple_samples", choices = choices)
   })
   
   selected_samples <- reactive({
-    input$multiple_samples
+    input$both_sample
   })
   
   observeEvent(input$subset_btn, {
+    
+    if(length(input$both_sample) == 1) {
     
     if ("CL" %in% input$df_selection_output) {
       top_k_tumors <- get_neighbors_table_CL(combined_mat = selected_combined_mat(),
@@ -241,9 +220,50 @@ server <- function(input, output, session) {
     output$top_k_tumors <- renderTable({
       top_k_tumors
     })
+    
+    } else {
+      
+      selected_samples <- reactive({
+        input$multiple_samples
+      })
+      
+      if("CL" %in% input$df_selection_output) {
+        
+        x_2 <- get_metasample_ann_both_CL(combined_mat = selected_combined_mat(),
+                                          reduced_mat = selected_reduced_mat(),
+                                          selected_samples = selected_samples(),
+                                          n = input$num_neighbors,
+                                          ann = ann_multiomics_v6)
+      }
+      
+      if("tumor" %in% input$df_selection_output) {
+        
+        x_2 <- get_metasample_ann_both_tumor(combined_mat = selected_combined_mat(),
+                                             reduced_mat = selected_reduced_mat(),
+                                             selected_samples = selected_samples(),
+                                             n = input$num_neighbors,
+                                             ann = ann_multiomics_v6)
+      }
+      
+      if(all(c("CL", "tumor") %in% input$df_selection_output)) {
+        
+        x_2 <-  get_metasample_ann_both_both(combined_mat = selected_combined_mat(),
+                                             reduced_mat = selected_reduced_mat(),
+                                             selected_samples = selected_samples(),
+                                             n = input$num_neighbors,
+                                             ann = ann_multiomics_v6)
+      }
+      
+      
+      output$top_k_tumors <- renderTable({
+        x_2
+      })
+    }
   })
   
   observeEvent(input$subset_btn, {
+    
+    if(length(input$both_sample) == 1) {
     
     if ("CL" %in% input$df_selection_output) {
       
@@ -279,84 +299,50 @@ server <- function(input, output, session) {
     output$plot <- renderUI({
       x  
     })
-  }) 
-  
-  observeEvent(input$get_centroid, {
     
-    selected_samples <- reactive({
-      input$multiple_samples
-    })
-    
-    if("CL" %in% input$df_selection_output) {
+    } else {
       
-      x <- omics_metasample_both_CL(combined_mat = selected_combined_mat(), 
-                                    reduced_mat = selected_reduced_mat(), 
-                                    selected_samples = selected_samples(), 
-                                    n = input$num_neighbors_multiple, 
-                                    ann = ann_multiomics_v6)
-    }
-    
-    if("tumor" %in% input$df_selection_output) {
+      selected_samples <- reactive({
+        input$both_sample
+      })
       
-      x <- omics_metasample_both_tumor(combined_mat = selected_combined_mat(), 
-                                       reduced_mat = selected_reduced_mat(), 
-                                       selected_samples = selected_samples(), 
-                                       n = input$num_neighbors_multiple, 
-                                       ann = ann_multiomics_v6)
-    }
-    
-    
-    if(all(c("CL", "tumor") %in% input$df_selection_output)) {
-      
-      x <- omics_metasample_both_both(combined_mat = selected_combined_mat(), 
+      if("CL" %in% input$df_selection_output) {
+        
+        x <- omics_metasample_both_CL(combined_mat = selected_combined_mat(), 
                                       reduced_mat = selected_reduced_mat(), 
                                       selected_samples = selected_samples(), 
-                                      n = input$num_neighbors_multiple, 
+                                      n = input$num_neighbors, 
                                       ann = ann_multiomics_v6)
-    }
-    
-    output$plot <- renderUI({
-      x  
-    })
-  }) 
-  
-  observeEvent(input$get_centroid, {
-    
-    
-    if("CL" %in% input$df_selection_output) {
+      }
       
-      x_2 <- get_metasample_ann_both_CL(combined_mat = selected_combined_mat(),
-                                        reduced_mat = selected_reduced_mat(),
-                                        selected_samples = selected_samples(),
-                                        n = input$num_neighbors_multiple,
+      if("tumor" %in% input$df_selection_output) {
+        
+        x <- omics_metasample_both_tumor(combined_mat = selected_combined_mat(), 
+                                         reduced_mat = selected_reduced_mat(), 
+                                         selected_samples = selected_samples(), 
+                                         n = input$num_neighbors, 
+                                         ann = ann_multiomics_v6)
+      }
+      
+      
+      if(all(c("CL", "tumor") %in% input$df_selection_output)) {
+        
+        x <- omics_metasample_both_both(combined_mat = selected_combined_mat(), 
+                                        reduced_mat = selected_reduced_mat(), 
+                                        selected_samples = selected_samples(), 
+                                        n = input$num_neighbors, 
                                         ann = ann_multiomics_v6)
-    }
-    
-    if("tumor" %in% input$df_selection_output) {
+      }
       
-      x_2 <- get_metasample_ann_both_tumor(combined_mat = selected_combined_mat(),
-                                           reduced_mat = selected_reduced_mat(),
-                                           selected_samples = selected_samples(),
-                                           n = input$num_neighbors_multiple,
-                                           ann = ann_multiomics_v6)
+      output$plot <- renderUI({
+        x  
+      })
     }
-    
-    if(all(c("CL", "tumor") %in% input$df_selection_output)) {
-      
-      x_2 <-  get_metasample_ann_both_both(combined_mat = selected_combined_mat(),
-                                           reduced_mat = selected_reduced_mat(),
-                                           selected_samples = selected_samples(),
-                                           n = input$num_neighbors_multiple,
-                                           ann = ann_multiomics_v6)
-    }
-    
-    
-    output$dist_top_n_1 <- renderTable({
-      x_2
-    })
   })
   
   observeEvent(input$subset_btn, {
+    
+    if(length(input$both_sample) == 1) {
     
     if ("CL" %in% input$df_selection_output) {
       
@@ -392,15 +378,18 @@ server <- function(input, output, session) {
     output$piechart <- renderPlot({
       piechart
     })
-  })
-  
-  observeEvent(input$get_centroid, {
     
-    if (all(c("CL", "tumor") %in% input$df_selection_output)) {
+    } else {
+      
+      selected_samples <- reactive({
+        input$both_sample
+      })
+      
+      if (all(c("CL", "tumor") %in% input$df_selection_output)) {
       
       piechart_2 <- get_piechart_both_2(combined_mat = selected_combined_mat(),
                                         selected_samples = selected_samples(),
-                                        n = input$num_neighbors_multiple,
+                                        n = input$num_neighbors,
                                         ann = ann_multiomics_v6)
     }
     
@@ -409,7 +398,7 @@ server <- function(input, output, session) {
       
       piechart_2 <- get_piechart_CL_2(combined_mat = selected_combined_mat(),
                                       selected_samples = selected_samples(),
-                                      n = input$num_neighbors_multiple,
+                                      n = input$num_neighbors,
                                       ann = ann_multiomics_v6)
       
     }
@@ -418,14 +407,16 @@ server <- function(input, output, session) {
       
       piechart_2 <- get_piechart_tumor_2(combined_mat = selected_combined_mat(),
                                          selected_samples = selected_samples(),
-                                         n = input$num_neighbors_multiple,
+                                         n = input$num_neighbors,
                                          ann = ann_multiomics_v6)
     }
     
-    output$piechart_2 <- renderPlot({
+    output$piechart <- renderPlot({
       piechart_2
     })
-  })
+  }
+})
+
   
   selected_heatmap <- reactive({
     switch(input$omics_plot,

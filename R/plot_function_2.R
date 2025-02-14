@@ -59,7 +59,7 @@ my_plotting <- function(reduced_mat, ann) {
       size = ~size,
       sizes = c(5,9),
       hoverinfo = "text",
-      hovertext = ~paste("SampleID:", sampleID,
+      hovertext = ~paste("SampleID:", stripped_cell_line_name,
                          '\nLineage:', lineage,
                          '\nSubtype:', subtype_1,
                          '\nType:', type), 
