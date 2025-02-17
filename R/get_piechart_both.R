@@ -38,8 +38,10 @@ get_piechart_both <- function(combined_mat, input_sample, k, ann, BNindex, sampl
   
   dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, lineage_tcga, lineage_ccle)
   
+  colnames(dist_top25_3)[3] <- 'lineage'
+  
   dist_top25_4 <- dist_top25_3 %>% 
-    select(lineage_ccle, lineage_tcga) %>%
+    select(lineage_ccle, lineage) %>%
     table() %>% as.data.frame()
   
   dist_top25_4 <- dist_top25_4 %>%
@@ -49,13 +51,13 @@ get_piechart_both <- function(combined_mat, input_sample, k, ann, BNindex, sampl
   dist_top25_4 <- dist_top25_4 %>%
     dplyr::filter(Freq > 0)
   
-  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = lineage_tcga)) +
+  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = lineage)) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
     scale_fill_brewer(palette = "Spectral") + 
     theme_void() +      
     theme(axis.text.x = element_blank(),
-          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + # personalizza il titolo
+          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + 
     geom_text(aes(label = label), 
               position = position_stack(vjust = 0.5), 
               size = 5) +

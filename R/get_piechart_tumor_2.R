@@ -30,7 +30,7 @@ get_piechart_tumor_2 <- function(combined_mat, selected_samples, n, ann) {
   dist_top_n <- dist_top_n_1 %>% 
     group_by(metasample) %>%                  
     arrange(dist) %>%  
-    slice_head(n = n + length(selected_samples)) %>% 
+    slice_head(n = n) %>% 
     ungroup()
   
   got_sample <- c(unique(as.character(dist_top_n$sampleID)), unique(selected_samples))
@@ -67,7 +67,7 @@ get_piechart_tumor_2 <- function(combined_mat, selected_samples, n, ann) {
     scale_fill_brewer(palette = "Spectral") + 
     theme_void() +      
     theme(axis.text.x = element_blank(),
-          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + # personalizza il titolo
+          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + 
     geom_text(aes(label = label), 
               position = position_stack(vjust = 0.5), 
               size = 5) +

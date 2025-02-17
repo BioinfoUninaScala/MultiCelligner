@@ -47,6 +47,10 @@ find_neighbors_tumor <- function(combined_mat, reduced_mat, input_sample, k, ann
   dist_2 <- dist_1 %>% dplyr::select(sampleID, dist)
   
   data_res_3 <- data_res_2 %>% left_join(dist_2, by = 'sampleID') %>% arrange(dist)
+  data_res_3$dist <- round(data_res_3$dist, 3)
+  
+  data_res_3 <- data_res_3 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
+                                      subtype,subtype_1,type,dist,show_it,size)
   
   shared <- SharedData$new(data_res_3)
   
@@ -79,6 +83,12 @@ find_neighbors_tumor <- function(combined_mat, reduced_mat, input_sample, k, ann
       strokes = c('show' = "red"),
       size = ~size,
       sizes = c(5,9),
+      hoverinfo = "text",
+      hovertext = ~paste("SampleID:", sampleID,
+                         '\nStrppName:', stripped_cell_line_name, 
+                         '\nLineage:', lineage,
+                         '\nSubtype:', subtype_1,
+                         '\nType:', type),
       marker = list(
         line = list(
           width = 3)))
@@ -122,7 +132,7 @@ find_neighbors_tumor <- function(combined_mat, reduced_mat, input_sample, k, ann
                     UMAP_2 = colDef(show = FALSE),
                     size = colDef(show = FALSE),
                     show_it = colDef(show = FALSE),
-                    stripped_cell_line_name = colDef(show = FALSE),
+                    stripped_cell_line_name = colDef(name = 'strpp_name'),
                     sampleID = colDef(name = "sampleID"),
                     lineage = colDef(name = "lineage"),
                     subtype = colDef(name = "subtype"),

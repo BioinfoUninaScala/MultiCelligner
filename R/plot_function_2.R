@@ -26,6 +26,9 @@ my_plotting <- function(reduced_mat, ann) {
                                       width=if_else(data_res$type == 'tumor', 0.2, 1.3),
                                       opacity= if_else(data_res$type == 'tumor', 1, 1))
   
+  data_res_1 <- data_res_1 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
+                                      subtype,subtype_1,type,size,width,opacity)
+  
   shared <- SharedData$new(data_res_1)
   
   row_1 <- crosstalk::bscols(
@@ -59,7 +62,8 @@ my_plotting <- function(reduced_mat, ann) {
       size = ~size,
       sizes = c(5,9),
       hoverinfo = "text",
-      hovertext = ~paste("SampleID:", stripped_cell_line_name,
+      hovertext = ~paste("SampleID:", sampleID,
+                         '\nStrppName:', stripped_cell_line_name, 
                          '\nLineage:', lineage,
                          '\nSubtype:', subtype_1,
                          '\nType:', type), 
@@ -104,16 +108,16 @@ my_plotting <- function(reduced_mat, ann) {
               filterable = TRUE,
               elementId = "alignment-download-table",
               columns = list(
+                stripped_cell_line_name = colDef(name = 'strpp_name'), 
+                sampleID = colDef(name = "sampleID"),
+                lineage = colDef(name = "lineage"),
+                subtype = colDef(name = "subtype"),
+                type = colDef(name = "type"),
                 UMAP_1 = colDef(show = FALSE),
                 UMAP_2 = colDef(show = FALSE),
                 size = colDef(show = FALSE),
                 width = colDef(show = FALSE),
-                opacity = colDef(show = FALSE),
-                stripped_cell_line_name = colDef(show = FALSE),
-                sampleID = colDef(name = "sampleID"),
-                lineage = colDef(name = "lineage"),
-                subtype = colDef(name = "subtype"),
-                type = colDef(name = "type")),
+                opacity = colDef(show = FALSE)),
            ))))
     
     x <- htmltools::browsable(

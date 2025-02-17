@@ -32,7 +32,7 @@ omics_metasample_both_both <- function(combined_mat, reduced_mat, selected_sampl
   dist_top_n <- dist_metasmaple_1 %>% 
     group_by(metasample) %>%                  
     arrange(dist) %>%  
-    slice_head(n = n + length(selected_samples)) %>% 
+    slice_head(n = n) %>% 
     ungroup()
   
   got_sample <- c(unique(as.character(dist_top_n$sampleID)), unique(selected_samples))
@@ -51,6 +51,10 @@ omics_metasample_both_both <- function(combined_mat, reduced_mat, selected_sampl
 
   dist_metasample_2 <- dist_metasmaple_1 %>% dplyr::select(sampleID, dist)
   data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')
+  data_res_3$dist <- round(data_res_3$dist, 3)
+  
+  data_res_3 <- data_res_3 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
+                                      subtype,subtype_1,type,dist,show_it,size)
   
   shared <- SharedData$new(data_res_3)
   
@@ -83,6 +87,12 @@ omics_metasample_both_both <- function(combined_mat, reduced_mat, selected_sampl
       strokes = c('show' = "red"),
       size = ~size,
       sizes = c(5,9),
+      hoverinfo = "text",
+      hovertext = ~paste("SampleID:", sampleID,
+                         '\nStrppName:', stripped_cell_line_name, 
+                         '\nLineage:', lineage,
+                         '\nSubtype:', subtype_1,
+                         '\nType:', type),
       marker = list(
         line = list(
           width = 3)))
@@ -126,7 +136,7 @@ omics_metasample_both_both <- function(combined_mat, reduced_mat, selected_sampl
                     UMAP_2 = colDef(show = FALSE),
                     size = colDef(show = FALSE),
                     show_it = colDef(show = FALSE),
-                    stripped_cell_line_name = colDef(show = FALSE),
+                    stripped_cell_line_name = colDef(name = 'strpp_name'),
                     sampleID = colDef(name = "sampleID"),
                     lineage = colDef(name = "lineage"),
                     subtype = colDef(name = "subtype"),

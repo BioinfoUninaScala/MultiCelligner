@@ -28,7 +28,7 @@ get_piechart_both_2 <- function(combined_mat, selected_samples, n, ann) {
   dist_top_n <- dist_metasmaple_1 %>% 
     group_by(metasample) %>%                  
     arrange(dist) %>%  
-    slice_head(n = n + length(selected_samples)) %>% 
+    slice_head(n = n) %>% 
     ungroup()
   
   got_sample <- c(unique(as.character(dist_top_n$sampleID)), unique(selected_samples))

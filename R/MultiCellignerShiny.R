@@ -183,6 +183,11 @@ server <- function(input, output, session) {
   
   observeEvent(input$subset_btn, {
     
+    if (is.null(input$both_sample) || length(input$both_sample) == 0) {
+      showNotification("Please select at least one sample before proceeding.", type = "error", duration = 3)
+      return()
+    }
+    
     if(length(input$both_sample) == 1) {
     
     if ("CL" %in% input$df_selection_output) {
