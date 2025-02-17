@@ -42,7 +42,14 @@ find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, B
   
   data_res_2 <- data_res_1 %>% mutate('size' = if_else(show_it == 'show', 16, 5))
 
-  shared <- SharedData$new(data_res_2)
+  dist <- SNFtool::dist2(matrix(combined_mat[which(rownames(combined_mat) %in% input_sample), ], nrow = 1), combined_mat)
+  dist_1 <- reshape::melt(dist) 
+  colnames(dist_1)[c(2,3)] <- c('sampleID','dist')
+  dist_2 <- dist_1 %>% dplyr::select(sampleID, dist)
+  
+  data_res_3 <- data_res_2 %>% left_join(dist_2, by = 'sampleID') %>% arrange(dist)
+  
+  shared <- SharedData$new(data_res_3)
   
   row_1 <- crosstalk::bscols(
     widths = c(2, 10), 
@@ -92,7 +99,7 @@ find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, B
     htmltools::browsable(
       tagList(
         tags$button(
-          tagList(fontawesome::fa("download"), "Download"),
+          tagList(fontawesome::fa("download"), "Download_neighbors"),
           onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"),
         
         reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
@@ -116,10 +123,12 @@ find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, B
                     UMAP_2 = colDef(show = FALSE),
                     size = colDef(show = FALSE),
                     show_it = colDef(show = FALSE),
+                    stripped_cell_line_name = colDef(show = FALSE),
                     sampleID = colDef(name = "sampleID"),
                     lineage = colDef(name = "lineage"),
                     subtype = colDef(name = "subtype"),
-                    type = colDef(name = "type")),))))
+                    type = colDef(name = "type"),
+                    dist = colDef(name = "dist")),))))
   
   x <- htmltools::browsable(
     htmltools::tagList(row_1, row_2))

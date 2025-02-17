@@ -48,9 +48,11 @@ omics_metasample_both_both <- function(combined_mat, reduced_mat, selected_sampl
   data_res_1 <- data_res %>% mutate('show_it' = ifelse(data_res$sampleID %in% got_sample, 'show', 'not'))
   
   data_res_2 <- data_res_1 %>% mutate('size' = if_else(show_it == 'show', 16, 5))
-  #data_res_2 <- data_res_2 %>% mutate('show_it_CL' = if_else(which(data_res_2$sampleID == input$both_sample,),
+
+  dist_metasample_2 <- dist_metasmaple_1 %>% dplyr::select(sampleID, dist)
+  data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')
   
-  shared <- SharedData$new(data_res_2)
+  shared <- SharedData$new(data_res_3)
   
   row_1 <- crosstalk::bscols(
     widths = c(2, 10), 
@@ -100,7 +102,7 @@ omics_metasample_both_both <- function(combined_mat, reduced_mat, selected_sampl
     htmltools::browsable(
       tagList(
         tags$button(
-          tagList(fontawesome::fa("download"), "Download"),
+          tagList(fontawesome::fa("download"), "Download_neighbors"),
           onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"),
         
         reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
@@ -124,12 +126,16 @@ omics_metasample_both_both <- function(combined_mat, reduced_mat, selected_sampl
                     UMAP_2 = colDef(show = FALSE),
                     size = colDef(show = FALSE),
                     show_it = colDef(show = FALSE),
+                    stripped_cell_line_name = colDef(show = FALSE),
                     sampleID = colDef(name = "sampleID"),
                     lineage = colDef(name = "lineage"),
                     subtype = colDef(name = "subtype"),
-                    type = colDef(name = "type")),))))
+                    type = colDef(name = "type"),
+                    dist = colDef(name = "dist")),))))
   
   x <- htmltools::browsable(
     htmltools::tagList(row_1, row_2))
+  
+  return(x)
+  
 }
-

@@ -109,6 +109,7 @@ my_plotting <- function(reduced_mat, ann) {
                 size = colDef(show = FALSE),
                 width = colDef(show = FALSE),
                 opacity = colDef(show = FALSE),
+                stripped_cell_line_name = colDef(show = FALSE),
                 sampleID = colDef(name = "sampleID"),
                 lineage = colDef(name = "lineage"),
                 subtype = colDef(name = "subtype"),

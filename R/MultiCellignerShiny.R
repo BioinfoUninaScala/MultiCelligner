@@ -17,62 +17,63 @@ ui <- fluidPage(
   
   titlePanel("MultiCelligner"),
   
-  sidebarLayout( 
+  sidebarLayout(
     sidebarPanel(
-      fluidRow(
-        column(9,
-               selectInput("omics_plot", "Select the omics plot:",
-                           choices = c("Expression", 
-                                       "Methylation",
-                                       "Mutational_process",
-                                       "MoNETA_multiomics_tSNE",
-                                       "MoNETA_multiomics_UMAP",
-                                       "MOFA_multiomics_tSNE",
-                                       "MOFA_multiomics_UMAP",
-                                       "SNF_multiomics_UMAP"))),
-        column(3,
-               actionButton("get_plot", "show"))),
-      
-      hr(),
-      
-      fluidRow(
-        column(6,
-               checkboxGroupInput(
-                 "df_selection_input", 
-                 "query sample type:", 
-                 choices = c("CL", "tumor"), 
-                 selected = 'CL')),
-        column(6,
-               checkboxGroupInput(
-                 "df_selection_output", 
-                 "neighbors type:", 
-                 choices = c("CL", "tumor"), 
-                 selected = 'tumor'))),
-      hr(), 
-      
-      fluidRow(
-        column(6, 
-               selectizeInput("both_sample", 
-                              "get neighbors: select the sample/s", 
-                              choices = NULL, 
-                              multiple = TRUE)),
-        column(3, 
-               numericInput("num_neighbors", 
-                            "number of neighbors:", 
-                            value = 25, min = 1)),
-        column(3, 
-               actionButton("subset_btn", "show"))),
-      
-      div(style = "max-height: 500px; overflow-y: scroll; overflow-x: hidden;",
-          tableOutput("top_k_tumors")),
-      hr(),
-      plotOutput("piechart")),
+      tabsetPanel(
+        type = "pills",
+        
+        tabPanel("neighbors", 
+                 
+                 hr(),
+                 
+                 fluidRow(
+                   column(9,
+                          selectInput("omics_plot", "Select the omics plot:",
+                                      choices = c("Expression", 
+                                                  "Methylation",
+                                                  "Mutational_process",
+                                                  "MoNETA_multiomics_tSNE",
+                                                  "MoNETA_multiomics_UMAP",
+                                                  "MOFA_multiomics_tSNE",
+                                                  "MOFA_multiomics_UMAP",
+                                                  "SNF_multiomics_UMAP"))),
+                   column(3,
+                          actionButton("get_plot", "show"))
+                 ),
+                 
+                 hr(),
+                 
+                 fluidRow(
+                   column(6,
+                          checkboxGroupInput("df_selection_input", "query sample type:", 
+                                             choices = c("CL", "tumor"), selected = 'CL')),
+                   column(6,
+                          checkboxGroupInput("df_selection_output", "neighbors type:", 
+                                             choices = c("CL", "tumor"), selected = 'tumor'))
+                 ),
+                 
+                 hr(), 
+                 
+                 fluidRow(
+                   column(6, 
+                          selectizeInput("both_sample", "get neighbors: select the sample/s", 
+                                         choices = NULL, multiple = TRUE)),
+                   column(3, 
+                          numericInput("num_neighbors", "number of neighbors:", 
+                                       value = 25, min = 1)),
+                   column(3, 
+                          actionButton("subset_btn", "show"))
+                 ),
+                 
+                 plotOutput("piechart")),
+        
+        tabPanel("heatmap", 
+                 h3("Quality score of the aligment:", style = "font-size: 14px; text-align: center;"),
+                 hr(),
+                 plotOutput("heatmap", height = "400px", width = "430px")))),
     
     mainPanel(
-      
-      uiOutput("plot"),
-      plotOutput("heatmap", height = "600px", width = "800px") 
-    )))
+      uiOutput("plot"))))
 
 server <- function(input, output, session) {
   
@@ -174,91 +175,10 @@ server <- function(input, output, session) {
     }
     
     updateSelectizeInput(session, "both_sample", choices = choices)
-    #updateSelectizeInput(session, "multiple_samples", choices = choices)
   })
   
   selected_samples <- reactive({
     input$both_sample
-  })
-  
-  observeEvent(input$subset_btn, {
-    
-    if(length(input$both_sample) == 1) {
-    
-    if ("CL" %in% input$df_selection_output) {
-      top_k_tumors <- get_neighbors_table_CL(combined_mat = selected_combined_mat(),
-                                             input_sample = input$both_sample,
-                                             k = input$num_neighbors,
-                                             ann = ann_multiomics_v6,
-                                             BNindex = selected_BNindex(),
-                                             sample_order = selected_sample_order())
-    }
-    
-    if ("tumor" %in% input$df_selection_output) {
-      
-      top_k_tumors <- get_neighbors_table_tumor(combined_mat = selected_combined_mat(),
-                                                input_sample = input$both_sample,
-                                                k = input$num_neighbors,
-                                                ann = ann_multiomics_v6,
-                                                BNindex = selected_BNindex(),
-                                                sample_order = selected_sample_order())
-      
-    }
-    
-    
-    if(all(c("CL", "tumor") %in% input$df_selection_output)) {
-      
-      top_k_tumors <- get_neighbors_table_both(combined_mat = selected_combined_mat(),
-                                               input_sample = input$both_sample,
-                                               k = input$num_neighbors,
-                                               ann = ann_multiomics_v6,
-                                               BNindex = selected_BNindex(),
-                                               sample_order = selected_sample_order())
-    }
-    
-    
-    output$top_k_tumors <- renderTable({
-      top_k_tumors
-    })
-    
-    } else {
-      
-      selected_samples <- reactive({
-        input$multiple_samples
-      })
-      
-      if("CL" %in% input$df_selection_output) {
-        
-        x_2 <- get_metasample_ann_both_CL(combined_mat = selected_combined_mat(),
-                                          reduced_mat = selected_reduced_mat(),
-                                          selected_samples = selected_samples(),
-                                          n = input$num_neighbors,
-                                          ann = ann_multiomics_v6)
-      }
-      
-      if("tumor" %in% input$df_selection_output) {
-        
-        x_2 <- get_metasample_ann_both_tumor(combined_mat = selected_combined_mat(),
-                                             reduced_mat = selected_reduced_mat(),
-                                             selected_samples = selected_samples(),
-                                             n = input$num_neighbors,
-                                             ann = ann_multiomics_v6)
-      }
-      
-      if(all(c("CL", "tumor") %in% input$df_selection_output)) {
-        
-        x_2 <-  get_metasample_ann_both_both(combined_mat = selected_combined_mat(),
-                                             reduced_mat = selected_reduced_mat(),
-                                             selected_samples = selected_samples(),
-                                             n = input$num_neighbors,
-                                             ann = ann_multiomics_v6)
-      }
-      
-      
-      output$top_k_tumors <- renderTable({
-        x_2
-      })
-    }
   })
   
   observeEvent(input$subset_btn, {
