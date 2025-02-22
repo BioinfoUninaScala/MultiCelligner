@@ -25,26 +25,23 @@ get_piechart_CL <- function(combined_mat, input_sample, k, ann, BNindex, sample_
   sample_neighbors_1 <- sample_neighbors[grepl('ACH-00', sample_neighbors)]
   sample_neighbors_2 <- sample_neighbors_1[1:k]
   
-  ### devi fare un controllo qui se sono ordinati in base alla distanza:
-  # se non lo sono, devi fare un left_join e poi arrange!!!!
-  
   top_k_tumors_1 <- as.character(sample_neighbors_2)
   
   dist_df <- as.data.frame(top_k_tumors_1)
   colnames(dist_df)[1] <- 'sampleID'
   
   dist_top25_1 <- left_join(dist_df, ann[,c(1,2)], by = 'sampleID')
-  colnames(dist_top25_1)[c(1,2)] <- c('sample_1','lineage_ccle')
+  colnames(dist_top25_1)[c(1,2)] <- c('sample_1','Lineage_CCLE')
   
   dist_top25_2 <- dist_top25_1 %>% mutate('sampleID' = rep(input_sample, length(dist_top25_1$sample_1))) %>% 
     left_join(., ann[,c(1,2)], by = 'sampleID')
   
   colnames(dist_top25_2)[c(3,4)] <- c('sample_2','lineage_tcga')
   
-  dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, lineage_ccle, lineage_tcga)
+  dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Lineage_CCLE, lineage_tcga)
   
   dist_top25_4 <- dist_top25_3 %>% 
-    select(lineage_tcga, lineage_ccle) %>%
+    select(lineage_tcga, Lineage_CCLE) %>%
     table() %>% as.data.frame()
   
   dist_top25_4 <- dist_top25_4 %>%
@@ -54,18 +51,17 @@ get_piechart_CL <- function(combined_mat, input_sample, k, ann, BNindex, sample_
   dist_top25_4 <- dist_top25_4 %>%
     dplyr::filter(Freq > 0)
   
-  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = lineage_ccle)) +
+  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = Lineage_CCLE)) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
     scale_fill_brewer(palette = "Spectral") + 
     theme_void() +      
     theme(axis.text.x = element_blank(),
-          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + # personalizza il titolo
+          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + 
     geom_text(aes(label = label), 
               position = position_stack(vjust = 0.5), 
-              size = 5) +
-    labs(title = paste("Distribution of Lineage CCLE for", 
-                       unique(rownames(query)[1])))
+              size = 3) +
+    labs(title = "Neighbors lineage distribution")
   
   return(y)
   

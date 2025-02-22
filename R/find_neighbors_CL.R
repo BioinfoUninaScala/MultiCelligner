@@ -15,10 +15,11 @@
 #' @param ann annotation file of tumors and cell lines 
 #' @param BNindex a BiocNeighborIndex object containing precomputed index information
 #' @param sample_order index of the original combined matrix
+#' @param omics_name name of the shiny selected omics
 #' @return an interactive plot that highlighting the CL k nearest neighbors found by queryKNN
 #' @export
 
-find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, BNindex, sample_order) {
+find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, BNindex, sample_order, omics_name) {
   
   query <- matrix(combined_mat[input_sample, ], nrow = 1)
   rownames(query)[1] <- rownames(combined_mat)[which(rownames(combined_mat) %in% input_sample)]
@@ -53,97 +54,226 @@ find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, B
   data_res_3 <- data_res_3 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
                                       subtype,subtype_1,type,dist,show_it,size)
   
-  shared <- SharedData$new(data_res_3)
+  shared <- SharedData$new(data_res_1, key = ~sampleID)
   
-  row_1 <- crosstalk::bscols(
-    widths = c(2, 10), 
-    list(
-      crosstalk::filter_checkbox("Type", 
-                                 label = "type",
-                                 sharedData = shared, 
-                                 group = ~type),
-      crosstalk::filter_checkbox("Lineage", 
-                                 label = "lineage",
-                                 sharedData = shared, 
-                                 group = ~lineage),
-      crosstalk::filter_select("subtype",
-                               label = "subtype",
-                               sharedData = shared, 
-                               group = ~subtype)), 
+  if(omics_name %in% c('MoNETA multiomics ', 'MOFA multiomics ')) {
     
-    plot_ly(
-      data = shared,
-      x = ~UMAP_1,
-      y = ~UMAP_2,
-      type = 'scatter',
-      mode = 'markers',
-      color = ~lineage,  
-      symbol = ~type, 
-      symbols = c('circle',"x"),
-      stroke = ~show_it,
-      strokes = c('show' = "red"),
-      size = ~size,
-      sizes = c(5,9),
-      hoverinfo = "text",
-      hovertext = ~paste("SampleID:", sampleID,
-                         '\nStrppName:', stripped_cell_line_name, 
-                         '\nLineage:', lineage,
-                         '\nSubtype:', subtype_1,
-                         '\nType:', type),
-      marker = list(
-        line = list(
-          width = 3)))
-    %>%
-      layout(
-        xaxis = list(title = "UMAP 1", zeroline  = F),
-        yaxis = list(title = "UMAP 2", zeroline = F),
-        legend = list(
-          title = list(text = 'Lineage'),
-          traceorder = 'normal'),
-        height = 600))
-  
-  
-  row_2 <- crosstalk::bscols(
-    widths = c(10,2),
+    row_1 <- crosstalk::bscols(
+      widths = c(2, 10), 
+      list(
+        crosstalk::filter_checkbox("Type", 
+                                   label = "Select Type",
+                                   sharedData = shared, 
+                                   group = ~type),
+        crosstalk::filter_checkbox("Lineage", 
+                                   label = "Select Lineage",
+                                   sharedData = shared, 
+                                   group = ~lineage),
+        crosstalk::filter_select("subtype",
+                                 label = "Select Subtype",
+                                 sharedData = shared, 
+                                 group = ~subtype)), 
+      
+      plot_ly(
+        data = shared,
+        x = ~UMAP_1,
+        y = ~UMAP_2,
+        type = 'scatter',
+        mode = 'markers',
+        color = ~lineage,  
+        symbol = ~type, 
+        symbols = c('circle',"x"),
+        stroke = ~show_it,
+        strokes = c('show' = "red"),
+        size = ~size,
+        sizes = c(5,9),
+        hoverinfo = "text",
+        hovertext = ~paste("ID:", sampleID,
+                           '\nName:', stripped_cell_line_name, 
+                           '\nLineage:', lineage,
+                           '\nSubtype:', subtype_1,
+                           '\nType:', type),
+        marker = list(
+          line = list(
+            width = 3)))
+      %>%
+        layout(
+          title = list(
+            text = paste('tSNE projection of', omics_name, 'alignment'), 
+            font = list(size = 21, family = "Candara", color = "black", weight = "bold"), 
+            x = 0.3,          
+            xanchor = "center",  
+            yanchor = "top"
+          ),
+          xaxis = list(title = "UMAP 1", zeroline  = F),
+          yaxis = list(title = "UMAP 2", zeroline = F),
+          legend = list(
+            title = list(text = 'Select lineage-type pair'),
+            traceorder = 'normal'),
+          height = 600) %>% 
+        event_register("plotly_selected") %>% 
+        highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
+      )
     
-    htmltools::browsable(
-      tagList(
-        tags$button(
-          tagList(fontawesome::fa("download"), "Download_neighbors"),
-          onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"),
-        
-        reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
-                  showPageSizeOptions = TRUE,
-                  pageSizeOptions = c(10, 20, 30),
-                  defaultPageSize = 10,
-                  resizable = TRUE, highlight = TRUE, 
-                  selection = "multiple",
-                  onClick = "select",
-                  theme = reactableTheme(
-                    headerStyle = list(
-                      "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
-                      "&[aria-sort='ascending'], &[aria-sort='descending']" = list(background = "hsl(0, 0%, 96%)"),
-                      borderColor = "#555")),
-                  bordered = TRUE,
-                  striped = TRUE,
-                  filterable = TRUE,
-                  elementId = "alignment-download-table",
-                  columns = list(
-                    UMAP_1 = colDef(show = FALSE),
-                    UMAP_2 = colDef(show = FALSE),
-                    size = colDef(show = FALSE),
-                    show_it = colDef(show = FALSE),
-                    stripped_cell_line_name = colDef(show = FALSE),
-                    sampleID = colDef(name = "sampleID"),
-                    lineage = colDef(name = "lineage"),
-                    subtype = colDef(name = "subtype"),
-                    type = colDef(name = "type"),
-                    dist = colDef(name = "dist")),))))
-  
-  x <- htmltools::browsable(
-    htmltools::tagList(row_1, row_2))
+    
+    row_2 <- crosstalk::bscols(
+      widths = c(10,2),
+      
+      htmltools::browsable(
+        tagList(
+          tags$button(
+            tagList(fontawesome::fa("download"), "Download neighbors list"),
+            onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"),
+          
+          reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
+                    showPageSizeOptions = TRUE,
+                    pageSizeOptions = c(25,30,40,50),
+                    defaultPageSize = 25,
+                    resizable = TRUE, highlight = TRUE, 
+                    selection = "multiple",
+                    onClick = "select",
+                    theme = reactableTheme(
+                      headerStyle = list(
+                        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
+                        "&[aria-sort='ascending'], &[aria-sort='descending']" = list(background = "hsl(0, 0%, 96%)"),
+                        borderColor = "#555")),
+                    bordered = TRUE,
+                    striped = TRUE,
+                    filterable = TRUE,
+                    elementId = "alignment-download-table",
+                    columns = list(
+                      stripped_cell_line_name = colDef(name = 'Name'), 
+                      sampleID = colDef(name = "ID"),
+                      type = colDef(name = "Type"),
+                      lineage = colDef(name = "Lineage"),
+                      subtype = colDef(name = "Subtype"),
+                      subtype_1 = colDef(name = 'Subtype code'),
+                      dist = colDef(name = "Distance"),
+                      UMAP_1 = colDef(show = FALSE),
+                      UMAP_2 = colDef(show = FALSE),
+                      size = colDef(show = FALSE),
+                      show_it = colDef(show = FALSE)),
+                    
+                    style = list(
+                      height = "400px",  
+                      overflowY = "auto",
+                      overflowX = "hidden"
+                    )
+          ))))
+    
+    x <- htmltools::browsable(
+      htmltools::tagList(row_1, row_2))
+    
+  } else {
+    
+    row_1 <- crosstalk::bscols(
+      widths = c(2, 10), 
+      list(
+        crosstalk::filter_checkbox("Type", 
+                                   label = "Select Type",
+                                   sharedData = shared, 
+                                   group = ~type),
+        crosstalk::filter_checkbox("Lineage", 
+                                   label = "Select Lineage",
+                                   sharedData = shared, 
+                                   group = ~lineage),
+        crosstalk::filter_select("subtype",
+                                 label = "Select Subtype",
+                                 sharedData = shared, 
+                                 group = ~subtype)), 
+      
+      plot_ly(
+        data = shared,
+        x = ~UMAP_1,
+        y = ~UMAP_2,
+        type = 'scatter',
+        mode = 'markers',
+        color = ~lineage,  
+        symbol = ~type, 
+        symbols = c('circle',"x"),
+        stroke = ~show_it,
+        strokes = c('show' = "red"),
+        size = ~size,
+        sizes = c(5,9),
+        hoverinfo = "text",
+        hovertext = ~paste("ID:", sampleID,
+                           '\nName:', stripped_cell_line_name, 
+                           '\nLineage:', lineage,
+                           '\nSubtype:', subtype_1,
+                           '\nType:', type),
+        marker = list(
+          line = list(
+            width = 3)))
+      %>%
+        layout(
+          title = list(
+            text = paste('UMAP projection of', omics_name, 'alignment'), 
+            font = list(size = 21, family = "Candara", color = "black", weight = "bold"), 
+            x = 0.3,          
+            xanchor = "center",  
+            yanchor = "top"
+          ),
+          xaxis = list(title = "UMAP 1", zeroline  = F),
+          yaxis = list(title = "UMAP 2", zeroline = F),
+          legend = list(
+            title = list(text = 'Select lineage-type pair'),
+            traceorder = 'normal'),
+          height = 600) %>% 
+        event_register("plotly_selected") %>% 
+        highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
+      )
+    
+    
+    row_2 <- crosstalk::bscols(
+      widths = c(10,2),
+      
+      htmltools::browsable(
+        tagList(
+          tags$button(
+            tagList(fontawesome::fa("download"), "Download neighbors list"),
+            onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"),
+          
+          reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
+                    showPageSizeOptions = TRUE,
+                    pageSizeOptions = c(25,30,40,50),
+                    defaultPageSize = 25,
+                    resizable = TRUE, highlight = TRUE, 
+                    selection = "multiple",
+                    onClick = "select",
+                    theme = reactableTheme(
+                      headerStyle = list(
+                        "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
+                        "&[aria-sort='ascending'], &[aria-sort='descending']" = list(background = "hsl(0, 0%, 96%)"),
+                        borderColor = "#555")),
+                    bordered = TRUE,
+                    striped = TRUE,
+                    filterable = TRUE,
+                    elementId = "alignment-download-table",
+                    columns = list(
+                      stripped_cell_line_name = colDef(name = 'Name'), 
+                      sampleID = colDef(name = "ID"),
+                      type = colDef(name = "Type"),
+                      lineage = colDef(name = "Lineage"),
+                      subtype = colDef(name = "Subtype"),
+                      subtype_1 = colDef(name = 'Subtype code'),
+                      dist = colDef(name = "Distance"),
+                      UMAP_1 = colDef(show = FALSE),
+                      UMAP_2 = colDef(show = FALSE),
+                      size = colDef(show = FALSE),
+                      show_it = colDef(show = FALSE)),
+                    
+                    style = list(
+                      height = "400px",  
+                      overflowY = "auto",
+                      overflowX = "hidden"
+                    )
+          ))))
+    
+    x <- htmltools::browsable(
+      htmltools::tagList(row_1, row_2))
+    
+  }
   
   return(x)
   
 }
-

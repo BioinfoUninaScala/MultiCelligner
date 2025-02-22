@@ -40,18 +40,17 @@ get_piechart_tumor_2 <- function(combined_mat, selected_samples, n, ann) {
   colnames(dist_df)[1] <- 'sampleID'
   
   dist_top25_1 <- left_join(dist_df, ann[,c(1,2)], by = 'sampleID')
-  colnames(dist_top25_1)[c(1,2)] <- c('sample_1','lineage_tcga')
+  colnames(dist_top25_1)[c(1,2)] <- c('sample_1','Lineage_TCGA')
   
   dist_top25_2 <- dist_top25_1 %>% mutate('sampleID' = rep(selected_samples[1], length(dist_top25_1$sample_1))) %>% 
-    left_join(., ann[,c(1,2)], by = 'sampleID') #### dato che prendi solo il primo sample dei selected_samples devi
-  ##### scrivere che si possono prendere solo campioni di uno stesso lineage!!!
+    left_join(., ann[,c(1,2)], by = 'sampleID')
   
   colnames(dist_top25_2)[c(3,4)] <- c('sample_2','lineage_ccle')
   
-  dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, lineage_tcga, lineage_ccle)
+  dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Lineage_TCGA, lineage_ccle)
   
   dist_top25_4 <- dist_top25_3 %>% 
-    select(lineage_tcga, lineage_ccle) %>%
+    select(Lineage_TCGA, lineage_ccle) %>%
     table() %>% as.data.frame()
   
   dist_top25_4 <- dist_top25_4 %>%
@@ -61,17 +60,17 @@ get_piechart_tumor_2 <- function(combined_mat, selected_samples, n, ann) {
   dist_top25_4 <- dist_top25_4 %>%
     filter(Freq > 0)
   
-  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = lineage_tcga)) +
+  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = Lineage_TCGA)) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
     scale_fill_brewer(palette = "Spectral") + 
     theme_void() +      
     theme(axis.text.x = element_blank(),
-          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + 
+          plot.title = element_text(size = 12, face = "bold", hjust =  0.5)) + 
     geom_text(aes(label = label), 
               position = position_stack(vjust = 0.5), 
-              size = 5) +
-    labs(title = paste("Distribution of Lineage TCGA for metasample"))
+              size = 3) +
+    labs(title = "Neighbors lineage distribution")
   
   return(y)
   

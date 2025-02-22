@@ -38,10 +38,10 @@ get_piechart_both <- function(combined_mat, input_sample, k, ann, BNindex, sampl
   
   dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, lineage_tcga, lineage_ccle)
   
-  colnames(dist_top25_3)[3] <- 'lineage'
+  colnames(dist_top25_3)[3] <- 'Lineage'
   
   dist_top25_4 <- dist_top25_3 %>% 
-    select(lineage_ccle, lineage) %>%
+    select(lineage_ccle, Lineage) %>%
     table() %>% as.data.frame()
   
   dist_top25_4 <- dist_top25_4 %>%
@@ -51,7 +51,7 @@ get_piechart_both <- function(combined_mat, input_sample, k, ann, BNindex, sampl
   dist_top25_4 <- dist_top25_4 %>%
     dplyr::filter(Freq > 0)
   
-  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = lineage)) +
+  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = Lineage)) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
     scale_fill_brewer(palette = "Spectral") + 
@@ -60,9 +60,8 @@ get_piechart_both <- function(combined_mat, input_sample, k, ann, BNindex, sampl
           plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + 
     geom_text(aes(label = label), 
               position = position_stack(vjust = 0.5), 
-              size = 5) +
-    labs(title = paste("Distribution of Lineage TCGA&CCLE for", 
-                       unique(rownames(query)[1])))
+              size = 3) +
+    labs(title = "Neighbors lineage distribution")
   
   return(y)
   

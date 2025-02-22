@@ -55,22 +55,22 @@ get_piechart_both_2 <- function(combined_mat, selected_samples, n, ann) {
     mutate(percentage = Freq / sum(Freq) * 100,
            label = paste0(round(percentage, 1), "%"))
   
-  colnames(dist_top25_4)[1] <- 'lineage'
+  colnames(dist_top25_4)[1] <- 'Lineage'
   
   dist_top25_4 <- dist_top25_4 %>%
     filter(Freq > 0)
   
-  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = lineage)) +
+  y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = Lineage)) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
     scale_fill_brewer(palette = "Spectral") + 
     theme_void() +      
     theme(axis.text.x = element_blank(),
-          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + # personalizza il titolo
+          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) + 
     geom_text(aes(label = label), 
               position = position_stack(vjust = 0.5), 
-              size = 5) +
-    labs(title = paste("Distribution of Lineage TCGA&CCLE for metasample"))
+              size = 3) +
+    labs(title = "Neighbors lineage distribution")
   
   return(y)
   

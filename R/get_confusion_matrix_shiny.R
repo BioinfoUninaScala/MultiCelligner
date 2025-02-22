@@ -17,8 +17,8 @@ get_confusion_matrix_shiny <- function(mat_m3) {
     theme_dark() +
     scale_fill_gradient(low = "white", high = "red") + 
     labs(x = "CCLE", y = "TCGA", title = "prop_agree_dist") + 
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + #ruota i nomi sull'asse x
-    guides(fill = guide_colourbar(barwidth = 0.5,barheight = 20)) 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) + 
+    guides(fill = guide_colourbar(barwidth = 0.5,barheight = 8)) 
   
   return(ccle_heatmap_m3_dist)
   
