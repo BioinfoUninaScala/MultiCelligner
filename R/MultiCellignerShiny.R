@@ -40,6 +40,7 @@ ui <- fluidPage(
       
       hr(),
       
+      
       fluidRow(
         column(12,
                checkboxGroupInput("df_selection_input",
@@ -50,10 +51,46 @@ ui <- fluidPage(
       
       hr(), 
       
+      
       selectizeInput("both_sample", 
                      "Select one or more reference tumor/cell line", 
                      choices = NULL, 
-                     multiple = TRUE),
+                     multiple = TRUE,
+                     options = list(closeOnSelect = FALSE, openOnFocus = TRUE)),
+      
+      hr(),
+      
+      fluidRow(
+        column(10,
+               style = "display: flex; align-items: center; height: 100%;",
+               actionButton("load_selection", "Load from selection")
+        ),
+        column(2,
+               tags$button(id = "tooltip_btn", 
+                           type = "button", 
+                           class = "btn btn-info btn-sm",
+                           "?", 
+                           style = "margin-top: 5px;
+                              margin-left: -125px; 
+                              border-radius: 70%; 
+                              font-size: 9px; 
+                              width: 18px; 
+                              height: 18px; 
+                              padding: 1px 4px; 
+                              color: black;
+                              line-height: 1;"),
+               tags$script(HTML('
+           $(document).ready(function(){
+             $("#tooltip_btn").tooltip({
+               title: "Possibility to drop in the samples directly from the plot using Lasso Select",
+               placement: "right",
+               trigger: "hover",
+               html: true
+             });
+           });
+         '))
+        )
+      ),
       
       hr(),
       
@@ -337,7 +374,7 @@ server <- function(input, output, session) {
         input$both_sample
       })
       
-      if("CL" %in% input$df_selection_output) {
+      if("Cell lines" %in% input$df_selection_output) {
         
         x <- omics_metasample_both_CL(combined_mat = selected_combined_mat(), 
                                       reduced_mat = selected_reduced_mat(), 
@@ -484,4 +521,28 @@ server <- function(input, output, session) {
     session$sendCustomMessage("open_heatmap", "heatmap.png")
   })
   
+  filtered_data <- reactiveVal()
+  
+  observeEvent(event_data("plotly_selected"), {
+    selected_data <- event_data("plotly_selected")
+    
+    if (!is.null(selected_data)) {
+      selected_samples <- selected_data$key
+      filtered_data(ann_multiomics_v6 %>%
+                      filter(sampleID %in% selected_samples))
+    }
+  })
+  
+  lasso_selected_samples <- reactive({
+    req(filtered_data()) 
+    filtered_data()$sampleID
+  })
+  
+  observeEvent(input$load_selection, {
+    updateSelectizeInput(session, "both_sample",
+                         choices = lasso_selected_samples(),
+                         selected = lasso_selected_samples())
+  })
+  
 }
+

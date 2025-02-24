@@ -23,7 +23,7 @@ find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, B
   
   query <- matrix(combined_mat[input_sample, ], nrow = 1)
   rownames(query)[1] <- rownames(combined_mat)[which(rownames(combined_mat) %in% input_sample)]
-  out <- queryKNN(BNINDEX = BNindex,query = query, k = k + 100)
+  out <- queryKNN(BNINDEX = BNindex,query = query, k = k + 1000)
   
   combined_mat_1 <- combined_mat[sample_order,]
   sample_neighbors <- rownames(combined_mat_1[out$index,])

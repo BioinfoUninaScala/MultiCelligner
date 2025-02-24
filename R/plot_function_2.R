@@ -89,7 +89,7 @@ my_plotting <- function(reduced_mat, ann, omics_name) {
           title = list(text = 'Select lineage-type pair'),
           traceorder = 'normal'),
           height = 600) %>%
-      event_register("plotly_selected") %>% 
+      event_register(event = "plotly_selected") %>% 
       highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
     )
 
