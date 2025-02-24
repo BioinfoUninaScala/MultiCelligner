@@ -54,7 +54,7 @@ find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, B
   data_res_3 <- data_res_3 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
                                       subtype,subtype_1,type,dist,show_it,size)
   
-  shared <- SharedData$new(data_res_1, key = ~sampleID)
+  shared <- SharedData$new(data_res_3, key = ~sampleID)
   
   if(omics_name %in% c('MoNETA multiomics ', 'MOFA multiomics ')) {
     
@@ -78,6 +78,7 @@ find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, B
         data = shared,
         x = ~UMAP_1,
         y = ~UMAP_2,
+        key = ~sampleID,
         type = 'scatter',
         mode = 'markers',
         color = ~lineage,  
@@ -186,6 +187,7 @@ find_neighbors_CL <- function(combined_mat, reduced_mat, input_sample, k, ann, B
         data = shared,
         x = ~UMAP_1,
         y = ~UMAP_2,
+        key = ~sampleID,
         type = 'scatter',
         mode = 'markers',
         color = ~lineage,  

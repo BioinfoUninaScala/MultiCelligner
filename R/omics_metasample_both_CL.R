@@ -59,7 +59,7 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
   data_res_3 <- data_res_3 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
                                       subtype,subtype_1,type,dist,show_it,size)
   
-  shared <- SharedData$new(data_res_1, key = ~sampleID)
+  shared <- SharedData$new(data_res_3, key = ~sampleID)
   
   if(omics_name %in% c('MoNETA multiomics ', 'MOFA multiomics ')) {
     
@@ -83,6 +83,7 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
         data = shared,
         x = ~UMAP_1,
         y = ~UMAP_2,
+        key = ~sampleID,
         type = 'scatter',
         mode = 'markers',
         color = ~lineage,  
@@ -191,6 +192,7 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
         data = shared,
         x = ~UMAP_1,
         y = ~UMAP_2,
+        key = ~sampleID,
         type = 'scatter',
         mode = 'markers',
         color = ~lineage,  
@@ -223,7 +225,10 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
           legend = list(
             title = list(text = 'Select lineage-type pair'),
             traceorder = 'normal'),
-          height = 600))
+          height = 600) %>%
+        event_register("plotly_selected") %>% 
+        highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
+      )
     
     
     row_2 <- crosstalk::bscols(

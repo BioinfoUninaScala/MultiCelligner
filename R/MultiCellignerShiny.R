@@ -110,7 +110,34 @@ ui <- fluidPage(
         tabPanel("Agreement matrix", 
                  #h3("Quality score of the aligment:", style = "font-size: 14px; text-align: center;"),
                  #hr(),
-                 plotOutput("heatmap", height = "280px", width = "310px")
+                 plotOutput("heatmap", dblclick = 'heatmap_click' ,height = "280px", width = "310px"),
+                 tags$script(HTML("
+    Shiny.addCustomMessageHandler('open_heatmap', function(url) {
+      window.open(url, '_blank');
+    });
+  ")),
+                 
+                 # CSS x tooltip
+                 tags$style(HTML('
+  /* Personalizzazione del tooltip */
+  .tooltip-inner {
+    font-size: 13px;       /* Dimensione del testo */
+    padding: 10px 20px;    /* Spazio interno */
+    max-width: none;       /* Disabilita il limite di larghezza predefinito */
+    width: 280px;          /* Imposta una larghezza fissa, puoi regolare questo valore */
+  }
+')),
+                 
+                 tags$script(HTML('
+    $(document).ready(function(){
+      // Tooltip per la heatmap
+      $("#heatmap").tooltip({
+        title: "Agreement matrix based on % of CL and tumor samples correctly aligned<br><br>Double click to open up in a new window", 
+        placement: "right",
+        html: true
+      });
+    });
+  ')),
         ),
         
         hr(),
@@ -243,7 +270,7 @@ server <- function(input, output, session) {
       choices <- c(choices, setNames(as.list(all_values), all_names))
     }
     
-    updateSelectizeInput(session, "both_sample", choices = choices)
+    updateSelectizeInput(session, "both_sample", choices = choices, selected = input$both_sample)
   })
   
   selected_samples <- reactive({
@@ -442,5 +469,19 @@ server <- function(input, output, session) {
     heatmap_plot
   })
   
+  observeEvent(input$heatmap_click, {
+    req(selected_heatmap())
+    file_path <- file.path(tempdir(), "heatmap.png")
+    
+    if (!dir.exists("www")) {
+      dir.create("www")
+    }
+    
+    ggsave(file_path, plot = selected_heatmap(), width = 10, height = 7, dpi = 300)
+    
+    file.copy(file_path, "www/heatmap.png", overwrite = TRUE)
+    
+    session$sendCustomMessage("open_heatmap", "heatmap.png")
+  })
+  
 }
-
