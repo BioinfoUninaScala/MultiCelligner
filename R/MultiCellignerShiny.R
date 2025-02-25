@@ -40,57 +40,46 @@ ui <- fluidPage(
       
       hr(),
       
+      tags$p("Find neighbors", style = "text-align: center; font-size: 18px; font-weight: bold;"),
       
       fluidRow(
-        column(12,
-               checkboxGroupInput("df_selection_input",
-                                  "Limit query sample(s) selection to:",
-                                  choices = c("Cell lines", "Tumors"),
-                                  selected = 'Cell lines', inline = TRUE)
-        )),
-      
-      hr(), 
+        column(6,
+               selectizeInput("sel_type",
+                              'Select type',
+                              choices = c('Cell lines', 'Tumors'), 
+                              multiple = TRUE)),
+        column(6,
+               selectizeInput('sel_lineage',
+                              'Select lineage',
+                              choices = ann_multiomics_v6$lineage,
+                              multiple = FALSE))
+      ),
       
       
       selectizeInput("both_sample", 
-                     "Select one or more reference tumor/cell line", 
+                     "Select one or more reference tumor/cell line:", 
                      choices = NULL, 
-                     multiple = TRUE,
-                     options = list(closeOnSelect = FALSE, openOnFocus = TRUE)),
+                     multiple = TRUE),
       
       hr(),
       
       fluidRow(
-        column(10,
-               style = "display: flex; align-items: center; height: 100%;",
-               actionButton("load_selection", "Load from selection")
-        ),
-        column(2,
-               tags$button(id = "tooltip_btn", 
-                           type = "button", 
-                           class = "btn btn-info btn-sm",
-                           "?", 
-                           style = "margin-top: 5px;
-                              margin-left: -125px; 
-                              border-radius: 70%; 
-                              font-size: 9px; 
-                              width: 18px; 
-                              height: 18px; 
-                              padding: 1px 4px; 
-                              color: black;
-                              line-height: 1;"),
-               tags$script(HTML('
-           $(document).ready(function(){
-             $("#tooltip_btn").tooltip({
-               title: "Possibility to drop in the samples directly from the plot using Lasso Select",
-               placement: "right",
-               trigger: "hover",
-               html: true
-             });
-           });
-         '))
-        )
-      ),
+        column(8,
+               tags$strong("or load from map selection:")),
+        column(4,
+               actionButton("load_selection", "Load", style = "text-align: center;") %>%
+                 tagAppendChild(tags$script(HTML('
+    $(document).ready(function(){
+      $("#load_selection").tooltip({
+        title: "Possibility to drop in the samples directly from the plot using Lasso Select",
+        placement: "right",
+        trigger: "hover",
+        html: true
+      });
+    });
+  ')))
+        )),
+      
       
       hr(),
       
@@ -180,7 +169,7 @@ ui <- fluidPage(
         hr(),
         
         tabPanel("Neighbors lineages", 
-                 plotOutput("piechart", height = "220px") 
+                 plotOutput("piechart",height = "220px") 
         ),
         
       )),
@@ -285,43 +274,75 @@ server <- function(input, output, session) {
   })
   
   observe({
-    choices <- list() 
-    
-    if ("Cell lines" %in% input$df_selection_input) {
-      cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v6)
-      cl_values <- rownames(selected_combined_mat())[!grepl('TCGA', rownames(selected_combined_mat()))] 
-      choices <- c(choices, setNames(as.list(cl_values), cl_names))
-    }
-    
-    if ("Tumors" %in% input$df_selection_input) {
-      tumor_names <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
-      tumor_values <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
-      choices <- c(choices, setNames(as.list(tumor_values), tumor_names))
-    }
-    
-    if (all(c("Cell lines", "Tumors") %in% input$df_selection_input)) {
-      all_names <- get_all_name_strpp(combined_mat = selected_combined_mat(), 
-                                      ann = ann_multiomics_v6, 
-                                      sample_info = sample_info)
-      all_values <- rownames(selected_combined_mat()) 
-      choices <- c(choices, setNames(as.list(all_values), all_names))
-    }
-    
-    updateSelectizeInput(session, "both_sample", choices = choices, selected = input$both_sample)
-  })
-  
-  selected_samples <- reactive({
-    input$both_sample
-  })
-  
-  shinyjs::disable("subset_btn")
-  
-  observe({
     if (is.null(input$both_sample) || length(input$both_sample) == 0) {
       shinyjs::disable("subset_btn")
     } else {
       shinyjs::enable("subset_btn")
     }
+  })
+  
+  observe({
+    choices <- list()
+    subset_1 <- ann_multiomics_v6
+    
+    if (input$sel_lineage == "") {
+      
+      if ("Cell lines" %in% input$sel_type) {
+        cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v6)
+        cl_values <- rownames(selected_combined_mat())[!grepl('TCGA', rownames(selected_combined_mat()))]
+        choices <- c(choices, setNames(as.list(cl_values), cl_names))
+      }
+      
+      if ("Tumors" %in% input$sel_type) {
+        tumor_names <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
+        tumor_values <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
+        choices <- c(choices, setNames(as.list(tumor_values), tumor_names))
+      }
+      
+    } else {
+      
+      if (length(input$sel_lineage) >= 1) {
+        subset_1 <- subset_1[ann_multiomics_v6$lineage == input$sel_lineage, ]
+        
+        subset <- subset_1$sampleID
+        all_names <- get_all_name_strpp(combined_mat = selected_combined_mat(),
+                                        ann = ann_multiomics_v6,
+                                        sample_info = sample_info)
+        all_values <- rownames(selected_combined_mat())
+        all_values_x <- all_values[all_values %in% subset]
+        all_names_x <- all_names[all_names %in% subset_1$stripped_cell_line_name]
+        
+        if ("Cell lines" %in% input$sel_type) {
+          cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v6)
+          cl_values <- rownames(selected_combined_mat())[!grepl('TCGA', rownames(selected_combined_mat()))]
+          
+          cl_filtered <- intersect(cl_values, all_values_x)
+          cl_names_filtered <- intersect(cl_names, all_names_x)
+          
+          choices <- c(choices, setNames(as.list(cl_filtered), cl_names_filtered))
+        }
+        
+        if ("Tumors" %in% input$sel_type) {
+          tumor_names <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
+          tumor_values <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
+          
+          tumor_filtered <- intersect(tumor_values, all_values_x)
+          
+          choices <- c(choices, setNames(as.list(tumor_filtered), tumor_filtered))
+        }
+        
+        if (all(c("Cell lines", "Tumors") %in% input$sel_type)) {
+          choices <- c(choices, setNames(as.list(all_values_x), all_names_x))
+        }
+      }
+    }
+    
+    updateSelectizeInput(session, "both_sample", choices = choices, server = TRUE)
+  })
+  
+  
+  selected_samples <- reactive({
+    input$both_sample
   })
   
   
@@ -415,7 +436,7 @@ server <- function(input, output, session) {
     
     if(length(input$both_sample) == 1) {
       
-      if ("CL" %in% input$df_selection_output) {
+      if ("Cell lines" %in% input$df_selection_output) {
         
         piechart <- get_piechart_CL(combined_mat = selected_combined_mat(),
                                     input_sample = input$both_sample,
@@ -445,6 +466,7 @@ server <- function(input, output, session) {
                                       BNindex = selected_BNindex(),
                                       sample_order = selected_sample_order())
       }
+      
       
       output$piechart <- renderPlot({
         piechart
@@ -482,11 +504,109 @@ server <- function(input, output, session) {
                                            ann = ann_multiomics_v6)
       }
       
+      
       output$piechart <- renderPlot({
         piechart_2
       })
     }
   })
+  
+  observeEvent(input$omics_plot, {
+    
+    updateSelectizeInput(session, "both_sample", choices = selected_samples(), server = TRUE, selected = selected_samples())
+    
+  }, ignoreInit = TRUE)
+  
+  observeEvent(input$omics_plot, {
+    
+    if (all(input$both_sample %in% selected_samples())) {
+      
+      if(length(input$both_sample) == 1) {
+        
+        if ("Cell lines" %in% input$df_selection_output) {
+          
+          x <- find_neighbors_CL(combined_mat = selected_combined_mat(),
+                                 reduced_mat = selected_reduced_mat(),
+                                 input_sample = input$both_sample,
+                                 k = input$num_neighbors,
+                                 ann = ann_multiomics_v6,
+                                 BNindex = selected_BNindex(),
+                                 sample_order = selected_sample_order(),
+                                 omics_name = selected_omics_name())
+        }
+        
+        if ("Tumors" %in% input$df_selection_output) {
+          
+          x <- find_neighbors_tumor(combined_mat = selected_combined_mat(),
+                                    reduced_mat = selected_reduced_mat(),
+                                    input_sample = input$both_sample,
+                                    k = input$num_neighbors,
+                                    ann = ann_multiomics_v6,
+                                    BNindex = selected_BNindex(),
+                                    sample_order = selected_sample_order(),
+                                    omics_name = selected_omics_name())
+        }
+        
+        if (all(c("Cell lines", "Tumors") %in% input$df_selection_output)) {
+          x <- find_neighbors_both(combined_mat = selected_combined_mat(),
+                                   reduced_mat = selected_reduced_mat(),
+                                   input_sample = input$both_sample,
+                                   k = input$num_neighbors,
+                                   ann = ann_multiomics_v6,
+                                   BNindex = selected_BNindex(),
+                                   sample_order = selected_sample_order(),
+                                   omics_name = selected_omics_name())
+        }
+        
+        output$plot <- renderUI({
+          x
+        })
+        
+      } else {
+        
+        selected_samples <- reactive({
+          input$both_sample
+        })
+        
+        if("Cell lines" %in% input$df_selection_output) {
+          
+          x <- omics_metasample_both_CL(combined_mat = selected_combined_mat(),
+                                        reduced_mat = selected_reduced_mat(),
+                                        selected_samples = selected_samples(),
+                                        n = input$num_neighbors,
+                                        ann = ann_multiomics_v6,
+                                        omics_name = selected_omics_name())
+        }
+        
+        if("Tumors" %in% input$df_selection_output) {
+          
+          x <- omics_metasample_both_tumor(combined_mat = selected_combined_mat(),
+                                           reduced_mat = selected_reduced_mat(),
+                                           selected_samples = selected_samples(),
+                                           n = input$num_neighbors,
+                                           ann = ann_multiomics_v6,
+                                           omics_name = selected_omics_name())
+        }
+        
+        
+        if(all(c("Cell lines", "Tumors") %in% input$df_selection_output)) {
+          
+          x <- omics_metasample_both_both(combined_mat = selected_combined_mat(),
+                                          reduced_mat = selected_reduced_mat(),
+                                          selected_samples = selected_samples(),
+                                          n = input$num_neighbors,
+                                          ann = ann_multiomics_v6,
+                                          omics_name = selected_omics_name())
+        }
+        
+        output$plot <- renderUI({
+          x
+        })
+      }
+    }
+  }, ignoreInit = TRUE)
+  
+  
   
   
   selected_heatmap <- reactive({

@@ -105,7 +105,7 @@ my_plotting <- function(reduced_mat, ann, omics_name) {
       
               reactable(shared, searchable = TRUE, minRows = 3,  
               showPageSizeOptions = TRUE,
-              pageSizeOptions = c(25,30,40,50),
+              pageSizeOptions = c(25,50,75,100,150,200,300,500),
               defaultPageSize = 25,
               resizable = TRUE, highlight = TRUE, 
               selection = "multiple",
