@@ -8,6 +8,7 @@
 #' @import fontawesome
 #' @import dplyr
 #' @import BiocNeighbors
+#' @import reshape
 #' @param combined_mat combined_mat matrix samples x genes of corrected data by MNN
 #' @param reduced_mat dimensionally reduced matrix (tSNE and UMAP): sample x features
 #' @param input_sample samples of TCGA or CCLE choosed by the user 
