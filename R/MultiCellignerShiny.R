@@ -16,7 +16,7 @@ MultiCellignerShiny <- function() {shiny::shinyApp(ui, server)}
 
 ui <- fluidPage(
   
-  useShinyjs(),
+  shinyjs::useShinyjs(),
   
   sidebarLayout(
     sidebarPanel(
@@ -51,7 +51,7 @@ ui <- fluidPage(
         column(6,
                selectizeInput('sel_lineage',
                               'Select lineage',
-                              choices = ann_multiomics_v6$lineage,
+                              choices = NULL,
                               multiple = FALSE))
       ),
       
@@ -269,6 +269,8 @@ server <- function(input, output, session) {
            "SNF multiomics UMAP" = sample_SNF_order
     )
   })
+  
+  updateSelectizeInput(session, "sel_lineage", choices = ann_multiomics_v6$lineage, server = TRUE)
   
   observeEvent(input$subset_btn, {
     if(is.null(input$both_sample) || length(input$both_sample) == 0) {
