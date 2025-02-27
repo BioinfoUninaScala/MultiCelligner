@@ -217,9 +217,6 @@ server <- function(input, output, session) {
     })
   })
   
-  observe({
-    
-  })
   
   selected_combined_mat <- reactive({
     switch(input$omics_plot,
@@ -273,11 +270,12 @@ server <- function(input, output, session) {
     )
   })
   
-  observe({
-    if (is.null(input$both_sample) || length(input$both_sample) == 0) {
-      shinyjs::disable("subset_btn")
-    } else {
-      shinyjs::enable("subset_btn")
+  observeEvent(input$subset_btn, {
+    if(is.null(input$both_sample) || length(input$both_sample) == 0) {
+      
+      output$plot <- renderUI({
+        selected_plot()
+      })
     }
   })
   
@@ -288,50 +286,88 @@ server <- function(input, output, session) {
     if (input$sel_lineage == "") {
       
       if ("Cell lines" %in% input$sel_type) {
-        cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v6)
-        cl_values <- rownames(selected_combined_mat())[!grepl('TCGA', rownames(selected_combined_mat()))]
-        choices <- c(choices, setNames(as.list(cl_values), cl_names))
+        
+        cl_values <- rownames(selected_combined_mat())
+        
+        if (!is.null(cl_values)) {
+          
+          cl_values <- cl_values[!grepl('TCGA', cl_values)]
+          cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v6)
+          
+          if (!is.null(cl_names)) {
+            
+            choices <- c(choices, setNames(as.list(cl_values), cl_names))
+          }
+        }
       }
       
       if ("Tumors" %in% input$sel_type) {
-        tumor_names <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
-        tumor_values <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
-        choices <- c(choices, setNames(as.list(tumor_values), tumor_names))
+        
+        tumor_values <- rownames(selected_combined_mat())
+        
+        if (!is.null(tumor_values)) {
+          
+          tumor_values <- tumor_values[grepl('TCGA', tumor_values)]
+          choices <- c(choices, setNames(as.list(tumor_values), tumor_values))
+        }
       }
       
     } else {
       
       if (length(input$sel_lineage) >= 1) {
+        
         subset_1 <- subset_1[ann_multiomics_v6$lineage == input$sel_lineage, ]
         
         subset <- subset_1$sampleID
         all_names <- get_all_name_strpp(combined_mat = selected_combined_mat(),
                                         ann = ann_multiomics_v6,
                                         sample_info = sample_info)
+        
         all_values <- rownames(selected_combined_mat())
-        all_values_x <- all_values[all_values %in% subset]
-        all_names_x <- all_names[all_names %in% subset_1$stripped_cell_line_name]
+        
+        if (!is.null(all_values) && !is.null(all_names)) {
+          
+          all_values_x <- all_values[all_values %in% subset]
+          all_names_x <- all_names[all_names %in% subset_1$stripped_cell_line_name]
+          
+        } else {
+          
+          all_values_x <- character(0)
+          all_names_x <- character(0)
+        }
         
         if ("Cell lines" %in% input$sel_type) {
-          cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v6)
-          cl_values <- rownames(selected_combined_mat())[!grepl('TCGA', rownames(selected_combined_mat()))]
           
-          cl_filtered <- intersect(cl_values, all_values_x)
-          cl_names_filtered <- intersect(cl_names, all_names_x)
+          cl_values <- rownames(selected_combined_mat())
           
-          choices <- c(choices, setNames(as.list(cl_filtered), cl_names_filtered))
+          if (!is.null(cl_values)) {
+            
+            cl_values <- cl_values[!grepl('TCGA', cl_values)]
+            cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v6)
+            
+            if (!is.null(cl_names)) {
+              
+              cl_filtered <- intersect(cl_values, all_values_x)
+              cl_names_filtered <- intersect(cl_names, all_names_x)
+              choices <- c(choices, setNames(as.list(cl_filtered), cl_names_filtered))
+            }
+          }
         }
         
         if ("Tumors" %in% input$sel_type) {
-          tumor_names <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
-          tumor_values <- rownames(selected_combined_mat())[grepl('TCGA', rownames(selected_combined_mat()))]
           
-          tumor_filtered <- intersect(tumor_values, all_values_x)
+          tumor_values <- rownames(selected_combined_mat())
           
-          choices <- c(choices, setNames(as.list(tumor_filtered), tumor_filtered))
+          if (!is.null(tumor_values)) {
+            
+            tumor_values <- tumor_values[grepl('TCGA', tumor_values)]
+            tumor_filtered <- intersect(tumor_values, all_values_x)
+            choices <- c(choices, setNames(as.list(tumor_filtered), tumor_filtered))
+          }
         }
         
         if (all(c("Cell lines", "Tumors") %in% input$sel_type)) {
+          
           choices <- c(choices, setNames(as.list(all_values_x), all_names_x))
         }
       }
@@ -339,6 +375,7 @@ server <- function(input, output, session) {
     
     updateSelectizeInput(session, "both_sample", choices = choices, server = TRUE)
   })
+  
   
   
   selected_samples <- reactive({
@@ -389,7 +426,7 @@ server <- function(input, output, session) {
         x  
       })
       
-    } else {
+    } else if (length(input$both_sample) > 1) {
       
       selected_samples <- reactive({
         input$both_sample
@@ -472,7 +509,7 @@ server <- function(input, output, session) {
         piechart
       })
       
-    } else {
+    } else if (length(input$both_sample) > 1) {
       
       selected_samples <- reactive({
         input$both_sample
@@ -511,11 +548,13 @@ server <- function(input, output, session) {
     }
   })
   
+  
+  
   observeEvent(input$omics_plot, {
     
     updateSelectizeInput(session, "both_sample", choices = selected_samples(), server = TRUE, selected = selected_samples())
     
-  }, ignoreInit = TRUE)
+  }, ignoreInit = TRUE) 
   
   observeEvent(input$omics_plot, {
     
@@ -562,7 +601,7 @@ server <- function(input, output, session) {
           x
         })
         
-      } else {
+      } else if (length(input$both_sample) > 1) {
         
         selected_samples <- reactive({
           input$both_sample
@@ -608,7 +647,6 @@ server <- function(input, output, session) {
   
   
   
-  
   selected_heatmap <- reactive({
     switch(input$omics_plot,
            "Expression" = get_confusion_matrix_shiny(exp_m3),
@@ -647,22 +685,32 @@ server <- function(input, output, session) {
     selected_data <- event_data("plotly_selected")
     
     if (!is.null(selected_data)) {
+      
       selected_samples <- selected_data$key
-      filtered_data(ann_multiomics_v6 %>%
-                      filter(sampleID %in% selected_samples))
+      
+      x_1 <- ann_multiomics_v6 %>%
+        filter(sampleID %in% selected_samples)
+      
+      filtered_data(x_1$stripped_cell_line_name)
     }
   })
   
   lasso_selected_samples <- reactive({
     req(filtered_data()) 
-    filtered_data()$sampleID
+    
+    filtered_data()
   })
   
   observeEvent(input$load_selection, {
+    
     updateSelectizeInput(session, "both_sample",
                          choices = lasso_selected_samples(),
                          selected = lasso_selected_samples())
   })
   
 }
+
+shiny::shinyApp(ui, server)
+
+
 
