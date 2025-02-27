@@ -16,7 +16,7 @@ Imports: dplyr, stats, fontawesome, htmltools,
          stats, SNFtool, crosstalk, ggplot2,
          MoNETA, magrittr,
          readr, S4Vectors, MOFA2, 
-         gplots
+         gplots, reshape
 Remotes: 
     github::BioinfoUninaScala/MoNETA,
     bioc::BiocNeighbors,
