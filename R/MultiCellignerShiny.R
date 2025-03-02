@@ -501,6 +501,16 @@ server <- function(input, output, session) {
                                   k = input$num_neighbors,
                                   ann = ann_multiomics_v6,
                                   type = input$df_selection_output)
+         
+         piechart_subtype <- get_piechart_subtype(combined_mat = selected_combined_mat(), 
+                                                  input_sample = input$both_sample,
+                                                  k = input$num_neighbors,
+                                                  ann = ann_multiomics_v6,
+                                                  type = input$df_selection_output)
+         
+         output$piechart_subtype <- renderPlot({
+           piechart_subtype
+         })
 
         
         output$plot <- renderUI({
@@ -530,6 +540,17 @@ server <- function(input, output, session) {
                                  k = input$num_neighbors,
                                  ann = ann_multiomics_v6,
                                  type = input$df_selection_output)
+        
+        piechart_subtype <- get_piechart_subtype(combined_mat = selected_combined_mat(), 
+                                                 selected_samples = selected_samples(),
+                                                 k = input$num_neighbors,
+                                                 ann = ann_multiomics_v6,
+                                                 type = input$df_selection_output)
+        
+        
+        output$piechart_subtype <- renderPlot({
+          piechart_subtype
+        })
         
         output$plot <- renderUI({
           x  
