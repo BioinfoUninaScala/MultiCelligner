@@ -77,13 +77,13 @@ my_plotting_tSNE <- function(reduced_mat, ann, omics_name) {
       layout(
         title = list(
           text = paste('tSNE projection of', omics_name, 'alignment'), 
-          font = list(size = 21, family = "Times New Roman", color = "black", weight = "bold"), 
+          font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
           x = 0.3,          
           xanchor = "center",  
           yanchor = "top"
         ),
-        xaxis = list(title = "tSNE 1", zeroline  = F),
-        yaxis = list(title = "tSNE 2", zeroline = F),
+        xaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
+        yaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
         legend = list(
           title = list(text = 'Select lineage-type pair'),
           traceorder = 'normal'),

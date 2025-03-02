@@ -1,5 +1,5 @@
 #' 
-#' Generate an interactive plot that highlighting the CL k nearest neighbors for the metasample
+#' Create an interactive plot that highlighting k nearest neighbors for the choosed query
 #'
 #' @import plotly
 #' @import crosstalk
@@ -7,39 +7,112 @@
 #' @import htmltools
 #' @import fontawesome
 #' @import dplyr
-#' @importFrom SNFtool dist2
-#' @importFrom reshape2 melt
+#' @import reshape
+#' @import reshape2 
+#' @import SNFtool
+#' @import tidyverse
 #' @param combined_mat combined_mat matrix samples x genes of corrected data by MNN
 #' @param reduced_mat dimensionally reduced matrix (tSNE and UMAP): sample x features
-#' @param selected_samples vector of samples that will compone the metasample
-#' @param n number of the nearest neighbors
+#' @param input_sample single TCGA or CCLE sample chosen by the user 
+#' @param selected_samples multiple TCGA or CCLE samples chosen by the user
+#' @param type type of the k neighbors samples (Tumor or Cell Line)
+#' @param k number of the nearest neighbors
 #' @param ann annotation file of tumors and cell lines 
 #' @param omics_name name of the shiny selected omics
-#' @return an interactive plot that highlighting the CL k nearest neighbors for the metasample
+#' @return an interactive plot that highlighting the tumor k nearest neighbors 
 #' @export
 
-omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples, n, ann, omics_name) {
+find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selected_samples = NULL, type, k, ann, omics_name) {
   
-  x_1 <- combined_mat[which(rownames(combined_mat) %in% selected_samples),]
-  x_2 <- as.data.frame(colMeans(x_1))
+  if(is.null(selected_samples)) {
+  
+  x_1 <- combined_mat[which(rownames(combined_mat) %in% input_sample),]
+  x_2 <- as.matrix(x_1)
   x_3 <- t(x_2)
-  rownames(x_3) <- 'metasample'
-  mat_metasample <- as.matrix(x_3)
+  rownames(x_3) <- input_sample
   
-  dist_metasample <- SNFtool::dist2(mat_metasample, combined_mat)
-  dist_metasmaple_1 <- reshape2::melt(dist_metasample)
-  colnames(dist_metasmaple_1)[c(1,2,3)] <- c('metasample','sampleID','dist')
+  dist <- SNFtool::dist2(x_3, combined_mat)
+  dist_1 <- reshape2::melt(dist)
+  colnames(dist_1)[c(1,2,3)] <- c('ref_ID', 'sampleID', 'dist')
   
-  dist_top_n_1 <- dist_metasmaple_1 %>% filter(grepl('ACH-00', sampleID))
+  if ("Tumors" %in% type) { 
   
-  dist_top_n <- dist_top_n_1 %>% 
-    group_by(metasample) %>%                  
+  dist_2 <- dist_1 %>% 
+    arrange(dist) %>%
+    mutate(priority = if_else(sampleID %in% input_sample, 1, 2)) %>% 
+    filter(grepl('TCGA', x = sampleID) & priority == 2) 
+  }
+  
+  if ("Cell lines" %in% type) {
+    
+    dist_2 <- dist_1 %>% 
+      arrange(dist) %>%
+      mutate(priority = if_else(sampleID %in% input_sample, 1, 2)) %>% 
+      filter(grepl('TCGA', x = sampleID) & priority == 2) 
+  }
+  
+  if (all(c("Cell lines", "Tumors") %in% type)) {
+    
+    dist_2 <- dist_1 %>% 
+      arrange(dist) %>%
+      mutate(priority = if_else(sampleID %in% input_sample, 1, 2)) %>% 
+      filter(priority == 2)
+  }
+  
+  dist_top_n <- dist_2 %>% 
+    group_by(ref_ID) %>%                  
     arrange(dist) %>%  
-    slice_head(n = n) %>% 
+    slice_head(n = k) %>% 
     ungroup()
   
-  got_sample <- c(unique(as.character(dist_top_n$sampleID)), unique(selected_samples))
-  got_sample <- got_sample[!got_sample %in% selected_samples]
+  top_k_tumors_1 <- as.character(dist_top_n$sampleID)
+  
+  } else if (is.null(input_sample)) {
+    
+    x_1 <- combined_mat[which(rownames(combined_mat) %in% selected_samples),]
+    x_2 <- as.data.frame(colMeans(x_1))
+    x_3 <- t(x_2)
+    rownames(x_3) <- 'metasample'
+    mat_metasample <- as.matrix(x_3)
+    
+    dist_metasample <- SNFtool::dist2(mat_metasample, combined_mat)
+    dist_1 <- reshape2::melt(dist_metasample)
+    colnames(dist_1)[c(1,2,3)] <- c('metasample','sampleID','dist')
+    
+    if ("Tumors" %in% type) { 
+      
+      dist_2 <- dist_1 %>% 
+        arrange(dist) %>% 
+        mutate(priority = if_else(sampleID %in% selected_samples, 1, 2)) %>% 
+        filter(grepl('TCGA', x = sampleID) & priority == 2)
+    } 
+    
+    if ("Cell lines" %in% type) {
+      
+      dist_2 <- dist_1 %>% 
+        arrange(dist) %>% 
+        mutate(priority = if_else(sampleID %in% selected_samples, 1, 2)) %>% 
+        filter(grepl('ACH-00', x = sampleID) & priority == 2)
+    }
+    
+    if (all(c("Cell lines", "Tumors") %in% type)) {
+      
+      dist_2 <- dist_1 %>% 
+        arrange(dist) %>% 
+        mutate(priority = if_else(sampleID %in% selected_samples, 1, 2)) %>% 
+        filter(priority == 2)
+    }
+    
+    
+    dist_top_n <- dist_2 %>% 
+      group_by(metasample) %>%                  
+      arrange(dist) %>%  
+      slice_head(n = k) %>% 
+      ungroup()
+    
+    top_k_tumors_1 <- unique(as.character(dist_top_n$sampleID))
+    
+  }
   
   data_res <- reduced_mat %>% t() %>% 
     as.data.frame() %>% 
@@ -48,12 +121,12 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
   
   colnames(data_res)[c(1,2)] <- c("UMAP_1", "UMAP_2")
   
-  data_res_1 <- data_res %>% mutate('show_it' = ifelse(data_res$sampleID %in% got_sample, 'show', 'not'))
+  data_res_1 <- data_res %>% mutate('show_it' = ifelse(data_res$sampleID %in% top_k_tumors_1, 'show', 'not'))
   
   data_res_2 <- data_res_1 %>% mutate('size' = if_else(show_it == 'show', 16, 5))
-
-  dist_metasample_2 <- dist_metasmaple_1 %>% dplyr::select(sampleID, dist)
-  data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')
+  
+  dist_metasample_2 <- dist_1 %>% dplyr::select(sampleID, dist)
+  data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')  %>% arrange(dist)
   data_res_3$dist <- round(data_res_3$dist, 3)
   
   data_res_3 <- data_res_3 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
@@ -84,6 +157,7 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
         x = ~UMAP_1,
         y = ~UMAP_2,
         key = ~sampleID,
+        source = 'A',
         type = 'scatter',
         mode = 'markers',
         color = ~lineage,  
@@ -106,20 +180,20 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
         layout(
           title = list(
             text = paste('tSNE projection of', omics_name, 'alignment'), 
-            font = list(size = 21, family = "Candara", color = "black", weight = "bold"), 
+            font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
             x = 0.3,          
             xanchor = "center",  
             yanchor = "top"
           ),
-          xaxis = list(title = "UMAP 1", zeroline  = F),
-          yaxis = list(title = "UMAP 2", zeroline = F),
+          xaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
+          yaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
           legend = list(
             title = list(text = 'Select lineage-type pair'),
             traceorder = 'normal'),
-          height = 600) %>%
+          height = 600) %>% 
         event_register("plotly_selected") %>% 
         highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
-      )
+    )
     
     
     row_2 <- crosstalk::bscols(
@@ -133,7 +207,7 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
           
           reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
                     showPageSizeOptions = TRUE,
-                    pageSizeOptions = c(25,30,40,50),
+                    pageSizeOptions = c(25,50,75,100,150,200),
                     defaultPageSize = 25,
                     resizable = TRUE, highlight = TRUE, 
                     selection = "multiple",
@@ -193,6 +267,7 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
         x = ~UMAP_1,
         y = ~UMAP_2,
         key = ~sampleID,
+        source = 'A',
         type = 'scatter',
         mode = 'markers',
         color = ~lineage,  
@@ -215,20 +290,20 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
         layout(
           title = list(
             text = paste('UMAP projection of', omics_name, 'alignment'), 
-            font = list(size = 21, family = "Candara", color = "black", weight = "bold"), 
+            font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
             x = 0.3,          
             xanchor = "center",  
             yanchor = "top"
           ),
-          xaxis = list(title = "UMAP 1", zeroline  = F),
-          yaxis = list(title = "UMAP 2", zeroline = F),
+          xaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
+          yaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
           legend = list(
             title = list(text = 'Select lineage-type pair'),
             traceorder = 'normal'),
           height = 600) %>%
         event_register("plotly_selected") %>% 
         highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
-      )
+    )
     
     
     row_2 <- crosstalk::bscols(
@@ -242,7 +317,7 @@ omics_metasample_both_CL <- function(combined_mat, reduced_mat, selected_samples
           
           reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
                     showPageSizeOptions = TRUE,
-                    pageSizeOptions = c(25,30,40,50),
+                    pageSizeOptions = c(25,50,75,100,150,200),
                     defaultPageSize = 25,
                     resizable = TRUE, highlight = TRUE, 
                     selection = "multiple",

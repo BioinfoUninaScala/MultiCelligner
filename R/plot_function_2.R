@@ -78,13 +78,13 @@ my_plotting <- function(reduced_mat, ann, omics_name) {
         title = list(
           dragmode = "lasso", 
           text = paste('UMAP projection of', omics_name, 'alignment'), 
-          font = list(size = 21, family = "Candara", color = "black", weight = "bold"), 
+          font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
           x = 0.3,          
           xanchor = "center",  
           yanchor = "top"
         ),
-        xaxis = list(title = "UMAP 1", zeroline  = F),
-        yaxis = list(title = "UMAP 2", zeroline = F),
+        xaxis = list(title = '', zeroline  = F, showticklabels = FALSE, showgrid = FALSE),
+        yaxis = list(title = '', zeroline  = F, showticklabels = FALSE, showgrid = FALSE),
         legend = list(
           title = list(text = 'Select lineage-type pair'),
           traceorder = 'normal'),
