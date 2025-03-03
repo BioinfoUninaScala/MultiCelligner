@@ -134,7 +134,7 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
       dplyr::filter(Freq > 0)
     
     dist_top25_4 <- dist_top25_4 %>%
-      mutate(Subtype_CCLE_wrapped = str_wrap(Subtype_CCLE, width = 14))  
+      mutate(Subtype_CCLE_wrapped = stringr::str_wrap(Subtype_CCLE, width = 14))  
     
     y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = Subtype_CCLE_wrapped)) +
       geom_bar(width = 1, stat = "identity") +
@@ -220,7 +220,7 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
       dplyr::filter(Freq > 0)
     
     dist_top25_4 <- dist_top25_4 %>%
-      mutate(Subtype_CCLE_wrapped = str_wrap(Subtype_CCLE, width = 14))  
+      mutate(Subtype_CCLE_wrapped = stringr::str_wrap(Subtype_CCLE, width = 14))  
     
     y <-  ggplot(dist_top25_4, aes(x = "", y = Freq, fill = Subtype)) +
       geom_bar(width = 1, stat = "identity") +
