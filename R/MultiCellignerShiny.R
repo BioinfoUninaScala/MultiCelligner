@@ -35,7 +35,7 @@ ui <- fluidPage(
                               "MoNETA multiomics tSNE",  
                               "MoNETA multiomics UMAP", 
                               "MOFA multiomics tSNE",
-                              "MOFA multiomics UMAP",
+                              "MOFA multiomics UMAP", 
                               "SNF multiomics UMAP")),
       
       hr(),
