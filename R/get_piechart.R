@@ -42,7 +42,7 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
     dist_2 <- dist_1 %>% 
       arrange(dist) %>%
       mutate(priority = if_else(sampleID %in% input_sample, 1, 2)) %>% 
-      filter(grepl('TCGA', x = sampleID) & priority == 2) 
+      filter(grepl('ACH-00', x = sampleID) & priority == 2) 
   }
   
   if (all(c("Cell lines", "Tumors") %in% type)) {
