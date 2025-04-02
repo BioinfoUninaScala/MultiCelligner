@@ -15,7 +15,7 @@
 
 MultiCellignerShiny <- function() {shiny::shinyApp(ui, server)}
 
-ui <- fluidPage(              ######## DEVI RIMUOVERE DALLE UMAP DI MONETA I CAMPIONI NON ANNOTATI!!!!!!!!!!
+ui <- fluidPage(              
   
   shinyjs::useShinyjs(),
   
