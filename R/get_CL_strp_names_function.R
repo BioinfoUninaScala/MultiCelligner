@@ -14,7 +14,7 @@ get_CL_strp_names <- function(combined_mat ,ann) {
   depmap_id_df <- as.data.frame(depmap_id)
   colnames(depmap_id_df)[1] <- 'sampleID'
   df <- left_join(depmap_id_df, ann[,c(1,6)], by = 'sampleID')
-  nm <- df$stripped_cell_line_name[!grepl('TCGA', df$stripped_cell_line_name)]
+  nm <- df$stripped_cell_line_name[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', df$stripped_cell_line_name)]
   
   return(nm)
   
