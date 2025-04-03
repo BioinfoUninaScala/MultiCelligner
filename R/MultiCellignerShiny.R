@@ -264,7 +264,7 @@ server <- function(input, output, session) {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
           return(umap_exp_meth_mut)
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(umap_exp_meth)
+          return(umap_exp_meth_)
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
           return(umap_exp_mut)
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
@@ -418,13 +418,13 @@ server <- function(input, output, session) {
       if (input$multiomics_method == 'MoNETA') {
         
         if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(pca_rwr_exp_meth_mut)
+          return(t(emb_exp_meth_mut_1))
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(pca_rwr_exp_meth)
+          return(t(emb_exp_meth_1))
         } else if (setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(pca_rwr_exp_mut)
+          return(emb_exp_mut_1)
         } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(pca_rwr_meth_mut)
+          return(emb_meth_mut_1)
         }
       }
       
