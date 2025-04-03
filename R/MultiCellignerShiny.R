@@ -316,13 +316,13 @@ server <- function(input, output, session) {
       
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          #return(snf_umap_all)
+          return(snf_umap_all)
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(snf_umap_exp_meth)
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          #return(snf_umap_exp_mut)
+          return(snf_umap_exp_mut)
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          #return(snf_umap_meth_mut)
+          return(snf_umap_meth_mut)
         }
       }
       
@@ -495,24 +495,24 @@ server <- function(input, output, session) {
       
       if (input$multiomics_method == 'SNF') {
         if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return()
+          return(pca_snf_all)
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(pca_snf_exp_meth)
         } else if (setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return()
+          return(pca_snf_exp_mut)
         } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return()
+          return(pca_snf_meth_mut)
         }
       }
       
     }
   })
   
-  observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
-    output$plot <- renderUI({
-      selected_plot() 
-    })
-  })
+  # observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
+  #   output$plot <- renderUI({
+  #     selected_plot() 
+  #   })
+  # })
   
   ### get the multiomics data intergration method in the menu
   updateSelectizeInput(session, "multiomics_method", choices = c('MoNETA','MOFA','SNF'), selected = character(0))
@@ -789,7 +789,8 @@ server <- function(input, output, session) {
   }, ignoreInit = TRUE)
   
   ### when you already find neighbors for a sample/s just switching plot you will find neighbors for other omics
-  observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
+  #observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
+  observeEvent(input$subset_btn, {
     
     if (is.null(input$omics_plot) || length(input$omics_plot) == 0) {
       return()
