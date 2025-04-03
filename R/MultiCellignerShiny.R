@@ -313,6 +313,31 @@ server <- function(input, output, session) {
           return(mofa_tsne_meth_mut)
         }
       }
+      
+      if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+          #return(snf_umap_all)
+        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
+          return(snf_umap_exp_meth)
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+          #return(snf_umap_exp_mut)
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+          #return(snf_umap_meth_mut)
+        }
+      }
+      
+      if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+          return(snf_tsne_all)
+        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
+          return(snf_tsne_exp_meth)
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+          return(snf_tsne_exp_mut)
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+          return(snf_tsne_meth_mut)
+        }
+      }
+      
     }
     
     return(NULL)  
@@ -397,6 +422,33 @@ server <- function(input, output, session) {
           return(my_plotting_tSNE(mofa_tsne_meth_mut, ann_multiomics_v8, selected_omics_name()))
         }
       }
+      
+      # --- SNF - UMAP ---
+      if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+          return(my_plotting(snf_umap_all, ann_multiomics_v8, selected_omics_name()))
+        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
+          return(my_plotting(snf_umap_exp_meth, ann_multiomics_v8, selected_omics_name()))
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+          return(my_plotting(snf_umap_exp_mut, ann_multiomics_v8, selected_omics_name()))
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+          return(my_plotting(snf_umap_meth_mut, ann_multiomics_v8, selected_omics_name()))
+        }
+      }
+      
+      # --- SNF - tSNE ---
+      if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+          return(my_plotting_tSNE(snf_tsne_all, ann_multiomics_v8, selected_omics_name()))
+        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
+          return(my_plotting_tSNE(snf_tsne_exp_meth, ann_multiomics_v8, selected_omics_name()))
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+          return(my_plotting_tSNE(snf_tsne_exp_mut, ann_multiomics_v8, selected_omics_name()))
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+          return(my_plotting_tSNE(snf_tsne_meth_mut, ann_multiomics_v8, selected_omics_name()))
+        }
+      }
+      
     }
     
     return(NULL)  
@@ -439,8 +491,20 @@ server <- function(input, output, session) {
         } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
           return(MOFA_mat_meth_mut)
         }
-        
       }
+      
+      if (input$multiomics_method == 'SNF') {
+        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+          return()
+        } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
+          return(pca_snf_exp_meth)
+        } else if (setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+          return()
+        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+          return()
+        }
+      }
+      
     }
   })
   

@@ -44,7 +44,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
   dist_2 <- dist_1 %>% 
     arrange(dist) %>%
     mutate(priority = if_else(sampleID %in% input_sample, 1, 2)) %>% 
-    filter(grepl('TCGA', x = sampleID) & priority == 2) 
+    filter(grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = sampleID) & priority == 2) 
   }
   
   if ("Cell lines" %in% type) {
@@ -88,7 +88,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
       dist_2 <- dist_1 %>% 
         arrange(dist) %>% 
         mutate(priority = if_else(sampleID %in% selected_samples, 1, 2)) %>% 
-        filter(grepl('TCGA', x = sampleID) & priority == 2)
+        filter(grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = sampleID) & priority == 2)
     } 
     
     if ("Cell lines" %in% type) {
@@ -381,7 +381,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
         dist_2 <- dist_1 %>% 
           arrange(dist) %>%
           mutate(priority = if_else(sampleID %in% input_sample, 1, 2)) %>% 
-          filter(grepl('TCGA', x = sampleID) & priority == 2) 
+          filter(grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = sampleID) & priority == 2) 
       }
       
       if ("Cell lines" %in% type) {
@@ -425,7 +425,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
         dist_2 <- dist_1 %>% 
           arrange(dist) %>% 
           mutate(priority = if_else(sampleID %in% selected_samples, 1, 2)) %>% 
-          filter(grepl('TCGA', x = sampleID) & priority == 2)
+          filter(grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = sampleID) & priority == 2)
       } 
       
       if ("Cell lines" %in% type) {
