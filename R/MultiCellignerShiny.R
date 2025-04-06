@@ -523,8 +523,8 @@ server <- function(input, output, session) {
     }
   })
   
-  a <- c('Tumors', 'Cell lines')
-  b <- c('Tumors', 'Cell lines (CL)')
+  a <- c('Cell lines', 'Tumors')
+  b <- c('Cell lines (CL)', 'Tumors')
   choices_CL <- setNames(a,b)
   updateSelectizeInput(session, "sel_type", choices = choices_CL)
 
