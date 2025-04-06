@@ -144,7 +144,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
       widths = c(2, 10), 
       list(
         crosstalk::filter_checkbox("Type", 
-                                   label = "Select Type",
+                                   label = "Select Model",
                                    sharedData = shared, 
                                    group = ~type),
         crosstalk::filter_checkbox("Lineage", 
@@ -182,6 +182,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
             width = 3)))
       %>%
         layout(
+          dragmode = "zoom",
           title = list(
             text = paste('tSNE projection of', omics_name, 'alignment'), 
             font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
@@ -208,6 +209,27 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
           tags$button(
             tagList(fontawesome::fa("download"), "Download neighbors list"),
             onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"),
+          
+          tags$div(
+            style = "margin-bottom: 10px;",
+            tags$button(
+              tagList(fontawesome::fa("download"), "Download plot as SVG"), 
+              id = "download-svg-btn")
+          ),
+          tags$script(HTML(
+            "
+  document.getElementById('download-svg-btn').onclick = function() {
+    var plot = document.getElementsByClassName('plotly')[0];
+    Plotly.downloadImage(plot, {
+      format: 'svg',
+      filename: 'alignment_plot',
+      width: 1500,
+      height: 700,
+      scale: 1
+    });
+  };
+  "
+          )),
           
           reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
                     showPageSizeOptions = TRUE,
@@ -254,7 +276,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
       widths = c(2, 10), 
       list(
         crosstalk::filter_checkbox("Type", 
-                                   label = "Select Type",
+                                   label = "Select Model",
                                    sharedData = shared, 
                                    group = ~type),
         crosstalk::filter_checkbox("Lineage", 
@@ -292,6 +314,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
             width = 3)))
       %>%
         layout(
+          dragmode = "zoom",
           title = list(
             text = paste('UMAP projection of', omics_name, 'alignment'), 
             font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
@@ -318,6 +341,27 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
           tags$button(
             tagList(fontawesome::fa("download"), "Download neighbors list"),
             onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"),
+          
+          tags$div(
+            style = "margin-bottom: 10px;",
+            tags$button(
+              tagList(fontawesome::fa("download"), "Download plot as SVG"), 
+              id = "download-svg-btn")
+          ),
+          tags$script(HTML(
+            "
+  document.getElementById('download-svg-btn').onclick = function() {
+    var plot = document.getElementsByClassName('plotly')[0];
+    Plotly.downloadImage(plot, {
+      format: 'svg',
+      filename: 'alignment_plot',
+      width: 1500,
+      height: 700,
+      scale: 1
+    });
+  };
+  "
+          )),
           
           reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
                     showPageSizeOptions = TRUE,
@@ -364,6 +408,12 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
     
     ann_query <- ann[ann$lineage %in% query_lineage,]
     combined_mat <- combined_mat[rownames(combined_mat) %in% ann_query$sampleID,]
+    
+    if(all(!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = rownames(combined_mat)))) {
+      showNotification("There are no tumor samples for this lineage in this omics")
+      warning("There are no tumor samples for this lineage in this omics")
+      return()
+    }
     
     if(is.null(selected_samples)) {
       
@@ -481,7 +531,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
         widths = c(2, 10), 
         list(
           crosstalk::filter_checkbox("Type", 
-                                     label = "Select Type",
+                                     label = "Select Model",
                                      sharedData = shared, 
                                      group = ~type),
           crosstalk::filter_checkbox("Lineage", 
@@ -519,6 +569,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
               width = 3)))
         %>%
           layout(
+            dragmode = "zoom",
             title = list(
               text = paste('tSNE projection of', omics_name, 'alignment'), 
               font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
@@ -545,6 +596,27 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
             tags$button(
               tagList(fontawesome::fa("download"), "Download neighbors list"),
               onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"),
+            
+            tags$div(
+              style = "margin-bottom: 10px;",
+              tags$button(
+                tagList(fontawesome::fa("download"), "Download plot as SVG"), 
+                id = "download-svg-btn")
+            ),
+            tags$script(HTML(
+              "
+  document.getElementById('download-svg-btn').onclick = function() {
+    var plot = document.getElementsByClassName('plotly')[0];
+    Plotly.downloadImage(plot, {
+      format: 'svg',
+      filename: 'alignment_plot',
+      width: 1500,
+      height: 700,
+      scale: 1
+    });
+  };
+  "
+            )),
             
             reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
                       showPageSizeOptions = TRUE,
@@ -591,7 +663,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
         widths = c(2, 10), 
         list(
           crosstalk::filter_checkbox("Type", 
-                                     label = "Select Type",
+                                     label = "Select Model",
                                      sharedData = shared, 
                                      group = ~type),
           crosstalk::filter_checkbox("Lineage", 
@@ -629,6 +701,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
               width = 3)))
         %>%
           layout(
+            dragmode = "zoom",
             title = list(
               text = paste('UMAP projection of', omics_name, 'alignment'), 
               font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
@@ -655,6 +728,27 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
             tags$button(
               tagList(fontawesome::fa("download"), "Download neighbors list"),
               onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"),
+            
+            tags$div(
+              style = "margin-bottom: 10px;",
+              tags$button(
+                tagList(fontawesome::fa("download"), "Download plot as SVG"), 
+                id = "download-svg-btn")
+            ),
+            tags$script(HTML(
+              "
+  document.getElementById('download-svg-btn').onclick = function() {
+    var plot = document.getElementsByClassName('plotly')[0];
+    Plotly.downloadImage(plot, {
+      format: 'svg',
+      filename: 'alignment_plot',
+      width: 1500,
+      height: 700,
+      scale: 1
+    });
+  };
+  "
+            )),
             
             reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
                       showPageSizeOptions = TRUE,

@@ -37,7 +37,7 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
       dist_2 <- dist_1 %>% 
         arrange(dist) %>%
         mutate(priority = if_else(sampleID %in% input_sample, 1, 2)) %>% 
-        filter(grepl('TCGA', x = sampleID) & priority == 2) 
+        filter(grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = sampleID) & priority == 2) 
     }
     
     if ("Cell lines" %in% type) {
@@ -81,7 +81,7 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
       dist_2 <- dist_1 %>% 
         arrange(dist) %>% 
         mutate(priority = if_else(sampleID %in% selected_samples, 1, 2)) %>% 
-        filter(grepl('TCGA', x = sampleID) & priority == 2)
+        filter(grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = sampleID) & priority == 2)
     } 
     
     if ("Cell lines" %in% type) {
@@ -245,6 +245,10 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
     ann_query <- ann[ann$lineage %in% query_lineage,]
     combined_mat <- combined_mat[rownames(combined_mat) %in% ann_query$sampleID,]
     
+    if(all(!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = rownames(combined_mat)))) {
+      return()
+    }
+    
     if(is.null(selected_samples)) {
       
       x_1 <- combined_mat[which(rownames(combined_mat) %in% input_sample),]
@@ -261,7 +265,7 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
         dist_2 <- dist_1 %>% 
           arrange(dist) %>%
           mutate(priority = if_else(sampleID %in% input_sample, 1, 2)) %>% 
-          filter(grepl('TCGA', x = sampleID) & priority == 2) 
+          filter(grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = sampleID) & priority == 2) 
       }
       
       if ("Cell lines" %in% type) {
@@ -305,7 +309,7 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
         dist_2 <- dist_1 %>% 
           arrange(dist) %>% 
           mutate(priority = if_else(sampleID %in% selected_samples, 1, 2)) %>% 
-          filter(grepl('TCGA', x = sampleID) & priority == 2)
+          filter(grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = sampleID) & priority == 2)
       } 
       
       if ("Cell lines" %in% type) {

@@ -31,19 +31,19 @@ ui <- fluidPage(
       fluidRow(
         column(12, 
                div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
-                   selectInput('omics_plot', 'Select an omics alignment:',
+                   selectInput('omics_plot', 'Omics alignment:',
                                choices = c('Methylation',
                                            "Mutational signature (COSMIC)",
                                            "Expression"),
                                multiple = TRUE,
-                               selected = 'Methylation',
-                               selectize = TRUE))
+                               selected = 'Methylation'
+                               ))
         )),
       
       fluidRow(
         column(6, 
                div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
-                   selectInput('reduction_method', HTML("Select<br>reduction:"),
+                   selectInput('reduction_method', "Reduction:",
                                choices = c('UMAP', "tSNE"),
                                selected = 'UMAP',
                                width = "150px"))
@@ -51,7 +51,7 @@ ui <- fluidPage(
         
         column(6,
                div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
-                   selectInput('multiomics_method', 'Select integration method:',
+                   selectInput('multiomics_method', 'Integration method:',
                                choices = NULL))
         )),
       
@@ -62,8 +62,8 @@ ui <- fluidPage(
       fluidRow(
         column(6,
                selectizeInput("sel_type",
-                              'Select type',
-                              choices = c('Cell lines', 'Tumors'), 
+                              'Select model type',
+                              choices = NULL, 
                               multiple = TRUE)),
         column(6,
                selectizeInput('sel_lineage',
@@ -150,7 +150,7 @@ ui <- fluidPage(
         $(document).ready(function(){
           // Tooltip per il bottone "Show"
           $("#subset_btn").tooltip({
-            title: "Click on Show or switch omics without sample/s in search bar to get the basic plot without neighbors",
+            title: "Click on Show without sample/s in search bar to get the basic plot without neighbors",
             placement: "right",
             trigger: "hover",
             html: true
@@ -159,8 +159,16 @@ ui <- fluidPage(
       ')),
       
       div(style = "text-align: center;",
-          actionButton("subset_btn", "Show", #Show
-                       style = "font-size: 14px; padding:10px 70px;")
+          actionButton("subset_btn", "Plot alignment", 
+                       style = "
+                   font-size: 14px;
+                   padding: 15px 70px;
+                   background-color: #4FC3F7; /* Azzurro chiaro */
+                   color: solid black;             /* Colore del testo */
+                   font-weight: bold;        /* Testo in grassetto */
+                   border: none;             /* Nessun bordo */
+                   border-radius: 6px;       /* Angoli leggermente stondati */
+                 ")
       ),
       
       
@@ -190,13 +198,13 @@ ui <- fluidPage(
   ")),
       
       tabsetPanel(
-        type = "pills",
+        type = "tabs",
         selected = 'Neighbors lineages',
         
         hr(),
         
         tabPanel("Neighbors lineages", 
-                 plotOutput("piechart",height = "220px") , 
+                 plotOutput("piechart",height = "270px") , 
                  
                  # CSS x tooltip
                  tags$style(HTML('
@@ -210,18 +218,25 @@ ui <- fluidPage(
 ')),
         ),
         
-        hr(),
+        #hr(),
         
         tabPanel("Neighbors subtypes", 
-                 plotOutput("piechart_subtype",height = "220px"),
+                 plotOutput("piechart_subtype",height = "270px"),
         ),
         
       )),
     
     mainPanel(
-      hr(),
+      ### empty space
+      tags$div(
+        style = "margin-top: 20px; display: flex; justify-content: center; gap: 10px;",
+        tags$img(src = "path_to_image1.jpg", height = "100px"),  
+        tags$img(src = "path_to_image2.jpg", height = "100px")   
+      ),
+
       uiOutput("plot"),
-      width = 9)
+      width = 9
+    )
   )
 )                                
 
@@ -232,18 +247,18 @@ server <- function(input, output, session) {
     
     if(length(input$omics_plot) == 1) {
       
-      switch(input$omics_plot,
+      return(switch(input$omics_plot,
              "Methylation" = 'Methylation',
              "Mutational signature (COSMIC)" = 'Mutational signature',
-             "Expression" = 'Expression')
+             "Expression" = 'Expression'))
     }
     
     if(length(input$omics_plot) > 1) {
       
-      switch(input$multiomics_method,
+      return(switch(input$multiomics_method,
              "MoNETA" = 'MoNETA multiomics',
              "MOFA" = 'MOFA multiomics',
-             "SNF" = 'SNF multiomics')
+             "SNF" = 'SNF multiomics'))
     }
     
   })
@@ -264,7 +279,7 @@ server <- function(input, output, session) {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
           return(umap_exp_meth_mut)
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(umap_exp_meth_)
+          return(umap_exp_meth)
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
           return(umap_exp_mut)
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
@@ -316,25 +331,25 @@ server <- function(input, output, session) {
       
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(snf_umap_all)
+          return()
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(snf_umap_exp_meth)
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(snf_umap_exp_mut)
+          return()
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(snf_umap_meth_mut)
+          return()
         }
       }
       
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(snf_tsne_all)
+          return()
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(snf_tsne_exp_meth)
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(snf_tsne_exp_mut)
+          return()
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(snf_tsne_meth_mut)
+          return()
         }
       }
       
@@ -426,26 +441,26 @@ server <- function(input, output, session) {
       # --- SNF - UMAP ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(snf_umap_all, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting(snf_umap_all, ann_multiomics_v8, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(my_plotting(snf_umap_exp_meth, ann_multiomics_v8, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(snf_umap_exp_mut, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting(snf_umap_exp_mut, ann_multiomics_v8, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting(snf_umap_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting(snf_umap_meth_mut, ann_multiomics_v8, selected_omics_name()))
         }
       }
       
       # --- SNF - tSNE ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(snf_tsne_all, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting_tSNE(snf_tsne_all, ann_multiomics_v8, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(my_plotting_tSNE(snf_tsne_exp_meth, ann_multiomics_v8, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(snf_tsne_exp_mut, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting_tSNE(snf_tsne_exp_mut, ann_multiomics_v8, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(snf_tsne_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting_tSNE(snf_tsne_meth_mut, ann_multiomics_v8, selected_omics_name()))
         }
       }
       
@@ -459,20 +474,20 @@ server <- function(input, output, session) {
     
     if(length(input$omics_plot) == 1) {
       
-      switch(input$omics_plot,
+      return(switch(input$omics_plot,
              "Expression" = pca_exp, 
              "Methylation" = pca_meth_1,
              "Mutational signature (COSMIC)" = combined_mat_mut
-      )
+      ))
       
     } else if (length(input$omics_plot) > 1) {
       
       if (input$multiomics_method == 'MoNETA') {
         
         if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(t(emb_exp_meth_mut_1))
+          return(emb_exp_meth_mut_1)
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(t(emb_exp_meth_1))
+          return(emb_exp_meth_1)
         } else if (setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
           return(emb_exp_mut_1)
         } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
@@ -495,33 +510,38 @@ server <- function(input, output, session) {
       
       if (input$multiomics_method == 'SNF') {
         if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(pca_snf_all)
+          return()
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(pca_snf_exp_meth)
         } else if (setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(pca_snf_exp_mut)
+          return()
         } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(pca_snf_meth_mut)
+          return()
         }
       }
       
     }
   })
   
-  # observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
-  #   output$plot <- renderUI({
-  #     selected_plot() 
-  #   })
-  # })
-  
+  a <- c('Tumors', 'Cell lines')
+  b <- c('Tumors', 'Cell lines (CL)')
+  choices_CL <- setNames(a,b)
+  updateSelectizeInput(session, "sel_type", choices = choices_CL)
+
+  observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
+    output$plot <- renderUI({
+      selected_plot()
+    })
+  })
+
   ### get the multiomics data intergration method in the menu
   updateSelectizeInput(session, "multiomics_method", choices = c('MoNETA','MOFA','SNF'), selected = character(0))
   
   ### select the linage based on the mat that the user choose
   selected_linages <- reactiveVal(NULL)
   
-  observeEvent(list(input$multiomics_method, input$omics_plot), {
-    lin <- ann_multiomics_v8$lineage[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())]
+  observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
+    lin <- unique(ann_multiomics_v8$lineage[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())])
     selected_linages(lin)
     updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0))
   })
@@ -530,9 +550,9 @@ server <- function(input, output, session) {
   query_linages <- reactiveVal(NULL)
   
   observe({
-    lin_out <- ann_multiomics_v8$lineage[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())]
+    lin_out <- unique(ann_multiomics_v8$lineage[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())])
     query_linages(lin_out)
-    updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = 'All' ,server = TRUE)
+    updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = 'All')
   }) 
   
   ### when there is no sample/s in search bar, reolad the omics base plot
@@ -663,6 +683,11 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "both_sample", choices = choices, server = TRUE)
   })
   
+  ### when you change omics or red_method or integration_method the piecharts will go away
+  observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
+    output$piechart_subtype <- renderPlot({ NULL })
+    output$piechart <- renderPlot({ NULL })
+  })
   
   
   selected_samples <- reactive({
@@ -769,148 +794,10 @@ server <- function(input, output, session) {
     }
   })
   
-  ### keep the sample/s in the search bar when you switch omics
-  # observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
-  #   
-  #   updateSelectizeInput(session, "both_sample", choices = selected_samples(), server = TRUE, selected = selected_samples())
-  #   
-  # }, ignoreInit = TRUE) 
-  
-  ### value for: when you already find neighbors for a sample/s just switching plot you will find neighbors for other omics
-  # selected_lin_out <- reactive({
-  #   input$lin_output
-  # })
-  
   ### debug
   observeEvent(input$omics_plot, {
     if (length(input$omics_plot) > 1 & (is.null(input$multiomics_method) || input$multiomics_method == "")) {
       return()
-    }
-  }, ignoreInit = TRUE)
-  
-  ### when you already find neighbors for a sample/s just switching plot you will find neighbors for other omics
-  #observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
-  observeEvent(input$subset_btn, {
-    
-    if (is.null(input$omics_plot) || length(input$omics_plot) == 0) {
-      return()
-    }
-    
-    if (length(input$omics_plot) > 1 & (is.null(input$multiomics_method) || input$multiomics_method == "")) {
-      return()
-    }
-    
-    if (all(input$both_sample %in% selected_samples())) {
-      
-      if(length(input$both_sample) == 1) {
-        
-        selected_samples <- reactive({
-          input$both_sample
-        })
-        
-        selected_lin_out <- reactive({
-          input$lin_output
-        })
-        
-        selected_lineage1 <- reactive({
-          input$sel_lineage
-        })
-        
-        x <- find_neighbors(combined_mat = selected_combined_mat(),
-                            reduced_mat = selected_reduced_mat(),
-                            input_sample = input$both_sample,
-                            k = input$num_neighbors,
-                            ann = ann_multiomics_v8,
-                            type = input$df_selection_output,
-                            omics_name = selected_omics_name(),
-                            red_method = input$reduction_method,
-                            query_lineage = input$lin_output)
-        
-        piechart <- get_piechart(combined_mat = selected_combined_mat(),
-                                 input_sample = input$both_sample,
-                                 k = input$num_neighbors,
-                                 ann = ann_multiomics_v8,
-                                 type = input$df_selection_output,
-                                 query_lineage = input$lin_output)
-        
-        piechart_subtype <- get_piechart_subtype(combined_mat = selected_combined_mat(),
-                                                 input_sample = input$both_sample,
-                                                 k = input$num_neighbors,
-                                                 ann = ann_multiomics_v8,
-                                                 type = input$df_selection_output,
-                                                 query_lineage = input$lin_output)
-        
-        updateSelectizeInput(session, "both_sample", choices = selected_samples(), server = TRUE, selected = selected_samples())
-        updateSelectizeInput(session, "lin_output", choices = selected_lin_out(), selected = selected_lin_out() ,server = TRUE)
-        updateSelectizeInput(session, "sel_lineage", choices = selected_lineage1(), selected = selected_lineage1())
-        
-        output$piechart_subtype <- renderPlot({
-          piechart_subtype
-        })
-        
-        
-        output$plot <- renderUI({
-          x
-        })
-        
-        output$piechart <- renderPlot({
-          piechart
-        })
-        
-      } else if (length(input$both_sample) > 1) {
-        
-        selected_samples <- reactive({
-          input$both_sample
-        })
-        
-        selected_lin_out <- reactive({
-          input$lin_output
-        })
-        
-        selected_lineage1 <- reactive({
-          input$sel_lineage
-        })
-        
-        x <- find_neighbors(combined_mat = selected_combined_mat(),
-                            reduced_mat = selected_reduced_mat(),
-                            selected_samples = selected_samples(),
-                            k = input$num_neighbors,
-                            ann = ann_multiomics_v8,
-                            type = input$df_selection_output,
-                            omics_name = selected_omics_name(),
-                            red_method = input$reduction_method,
-                            query_lineage = input$lin_output)
-        
-        piechart <- get_piechart(combined_mat = selected_combined_mat(),
-                                 selected_samples = selected_samples(),
-                                 k = input$num_neighbors,
-                                 ann = ann_multiomics_v8,
-                                 type = input$df_selection_output,
-                                 query_lineage = input$lin_output)
-        
-        piechart_subtype <- get_piechart_subtype(combined_mat = selected_combined_mat(),
-                                                 selected_samples = selected_samples(),
-                                                 k = input$num_neighbors,
-                                                 ann = ann_multiomics_v8,
-                                                 type = input$df_selection_output,
-                                                 query_lineage = input$lin_output)
-        
-        updateSelectizeInput(session, "both_sample", choices = selected_samples(), server = TRUE, selected = selected_samples())
-        updateSelectizeInput(session, "lin_output", choices = selected_lin_out(), selected = selected_lin_out() ,server = TRUE)
-        updateSelectizeInput(session, "sel_lineage", choices = selected_lineage1(), selected = selected_lineage1())
-        
-        output$piechart_subtype <- renderPlot({
-          piechart_subtype
-        })
-        
-        output$plot <- renderUI({
-          x
-        })
-        
-        output$piechart <- renderPlot({
-          piechart
-        })
-      }
     }
   }, ignoreInit = TRUE)
   

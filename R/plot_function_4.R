@@ -36,7 +36,7 @@ my_plotting_tSNE <- function(reduced_mat, ann, omics_name) {
     widths = c(2, 10), 
     list(
       crosstalk::filter_checkbox("Type", 
-                                 label = "Select Type",
+                                 label = "Select Model",
                                  sharedData = shared, 
                                  group = ~type),
       crosstalk::filter_checkbox("Lineage", 
@@ -75,6 +75,7 @@ my_plotting_tSNE <- function(reduced_mat, ann, omics_name) {
           width = 1.3)))
     %>%
       layout(
+        dragmode = "zoom",
         title = list(
           text = paste('tSNE projection of', omics_name, 'alignment'), 
           font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
@@ -99,9 +100,30 @@ my_plotting_tSNE <- function(reduced_mat, ann, omics_name) {
     htmltools::browsable(
       tagList(
         tags$button(
-          tagList(fontawesome::fa("download"), "Download"),
+          tagList(fontawesome::fa("download"), "Download Table"),
           onclick = "Reactable.downloadDataCSV('alignment-download-table', 'alignment.csv')"
         ),
+        
+        tags$div(
+          style = "margin-bottom: 10px;",
+          tags$button(
+            tagList(fontawesome::fa("download"), "Download plot as SVG"), 
+            id = "download-svg-btn")
+        ),
+        tags$script(HTML(
+          "
+  document.getElementById('download-svg-btn').onclick = function() {
+    var plot = document.getElementsByClassName('plotly')[0];
+    Plotly.downloadImage(plot, {
+      format: 'svg',
+      filename: 'alignment_plot',
+      width: 1500,
+      height: 700,
+      scale: 1
+    });
+  };
+  "
+        )),
         
         reactable(shared, searchable = TRUE, minRows = 3, 
                   showPageSizeOptions = TRUE,
