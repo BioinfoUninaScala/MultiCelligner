@@ -227,11 +227,10 @@ ui <- fluidPage(
       )),
     
     mainPanel(
-      ### empty space
       tags$div(
-        style = "margin-top: 20px; display: flex; justify-content: center; gap: 10px;",
-        tags$img(src = "MultiCelligner/docs/", height = "100px"),  
-        tags$img(src = "path_to_image2.jpg", height = "100px")   
+        style = "margin-top: 20px; display: flex; justify-content: space-between; gap: 10px;",
+        tags$img(src = "logounina.jpeg", height = "100px"),  
+        tags$img(src = "logobiologia.png", height = "100px")   
       ),
 
       uiOutput("plot"),
@@ -528,23 +527,23 @@ server <- function(input, output, session) {
   choices_CL <- setNames(a,b)
   updateSelectizeInput(session, "sel_type", choices = choices_CL, selected = 'Cell lines')
 
-  # observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
-  #   output$plot <- renderUI({
-  #     selected_plot()
-  #   })
-  # })
-
   ### get the multiomics data intergration method in the menu
   updateSelectizeInput(session, "multiomics_method", choices = c('MoNETA','MOFA','SNF'), selected = character(0))
   
   ### select the linage based on the mat that the user choose
   selected_linages <- reactiveVal(NULL)
   
-  observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
+  observe({
     lin <- unique(ann_multiomics_v8$lineage[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())])
     selected_linages(lin)
     updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0))
+    
+    ### update lineage sel
+    observeEvent(input$subset_btn, {
+      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = input$sel_lineage)
+    })
   })
+  
   
   ### select the Query lineage/s for neighbors search
   query_linages <- reactiveVal(NULL)
@@ -553,7 +552,12 @@ server <- function(input, output, session) {
     lin_out <- unique(ann_multiomics_v8$lineage[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())])
     query_linages(lin_out)
     updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = 'All')
-  }) 
+    
+    ### update lineage out
+    observeEvent(input$subset_btn, {
+      updateSelectizeInput(session, "lin_output", choices = lin_out, selected = input$lin_output)
+    })
+  })
   
   ### when there is no sample/s in search bar, reolad the omics base plot
   observeEvent(input$subset_btn, {
@@ -571,43 +575,30 @@ server <- function(input, output, session) {
     subset_1 <- ann_multiomics_v8
     
     if (input$sel_lineage == "") {
-      
       if ("Cell lines" %in% input$sel_type) {
-        
         cl_values <- rownames(selected_combined_mat())
-        
         if (!is.null(cl_values)) {
-          
           cl_values <- cl_values[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', cl_values)]
           cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v8)
-          
           if (!is.null(cl_names)) {
-            
             choices <- c(choices, setNames(as.list(cl_values), cl_names))
           }
         }
       }
       
       if ("Tumors" %in% input$sel_type) {
-        
         tumor_values <- rownames(selected_combined_mat())
-        
         if (!is.null(tumor_values)) {
-          
           tumor_values <- tumor_values[grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', tumor_values)]
           choices <- c(choices, setNames(as.list(tumor_values), tumor_values))
         }
       }
       
       if (all(c("Cell lines", "Tumors") %in% input$sel_type)) {
-        
         all_values <- rownames(selected_combined_mat())
-        
         if (!is.null(all_values)) {
-          
           cl_values <- all_values[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', all_values)]
           tumor_values <- all_values[grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', all_values)]
-          
           cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v8)
           
           if (!is.null(cl_values) && !is.null(cl_names)) {
@@ -619,41 +610,28 @@ server <- function(input, output, session) {
           }
         }
       }
-      
     } else {
-      
       if (length(input$sel_lineage) >= 1) {
-        
         subset_1 <- subset_1[ann_multiomics_v8$lineage == input$sel_lineage, ]
         subset_1 <- subset_1[subset_1$sampleID %in% rownames(selected_combined_mat()),]
         subset <- subset_1$sampleID
-        
         all_names <- subset_1$stripped_cell_line_name[subset_1$sampleID %in% rownames(selected_combined_mat())]
-        
         all_values <- rownames(selected_combined_mat())[rownames(selected_combined_mat()) %in% subset]
         
         if (!is.null(all_values) && !is.null(all_names)) {
-          
           all_values_x <- all_values[all_values %in% subset]
           all_names_x <- all_names[all_names %in% subset_1$stripped_cell_line_name]
-          
         } else {
-          
           all_values_x <- character(0)
           all_names_x <- character(0)
         }
         
         if ("Cell lines" %in% input$sel_type) {
-          
           cl_values <- rownames(selected_combined_mat())
-          
           if (!is.null(cl_values)) {
-            
             cl_values <- cl_values[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', cl_values)]
             cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v8)
-            
             if (!is.null(cl_names)) {
-              
               cl_filtered <- intersect(cl_values, all_values_x)
               cl_names_filtered <- intersect(cl_names, all_names_x)
               choices <- c(choices, setNames(as.list(cl_filtered), cl_names_filtered))
@@ -662,11 +640,8 @@ server <- function(input, output, session) {
         }
         
         if ("Tumors" %in% input$sel_type) {
-          
           tumor_values <- rownames(selected_combined_mat())
-          
           if (!is.null(tumor_values)) {
-            
             tumor_values <- tumor_values[grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', tumor_values)]
             tumor_filtered <- intersect(tumor_values, all_values_x)
             choices <- c(choices, setNames(as.list(tumor_filtered), tumor_filtered))
@@ -674,21 +649,35 @@ server <- function(input, output, session) {
         }
         
         if (all(c("Cell lines", "Tumors") %in% input$sel_type)) {
-          
           choices <- c(choices, setNames(as.list(all_values_x), all_names_x))
         }
       }
     }
     
     updateSelectizeInput(session, "both_sample", choices = choices, server = TRUE)
+    
+    ### when user already search neighbors and he switch between the combination of input$ and then click on Plot alignment:
+    ### the samples will be saved and update in the search bar!
+    observeEvent(input$subset_btn,{
+      if(length(input$both_sample) >= 1) {
+        selected_samples <- reactive({
+          value <- ann_multiomics_v8$sampleID[ann_multiomics_v8$sampleID %in% input$both_sample]
+          name <- ann_multiomics_v8$stripped_cell_line_name[ann_multiomics_v8$sampleID %in% input$both_sample]
+          choices <- setNames(as.list(value), name)
+          return(choices)
+        })
+        
+        updateSelectizeInput(session, "both_sample", choices = selected_samples(), selected = selected_samples())
+      }
+    })
   })
+  
   
   ### when you change omics or red_method or integration_method the piecharts will go away
   observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
     output$piechart_subtype <- renderPlot({ NULL })
     output$piechart <- renderPlot({ NULL })
   })
-  
   
   selected_samples <- reactive({
     input$both_sample
@@ -794,13 +783,6 @@ server <- function(input, output, session) {
     }
   })
   
-  ### debug
-  observeEvent(input$omics_plot, {
-    if (length(input$omics_plot) > 1 & (is.null(input$multiomics_method) || input$multiomics_method == "")) {
-      return()
-    }
-  }, ignoreInit = TRUE)
-  
   #### lasso select code
   
   filtered_data <- reactiveVal()
@@ -846,6 +828,11 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$load_selection, {
+    
+    if(is.null(input$both_sample)) {
+      showNotification("Select samples and then click on Load")
+      warning("Select samples and then click on Load")
+      return()}
     
     if(is.null(input$sel_type)) {
       return()
