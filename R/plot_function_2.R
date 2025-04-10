@@ -32,68 +32,72 @@ my_plotting <- function(reduced_mat, ann, omics_name) {
   
   shared <- SharedData$new(data_res_1, key = ~sampleID)
   
-  row_1 <- crosstalk::bscols(
-    widths = c(2, 10), 
+  row_1 <- bscols(
+    widths = c(2, 10),
     list(
-      crosstalk::filter_checkbox("Type", 
-                                 label = "Select Model",
-                                 sharedData = shared, 
-                                 group = ~type),
-      crosstalk::filter_checkbox("Lineage", 
-                                 label = "Select Lineage",
-                                 sharedData = shared, 
-                                 group = ~lineage),
-      crosstalk::filter_select("Subtype",
-                               label = "Select Subtype",
-                               sharedData = shared, 
-                               group = ~subtype)),
+      div(style = "height: 40px;"),
+      filter_checkbox("Type", 
+                      label = "Select Model",
+                      sharedData = shared, 
+                      group = ~type),
+      filter_select("Lineage", 
+                    label = "Select Lineage",
+                    sharedData = shared, 
+                    group = ~lineage),
+      filter_select("Subtype",
+                    label = "Select Subtype",
+                    sharedData = shared, 
+                    group = ~subtype)
+    ),
     
-    
-    plot_ly(
-      data = shared, 
-      x = ~UMAP_1,
-      y = ~UMAP_2,
-      key = ~sampleID, 
-      source = 'A',
-      type = 'scatter',
-      mode = 'markers',
-      color = ~lineage,  
-      symbol = ~type, 
-      symbols = c('circle',"x"),
-      stroke = ~type,
-      strokes = c("CL" = "black"),
-      #opacity = ~opacity,
-      size = ~size,
-      sizes = c(5,9),
-      hoverinfo = "text",
-      hovertext = ~paste("ID:", sampleID,
-                         '\nName:', stripped_cell_line_name, 
-                         '\nLineage:', lineage,
-                         '\nSubtype:', subtype_1,
-                         '\nType:', type), 
-      marker = list(
-        line = list(
-          width = 1.3)))
-      %>%
-      layout(
-        dragmode = "zoom", 
-        autosize = TRUE,
-        title = list(
-          text = paste('UMAP projection of', omics_name, 'alignment'), 
-          font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
-          x = 0.3,          
-          xanchor = "center",  
-          yanchor = "top"
-        ),
-        xaxis = list(title = '', zeroline  = F, showticklabels = FALSE, showgrid = FALSE),
-        yaxis = list(title = '', zeroline  = F, showticklabels = FALSE, showgrid = FALSE),
-        legend = list(
-          title = list(text = 'Select lineage-type pair'),
-          traceorder = 'normal'),
-          height = 600) %>%
-      event_register(event = "plotly_selected") %>% 
-      highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
+    div(
+      style = "height: 600px; width: 100%;",  
+      plot_ly(
+        data = shared, 
+        x = ~UMAP_1,
+        y = ~UMAP_2,
+        key = ~sampleID, 
+        source = 'A',
+        type = 'scatter',
+        mode = 'markers',
+        color = ~lineage,  
+        symbol = ~type, 
+        symbols = c('circle',"x"),
+        stroke = ~type,
+        strokes = c("CL" = "black"),
+        size = ~size,
+        sizes = c(5,9),
+        hoverinfo = "text",
+        hovertext = ~paste("ID:", sampleID,
+                           '\nName:', stripped_cell_line_name, 
+                           '\nLineage:', lineage,
+                           '\nSubtype:', subtype_1,
+                           '\nType:', type), 
+        marker = list(
+          line = list(width = 1.3))
+      ) %>%
+        layout(
+          dragmode = "zoom", 
+          autosize = TRUE,
+          title = list(
+            text = paste('UMAP projection of', omics_name, 'alignment'), 
+            font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
+            x = 0.3,          
+            xanchor = "center",  
+            yanchor = "top"
+          ),
+          xaxis = list(title = '', zeroline  = F, showticklabels = FALSE, showgrid = FALSE),
+          yaxis = list(title = '', zeroline  = F, showticklabels = FALSE, showgrid = FALSE),
+          legend = list(
+            title = list(text = 'Select lineage-type pair'),
+            traceorder = 'normal'),
+          height = 600  
+        ) %>%
+        event_register(event = "plotly_selected") %>% 
+        highlight(on = "plotly_selected", off = "plotly_doubleclick", color = 'green', persistent = FALSE)
     )
+  )
+  
 
     row_2 <- crosstalk::bscols(
       widths = c(10,2),

@@ -230,7 +230,7 @@ ui <- fluidPage(
       ### empty space
       tags$div(
         style = "margin-top: 20px; display: flex; justify-content: center; gap: 10px;",
-        tags$img(src = "path_to_image1.jpg", height = "100px"),  
+        tags$img(src = "MultiCelligner/docs/", height = "100px"),  
         tags$img(src = "path_to_image2.jpg", height = "100px")   
       ),
 
@@ -526,13 +526,13 @@ server <- function(input, output, session) {
   a <- c('Cell lines', 'Tumors')
   b <- c('Cell lines (CL)', 'Tumors')
   choices_CL <- setNames(a,b)
-  updateSelectizeInput(session, "sel_type", choices = choices_CL)
+  updateSelectizeInput(session, "sel_type", choices = choices_CL, selected = 'Cell lines')
 
-  observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
-    output$plot <- renderUI({
-      selected_plot()
-    })
-  })
+  # observeEvent(list(input$reduction_method, input$multiomics_method, input$omics_plot), {
+  #   output$plot <- renderUI({
+  #     selected_plot()
+  #   })
+  # })
 
   ### get the multiomics data intergration method in the menu
   updateSelectizeInput(session, "multiomics_method", choices = c('MoNETA','MOFA','SNF'), selected = character(0))
@@ -806,6 +806,13 @@ server <- function(input, output, session) {
   filtered_data <- reactiveVal()
   
   observeEvent(event_data("plotly_selected"), {
+    
+    if(is.null(input$sel_type)) {
+      showNotification("Select the model type and then load the samples from the plot")
+      warning("Select the model type and then load the samples from the plot")
+      return()
+    }
+    
     selected_data <- event_data("plotly_selected")
     
     if (!is.null(selected_data)) {
@@ -814,7 +821,21 @@ server <- function(input, output, session) {
       x_1 <- ann_multiomics_v8 %>%
         filter(sampleID %in% selected_samples)
       
-      filtered_data(x_1$sampleID)
+      x_2 <- NULL
+      
+      if(input$sel_type %in% 'Cell lines') {
+        x_2 <- x_1 %>% dplyr::filter(type == 'CL')
+      }
+      
+      if(input$sel_type %in% 'Tumors') {
+        x_2 <- x_1 %>% dplyr::filter(type == 'Tumor')
+      }
+      
+      if (all(c("Cell lines", "Tumors") %in% input$sel_type)) {
+        x_2 <- x_1
+      }
+      
+      filtered_data(x_2$sampleID)
     }
   })
   
@@ -825,6 +846,10 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$load_selection, {
+    
+    if(is.null(input$sel_type)) {
+      return()
+    }
     
     choices <- list()
     

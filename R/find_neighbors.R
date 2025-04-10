@@ -140,22 +140,26 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
   
   if(red_method == 'tSNE') {
     
-    row_1 <- crosstalk::bscols(
-      widths = c(2, 10), 
+    row_1 <- bscols(
+      widths = c(2, 10),
       list(
-        crosstalk::filter_checkbox("Type", 
-                                   label = "Select Model",
-                                   sharedData = shared, 
-                                   group = ~type),
-        crosstalk::filter_checkbox("Lineage", 
-                                   label = "Select Lineage",
-                                   sharedData = shared, 
-                                   group = ~lineage),
-        crosstalk::filter_select("subtype",
-                                 label = "Select Subtype",
-                                 sharedData = shared, 
-                                 group = ~subtype)), 
+        div(style = "height: 40px;"),
+        filter_checkbox("Type", 
+                        label = "Select Model",
+                        sharedData = shared, 
+                        group = ~type),
+        filter_select("Lineage", 
+                      label = "Select Lineage",
+                      sharedData = shared, 
+                      group = ~lineage),
+        filter_select("Subtype",
+                      label = "Select Subtype",
+                      sharedData = shared, 
+                      group = ~subtype)
+      ),
       
+      div(
+        style = "height: 600px; width: 100%;",  
       plot_ly(
         data = shared,
         x = ~UMAP_1,
@@ -198,7 +202,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
           height = 600) %>% 
         event_register("plotly_selected") %>% 
         highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
-    )
+    ))
     
     
     row_2 <- crosstalk::bscols(
@@ -272,22 +276,26 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
     
   } else {
     
-    row_1 <- crosstalk::bscols(
-      widths = c(2, 10), 
+    row_1 <- bscols(
+      widths = c(2, 10),
       list(
-        crosstalk::filter_checkbox("Type", 
-                                   label = "Select Model",
-                                   sharedData = shared, 
-                                   group = ~type),
-        crosstalk::filter_checkbox("Lineage", 
-                                   label = "Select Lineage",
-                                   sharedData = shared, 
-                                   group = ~lineage),
-        crosstalk::filter_select("subtype",
-                                 label = "Select Subtype",
-                                 sharedData = shared, 
-                                 group = ~subtype)), 
+        div(style = "height: 40px;"),
+        filter_checkbox("Type", 
+                        label = "Select Model",
+                        sharedData = shared, 
+                        group = ~type),
+        filter_select("Lineage", 
+                      label = "Select Lineage",
+                      sharedData = shared, 
+                      group = ~lineage),
+        filter_select("Subtype",
+                      label = "Select Subtype",
+                      sharedData = shared, 
+                      group = ~subtype)
+      ),
       
+      div(
+        style = "height: 600px; width: 100%;",  
       plot_ly(
         data = shared,
         x = ~UMAP_1,
@@ -330,7 +338,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
           height = 600) %>%
         event_register("plotly_selected") %>% 
         highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
-    )
+    ))
     
     
     row_2 <- crosstalk::bscols(
@@ -527,22 +535,26 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
     
     if(red_method == 'tSNE') {
       
-      row_1 <- crosstalk::bscols(
-        widths = c(2, 10), 
+      row_1 <- bscols(
+        widths = c(2, 10),
         list(
-          crosstalk::filter_checkbox("Type", 
-                                     label = "Select Model",
-                                     sharedData = shared, 
-                                     group = ~type),
-          crosstalk::filter_checkbox("Lineage", 
-                                     label = "Select Lineage",
-                                     sharedData = shared, 
-                                     group = ~lineage),
-          crosstalk::filter_select("subtype",
-                                   label = "Select Subtype",
-                                   sharedData = shared, 
-                                   group = ~subtype)), 
+          div(style = "height: 40px;"),
+          filter_checkbox("Type", 
+                          label = "Select Model",
+                          sharedData = shared, 
+                          group = ~type),
+          filter_select("Lineage", 
+                        label = "Select Lineage",
+                        sharedData = shared, 
+                        group = ~lineage),
+          filter_select("Subtype",
+                        label = "Select Subtype",
+                        sharedData = shared, 
+                        group = ~subtype)
+        ),
         
+        div(
+          style = "height: 600px; width: 100%;",  
         plot_ly(
           data = shared,
           x = ~UMAP_1,
@@ -585,7 +597,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
             height = 600) %>% 
           event_register("plotly_selected") %>% 
           highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
-      )
+      ))
       
       
       row_2 <- crosstalk::bscols(
@@ -659,22 +671,26 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
       
     } else {
       
-      row_1 <- crosstalk::bscols(
-        widths = c(2, 10), 
+      row_1 <- bscols(
+        widths = c(2, 10),
         list(
-          crosstalk::filter_checkbox("Type", 
-                                     label = "Select Model",
-                                     sharedData = shared, 
-                                     group = ~type),
-          crosstalk::filter_checkbox("Lineage", 
-                                     label = "Select Lineage",
-                                     sharedData = shared, 
-                                     group = ~lineage),
-          crosstalk::filter_select("subtype",
-                                   label = "Select Subtype",
-                                   sharedData = shared, 
-                                   group = ~subtype)), 
+          div(style = "height: 40px;"),
+          filter_checkbox("Type", 
+                          label = "Select Model",
+                          sharedData = shared, 
+                          group = ~type),
+          filter_select("Lineage", 
+                        label = "Select Lineage",
+                        sharedData = shared, 
+                        group = ~lineage),
+          filter_select("Subtype",
+                        label = "Select Subtype",
+                        sharedData = shared, 
+                        group = ~subtype)
+        ),
         
+        div(
+          style = "height: 600px; width: 100%;",  
         plot_ly(
           data = shared,
           x = ~UMAP_1,
@@ -717,7 +733,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
             height = 600) %>%
           event_register("plotly_selected") %>% 
           highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
-      )
+      ))
       
       
       row_2 <- crosstalk::bscols(
