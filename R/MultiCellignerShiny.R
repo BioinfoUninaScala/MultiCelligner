@@ -358,7 +358,7 @@ server <- function(input, output, session) {
   }) 
   
   
-  selected_plot <- reactive({
+  selected_plot <- eventReactive(input$subset_btn, {
     
     if(length(input$omics_plot) == 1) {
       
@@ -528,7 +528,7 @@ server <- function(input, output, session) {
   updateSelectizeInput(session, "sel_type", choices = choices_CL, selected = 'Cell lines')
 
   ### get the multiomics data intergration method in the menu
-  updateSelectizeInput(session, "multiomics_method", choices = c('MoNETA','MOFA','SNF'), selected = character(0))
+  updateSelectizeInput(session, "multiomics_method", choices = c('MoNETA','MOFA','SNF'), selected = 'MoNETA')
   
   ### select the linage based on the mat that the user choose
   selected_linages <- reactiveVal(NULL)
@@ -555,7 +555,7 @@ server <- function(input, output, session) {
     
     ### update lineage out
     observeEvent(input$subset_btn, {
-      updateSelectizeInput(session, "lin_output", choices = lin_out, selected = input$lin_output)
+      updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = input$lin_output)
     })
   })
   
@@ -796,7 +796,7 @@ server <- function(input, output, session) {
     }
     
     selected_data <- event_data("plotly_selected")
-    
+   
     if (!is.null(selected_data)) {
       selected_samples <- selected_data$key
       
@@ -805,16 +805,16 @@ server <- function(input, output, session) {
       
       x_2 <- NULL
       
-      if(input$sel_type %in% 'Cell lines') {
-        x_2 <- x_1 %>% dplyr::filter(type == 'CL')
+      if(all(c("Cell lines", "Tumors") %in% input$sel_type)) { 
+        x_2 <- x_1 
       }
       
-      if(input$sel_type %in% 'Tumors') {
+      else if('Tumors' %in% input$sel_type) {
         x_2 <- x_1 %>% dplyr::filter(type == 'Tumor')
       }
       
-      if (all(c("Cell lines", "Tumors") %in% input$sel_type)) {
-        x_2 <- x_1
+      else if('Cell lines' %in% input$sel_type %in% input$sel_type) {
+        x_2 <- x_1 %>% dplyr::filter(type == 'CL')
       }
       
       filtered_data(x_2$sampleID)
@@ -829,10 +829,10 @@ server <- function(input, output, session) {
   
   observeEvent(input$load_selection, {
     
-    if(is.null(input$both_sample)) {
-      showNotification("Select samples and then click on Load")
-      warning("Select samples and then click on Load")
-      return()}
+    # if(is.null(input$both_sample)) {
+    #   showNotification("Select samples and then click on Load")
+    #   warning("Select samples and then click on Load")
+    #   return()}
     
     if(is.null(input$sel_type)) {
       return()
