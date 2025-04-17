@@ -105,7 +105,7 @@ ui <- fluidPage(
       hr(),
       
       fluidRow(
-        column(8,
+        column(6,
                tags$strong("or load from map selection:")),
         column(4,
                actionButton("load_selection", "Load", style = "text-align: center;") %>%
@@ -119,7 +119,22 @@ ui <- fluidPage(
       });
     });
   ')))
-        )),
+        ),
+        column(2,
+               div(style = "align-items: flex-start; justify-content: center;",
+               actionButton("rm", "rm", style = "text-align: center;")) %>%
+                 tagAppendChild(tags$script(HTML('
+    $(document).ready(function(){
+      $("#rm").tooltip({
+        title: "Remove all the samples",
+        placement: "right",
+        trigger: "hover",
+        html: true
+      });
+    });
+  ')))
+        )
+        ),
       
       
       hr(),
@@ -229,8 +244,8 @@ ui <- fluidPage(
     mainPanel(
       tags$div(
         style = "margin-top: 20px; display: flex; justify-content: space-between; gap: 10px;",
-        tags$img(src = "logounina.jpeg", height = "100px"),  
-        tags$img(src = "logobiologia.png", height = "100px")   
+        tags$img(src = "MultiCelligner_Logo_2.png", height = "100px"),  
+        #tags$img(src = "logobiologia.png", height = "100px")   
       ),
 
       uiOutput("plot"),
@@ -570,10 +585,12 @@ server <- function(input, output, session) {
   })
   
   ### update the sample/s for each selected omics; using depmap code but show nameID
+  r_choices <- reactiveVal()
+  
   observe({
-    choices <- list()
+    choices <- list() 
     subset_1 <- ann_multiomics_v8
-    
+
     if (input$sel_lineage == "") {
       if ("Cell lines" %in% input$sel_type) {
         cl_values <- rownames(selected_combined_mat())
@@ -582,6 +599,7 @@ server <- function(input, output, session) {
           cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v8)
           if (!is.null(cl_names)) {
             choices <- c(choices, setNames(as.list(cl_values), cl_names))
+            r_choices(choices)
           }
         }
       }
@@ -591,6 +609,7 @@ server <- function(input, output, session) {
         if (!is.null(tumor_values)) {
           tumor_values <- tumor_values[grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', tumor_values)]
           choices <- c(choices, setNames(as.list(tumor_values), tumor_values))
+          r_choices(choices)
         }
       }
       
@@ -603,10 +622,12 @@ server <- function(input, output, session) {
           
           if (!is.null(cl_values) && !is.null(cl_names)) {
             choices <- c(choices, setNames(as.list(cl_values), cl_names))
+            r_choices(choices)
           }
           
           if (!is.null(tumor_values)) {
             choices <- c(choices, setNames(as.list(tumor_values), tumor_values))
+            r_choices(choices)
           }
         }
       }
@@ -635,6 +656,7 @@ server <- function(input, output, session) {
               cl_filtered <- intersect(cl_values, all_values_x)
               cl_names_filtered <- intersect(cl_names, all_names_x)
               choices <- c(choices, setNames(as.list(cl_filtered), cl_names_filtered))
+              r_choices(choices)
             }
           }
         }
@@ -645,11 +667,13 @@ server <- function(input, output, session) {
             tumor_values <- tumor_values[grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', tumor_values)]
             tumor_filtered <- intersect(tumor_values, all_values_x)
             choices <- c(choices, setNames(as.list(tumor_filtered), tumor_filtered))
+            r_choices(choices)
           }
         }
         
         if (all(c("Cell lines", "Tumors") %in% input$sel_type)) {
           choices <- c(choices, setNames(as.list(all_values_x), all_names_x))
+          r_choices(choices)
         }
       }
     }
@@ -660,18 +684,23 @@ server <- function(input, output, session) {
     ### the samples will be saved and update in the search bar!
     observeEvent(input$subset_btn,{
       if(length(input$both_sample) >= 1) {
+        
         selected_samples <- reactive({
           value <- ann_multiomics_v8$sampleID[ann_multiomics_v8$sampleID %in% input$both_sample]
           name <- ann_multiomics_v8$stripped_cell_line_name[ann_multiomics_v8$sampleID %in% input$both_sample]
           choices <- setNames(as.list(value), name)
+          
           return(choices)
         })
         
-        updateSelectizeInput(session, "both_sample", choices = selected_samples(), selected = selected_samples())
+        if(!is.null(filtered_data())) {
+        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples())
+        } else {
+          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples())
+        }
       }
     })
   })
-  
   
   ### when you change omics or red_method or integration_method the piecharts will go away
   observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
@@ -813,10 +842,10 @@ server <- function(input, output, session) {
         x_2 <- x_1 %>% dplyr::filter(type == 'Tumor')
       }
       
-      else if('Cell lines' %in% input$sel_type %in% input$sel_type) {
+      else if('Cell lines' %in% input$sel_type) {
         x_2 <- x_1 %>% dplyr::filter(type == 'CL')
       }
-      
+
       filtered_data(x_2$sampleID)
     }
   })
@@ -828,8 +857,8 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$load_selection, {
-    
-    # if(is.null(input$both_sample)) {
+
+            # if(is.null(input$both_sample)) {
     #   showNotification("Select samples and then click on Load")
     #   warning("Select samples and then click on Load")
     #   return()}
@@ -838,20 +867,29 @@ server <- function(input, output, session) {
       return()
     }
     
-    choices <- list()
+    req(lasso_selected_samples())
+    req(input$sel_type)
     
-    all_names <- ann_multiomics_v8$stripped_cell_line_name
-    all_values <- ann_multiomics_v8$sampleID
-    
+    selected <- list()
+
+    all_names <- ann_multiomics_v8$stripped_cell_line_name[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())]
+    all_values <- colnames(selected_reduced_mat())
+
     sub_values <- all_values[all_values %in% lasso_selected_samples()]
     sub_names <- ann_multiomics_v8 %>% filter(sampleID %in% sub_values)
     sub_names <- sub_names$stripped_cell_line_name
     
-    choices <- c(choices, setNames(as.list(sub_values), sub_names))
+    selected <- c(selected, setNames(as.list(sub_values), sub_names))
     
     updateSelectizeInput(session, "both_sample",
-                         choices = choices,
-                         selected = choices)
+                         choices = r_choices(),
+                         selected = selected,
+                         server = TRUE)
+  })
+  
+### remove all the sample form the query bar  
+  observeEvent(input$rm, {
+    updateSelectizeInput(session, "both_sample", choices = r_choices(), server = TRUE)
   })
   
 }

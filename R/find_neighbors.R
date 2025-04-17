@@ -26,10 +26,28 @@
 
 find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selected_samples = NULL, type, k, ann, omics_name, red_method, query_lineage) {
 
-  if ("All" %in% query_lineage && length(query_lineage) > 1) {
+    if ("All" %in% query_lineage && length(query_lineage) > 1) {
     showNotification("Select only All or choose multiple lineage without All")
     warning("Select only All or choose multiple lineage without All")
     return()}
+  
+  ### when you switch omics with the sample, if the there isn't the sample in that omics will appear a notification!
+  if(!is.null(input_sample)) {
+  if(all(!input_sample %in% colnames(reduced_mat))) {
+    showNotification("There are no tumor samples for this lineage in this omics")
+    warning("There are no tumor samples for this lineage in this omics")
+    return(NULL)
+  }
+  }
+  
+  ### when you switch omics with the sample, if the there isn't the sample in that omics will appear a notification!
+  if(!is.null(selected_samples)) {
+  if(all(!selected_samples %in% colnames(reduced_mat))) {
+    showNotification("There are no tumor samples for this lineage in this omics")
+    warning("There are no tumor samples for this lineage in this omics")
+    return(NULL)
+  }
+  }
   
   if(all(query_lineage == 'All')) {
   
@@ -425,7 +443,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
     if(all(!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = rownames(combined_mat)))) {
       showNotification("There are no tumor samples for this lineage in this omics")
       warning("There are no tumor samples for this lineage in this omics")
-      return()
+      return(NULL)
     }
     
     if(is.null(selected_samples)) {
