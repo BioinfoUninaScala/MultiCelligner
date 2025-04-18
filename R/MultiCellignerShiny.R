@@ -245,7 +245,7 @@ ui <- fluidPage(
       tags$div(
         style = "margin-top: 20px; display: flex; justify-content: space-between; gap: 10px;",
         tags$img(src = "MultiCelligner_Logo_2.png", height = "100px"),  
-        #tags$img(src = "logobiologia.png", height = "100px")   
+        tags$img(src = "Mcell_logo.png", height = "100px")   
       ),
 
       uiOutput("plot"),
@@ -697,8 +697,8 @@ server <- function(input, output, session) {
         updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples())
         } else {
           updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples())
-        }
-      }
+        } ### due possibilità: o le mantieni tutte (cioè nel menù della sel compaiono anche quelle che non ci sono) e metti choices = choices 
+      } ### o altrimenti: lasci r_choices ma quando non sono presenti nell'omica i campioni spariscono!
     })
   })
   
@@ -890,6 +890,15 @@ server <- function(input, output, session) {
 ### remove all the sample form the query bar  
   observeEvent(input$rm, {
     updateSelectizeInput(session, "both_sample", choices = r_choices(), server = TRUE)
+  })
+  
+  ### debug
+  observeEvent(input$subset_btn, {
+    if(is.null(input$omics_plot)) {
+      showNotification("Select at least one omic")
+      warning("Select at least one omic")
+      return()
+    }
   })
   
 }
