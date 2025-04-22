@@ -4,6 +4,7 @@
 #' @import dplyr
 #' @param combined_mat matrix samples x genes of corrected data by MNN 
 #' @param ann annotation file of tumors and cell lines 
+#' @param sample_info sample annotation dataframe
 #' @return a vector with the stripped cell line name and the tumors ID
 #' @export
 

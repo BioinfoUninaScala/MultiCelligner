@@ -1,10 +1,8 @@
 #' 
 #' MultiCelligner Shiny App
 #'
-#' @import dplyr
-#' @import plotly
 #' @import shiny
-#' @import tidyverse
+#' @import magrittr
 #' @import crosstalk
 #' @import htmltools
 #' @import fontawesome
@@ -25,7 +23,10 @@ ui <- fluidPage(
       
       tags$style(HTML("hr { margin-top: 4px !important; margin-bottom: 4px !important; padding: 4px !important; }")),
       
-      div(h3("MultiCelligner"), class = "text-center"),
+      fluidRow(column(3,tags$img(src = "MultiCelligner_Logo_2.png", height = "100px"),), 
+               column(6,div(h3("MultiCelligner"), class = "text-center",style="padding:15px;")),
+               #column(3,tags$img(src = "Mcell_logo.png", height = "100px"))
+               ),
       hr(),
       
       fluidRow(
@@ -107,7 +108,7 @@ ui <- fluidPage(
       fluidRow(
         column(6,
                tags$strong("or load from map selection:")),
-        column(4,
+        column(2,
                actionButton("load_selection", "Load", style = "text-align: center;") %>%
                  tagAppendChild(tags$script(HTML('
     $(document).ready(function(){
@@ -120,9 +121,9 @@ ui <- fluidPage(
     });
   ')))
         ),
-        column(2,
+        column(4,
                div(style = "align-items: flex-start; justify-content: center;",
-               actionButton("rm", "rm", style = "text-align: center;")) %>%
+               actionButton("rm", "Clear Selection", style = "text-align: center;")) %>%
                  tagAppendChild(tags$script(HTML('
     $(document).ready(function(){
       $("#rm").tooltip({
@@ -174,7 +175,7 @@ ui <- fluidPage(
       ')),
       
       div(style = "text-align: center;",
-          actionButton("subset_btn", "Plot alignment", 
+          actionButton("subset_btn", "Get alignment", 
                        style = "
                    font-size: 14px;
                    padding: 15px 70px;
@@ -243,9 +244,7 @@ ui <- fluidPage(
     
     mainPanel(
       tags$div(
-        style = "margin-top: 20px; display: flex; justify-content: space-between; gap: 10px;",
-        tags$img(src = "MultiCelligner_Logo_2.png", height = "100px"),  
-        tags$img(src = "Mcell_logo.png", height = "100px")   
+        tags$p(h3(textOutput("omics_name"),class = "text-center"), style = "text-align: center; font-size: 18px; font-weight: bold;"),
       ),
 
       uiOutput("plot"),
@@ -256,6 +255,13 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session) { 
+  
+  
+  output$omics_name <- eventReactive(input$subset_btn,{ 
+    if(length(input$omics_plot) == 1) 
+      paste(input$reduction_method,paste(input$omics_plot, collapse=" "))
+    else paste(input$reduction_method,paste(input$omics_plot, collapse=" "), input$multiomics_method)
+  })
   
   selected_omics_name <- reactive({
     
@@ -276,6 +282,7 @@ server <- function(input, output, session) {
     }
     
   })
+  
   
   selected_reduced_mat <- reactive({
     

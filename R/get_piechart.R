@@ -2,11 +2,11 @@
 #' Create a pie chart that illustrates the percentage of lineages belong to the k nearest neighbors 
 #' 
 #' @import dplyr
-#' @import SNFtool
 #' @import ggplot2
 #' @import reshape
 #' @import reshape2
-#' @import tidyverse
+#' @import magrittr
+#' @import SNFtool
 #' @param combined_mat combined_mat matrix samples x genes of corrected data by MNN
 #' @param input_sample single TCGA or CCLE sample chosen by the user 
 #' @param selected_samples multiple TCGA or CCLE samples chosen by the user
@@ -123,10 +123,10 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
     
     colnames(dist_top25_2)[c(3,4)] <- c('sample_2','lineage_tcga')
     
-    dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Lineage_CCLE, lineage_tcga)
+    dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "Lineage_CCLE", "lineage_tcga")
     
     dist_top25_4 <- dist_top25_3 %>% 
-      select(lineage_tcga, Lineage_CCLE) %>%
+      select("lineage_tcga", "Lineage_CCLE") %>%
       table() %>% as.data.frame()
     
     dist_top25_4 <- dist_top25_4 %>%
@@ -164,10 +164,10 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
     
     colnames(dist_top25_2)[c(3,4)] <- c('sample_2','lineage_ccle')
     
-    dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Lineage_TCGA, lineage_ccle)
+    dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "Lineage_TCGA", "lineage_ccle")
     
     dist_top25_4 <- dist_top25_3 %>% 
-      select(lineage_ccle, Lineage_TCGA) %>%
+      select("lineage_ccle", "Lineage_TCGA") %>%
       table() %>% as.data.frame()
     
     dist_top25_4 <- dist_top25_4 %>%
@@ -206,12 +206,12 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
     
     colnames(dist_top25_2)[c(3,4)] <- c('sample_2','lineage_ccle')
     
-    dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, lineage_tcga, lineage_ccle)
+    dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "lineage_tcga", "lineage_ccle")
     
     colnames(dist_top25_3)[3] <- 'Lineage'
     
     dist_top25_4 <- dist_top25_3 %>% 
-      select(lineage_ccle, Lineage) %>%
+      select("lineage_ccle", "Lineage") %>%
       table() %>% as.data.frame()
     
     dist_top25_4 <- dist_top25_4 %>%
@@ -346,10 +346,10 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
       
       colnames(dist_top25_2)[c(3,4)] <- c('sample_2','lineage_tcga')
       
-      dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Lineage_CCLE, lineage_tcga)
+      dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "Lineage_CCLE", "lineage_tcga")
       
       dist_top25_4 <- dist_top25_3 %>% 
-        select(lineage_tcga, Lineage_CCLE) %>%
+        select("lineage_tcga", "Lineage_CCLE") %>%
         table() %>% as.data.frame()
       
       dist_top25_4 <- dist_top25_4 %>%
@@ -387,10 +387,10 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
       
       colnames(dist_top25_2)[c(3,4)] <- c('sample_2','lineage_ccle')
       
-      dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Lineage_TCGA, lineage_ccle)
+      dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "Lineage_TCGA", "lineage_ccle")
       
       dist_top25_4 <- dist_top25_3 %>% 
-        select(lineage_ccle, Lineage_TCGA) %>%
+        select("lineage_ccle", "Lineage_TCGA") %>%
         table() %>% as.data.frame()
       
       dist_top25_4 <- dist_top25_4 %>%
@@ -429,12 +429,12 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
       
       colnames(dist_top25_2)[c(3,4)] <- c('sample_2','lineage_ccle')
       
-      dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, lineage_tcga, lineage_ccle)
+      dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "lineage_tcga", "lineage_ccle")
       
       colnames(dist_top25_3)[3] <- 'Lineage'
       
       dist_top25_4 <- dist_top25_3 %>% 
-        select(lineage_ccle, Lineage) %>%
+        select("lineage_ccle", "Lineage") %>%
         table() %>% as.data.frame()
       
       dist_top25_4 <- dist_top25_4 %>%
