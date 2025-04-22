@@ -28,7 +28,7 @@ my_plotting_tSNE <- function(reduced_mat, ann, omics_name) {
                                       opacity= if_else(data_res$type == 'tumor', 1, 1))
   
   data_res_1 <- data_res_1 %>% select("UMAP_1","UMAP_2","stripped_cell_line_name","sampleID","lineage",
-                                      "subtype","subtype_1","type","size","width","opacity")
+                                      "subtype","subtype_1", "link","type","size","width","opacity")
   
   shared <- SharedData$new(data_res_1, key = ~sampleID)
   

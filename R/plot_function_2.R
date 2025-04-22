@@ -27,15 +27,9 @@ my_plotting <- function(reduced_mat, ann, omics_name) {
                                       width=if_else(data_res$type == 'tumor', 0.2, 1.3),
                                       opacity= if_else(data_res$type == 'tumor', 1, 1))
   
-<<<<<<< HEAD
-  data_res_1 <- data_res_1 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
-                                      subtype,subtype_1, link,type,size,width,opacity) 
-
-=======
   data_res_1 <- data_res_1 %>% select("UMAP_1","UMAP_2","stripped_cell_line_name","sampleID","lineage",
-                                      "subtype","subtype_1","type","size","width","opacity")
+                                      "subtype","subtype_1", "link","type","size","width","opacity")
   
->>>>>>> 3c43852c9048d7aeaa4400591b246a67bda66859
   shared <- SharedData$new(data_res_1, key = ~sampleID)
   
   row_1 <- bscols(
