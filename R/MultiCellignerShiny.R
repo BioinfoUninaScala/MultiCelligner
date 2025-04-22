@@ -378,9 +378,9 @@ server <- function(input, output, session) {
     if(length(input$omics_plot) == 1) {
       
       return(switch(input$omics_plot,
-                    "Expression" = my_plotting(exp_umap, ann_multiomics_v8, selected_omics_name()), 
-                    "Methylation" = my_plotting(meth_umap, ann_multiomics_v8, selected_omics_name()),
-                    "Mutational signature (COSMIC)" = my_plotting(mut_umap, ann_multiomics_v8, selected_omics_name())))
+                    "Expression" = my_plotting(exp_umap, ann_multiomics_v9, selected_omics_name()), 
+                    "Methylation" = my_plotting(meth_umap, ann_multiomics_v9, selected_omics_name()),
+                    "Mutational signature (COSMIC)" = my_plotting(mut_umap, ann_multiomics_v9, selected_omics_name())))
       
     } else if (length(input$omics_plot) > 1) {
       
@@ -388,16 +388,16 @@ server <- function(input, output, session) {
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'UMAP') {
         
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(umap_exp_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting(umap_exp_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting(umap_exp_meth, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting(umap_exp_meth, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(umap_exp_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting(umap_exp_mut, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting(umap_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting(umap_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
       }
       
@@ -405,16 +405,16 @@ server <- function(input, output, session) {
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'tSNE') {
         
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(tsne_exp_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting_tSNE(tsne_exp_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting_tSNE(tsne_exp_meth, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting_tSNE(tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(tsne_exp_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting_tSNE(tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(tsne_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting_tSNE(tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
       }
       
@@ -422,16 +422,16 @@ server <- function(input, output, session) {
       if(input$multiomics_method == 'MOFA' && input$reduction_method == 'UMAP') {
         
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(mofa_umap_all, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting(mofa_umap_all, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting(mofa_umap_exp_meth, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting(mofa_umap_exp_meth, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(mofa_umap_exp_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting(mofa_umap_exp_mut, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting(mofa_umap_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting(mofa_umap_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
       }
       
@@ -439,42 +439,42 @@ server <- function(input, output, session) {
       if(input$multiomics_method == 'MOFA' && input$reduction_method == 'tSNE') {
         
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(mofa_tsne_all, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting_tSNE(mofa_tsne_all, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting_tSNE(mofa_tsne_exp_meth, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting_tSNE(mofa_tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(mofa_tsne_exp_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting_tSNE(mofa_tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(mofa_tsne_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting_tSNE(mofa_tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
       }
       
       # --- SNF - UMAP ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting(snf_umap_all, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting(snf_umap_all, ann_multiomics_v9, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting(snf_umap_exp_meth, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting(snf_umap_exp_meth, ann_multiomics_v9, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting(snf_umap_exp_mut, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting(snf_umap_exp_mut, ann_multiomics_v9, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return()#my_plotting(snf_umap_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting(snf_umap_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
       }
       
       # --- SNF - tSNE ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting_tSNE(snf_tsne_all, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting_tSNE(snf_tsne_all, ann_multiomics_v9, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting_tSNE(snf_tsne_exp_meth, ann_multiomics_v8, selected_omics_name()))
+          return(my_plotting_tSNE(snf_tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting_tSNE(snf_tsne_exp_mut, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting_tSNE(snf_tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return()#my_plotting_tSNE(snf_tsne_meth_mut, ann_multiomics_v8, selected_omics_name()))
+          return()#my_plotting_tSNE(snf_tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
       }
       
@@ -549,7 +549,7 @@ server <- function(input, output, session) {
   selected_linages <- reactiveVal(NULL)
   
   observe({
-    lin <- unique(ann_multiomics_v8$lineage[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())])
+    lin <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
     selected_linages(lin)
     updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0))
     
@@ -564,7 +564,7 @@ server <- function(input, output, session) {
   query_linages <- reactiveVal(NULL)
   
   observe({
-    lin_out <- unique(ann_multiomics_v8$lineage[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())])
+    lin_out <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
     query_linages(lin_out)
     updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = 'All')
     
@@ -589,14 +589,14 @@ server <- function(input, output, session) {
   
   observe({
     choices <- list() 
-    subset_1 <- ann_multiomics_v8
+    subset_1 <- ann_multiomics_v9
 
     if (input$sel_lineage == "") {
       if ("Cell lines" %in% input$sel_type) {
         cl_values <- rownames(selected_combined_mat())
         if (!is.null(cl_values)) {
           cl_values <- cl_values[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', cl_values)]
-          cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v8)
+          cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v9)
           if (!is.null(cl_names)) {
             choices <- c(choices, setNames(as.list(cl_values), cl_names))
             r_choices(choices)
@@ -618,7 +618,7 @@ server <- function(input, output, session) {
         if (!is.null(all_values)) {
           cl_values <- all_values[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', all_values)]
           tumor_values <- all_values[grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', all_values)]
-          cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v8)
+          cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v9)
           
           if (!is.null(cl_values) && !is.null(cl_names)) {
             choices <- c(choices, setNames(as.list(cl_values), cl_names))
@@ -633,7 +633,7 @@ server <- function(input, output, session) {
       }
     } else {
       if (length(input$sel_lineage) >= 1) {
-        subset_1 <- subset_1[ann_multiomics_v8$lineage == input$sel_lineage, ]
+        subset_1 <- subset_1[ann_multiomics_v9$lineage == input$sel_lineage, ]
         subset_1 <- subset_1[subset_1$sampleID %in% rownames(selected_combined_mat()),]
         subset <- subset_1$sampleID
         all_names <- subset_1$stripped_cell_line_name[subset_1$sampleID %in% rownames(selected_combined_mat())]
@@ -651,7 +651,7 @@ server <- function(input, output, session) {
           cl_values <- rownames(selected_combined_mat())
           if (!is.null(cl_values)) {
             cl_values <- cl_values[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', cl_values)]
-            cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v8)
+            cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v9)
             if (!is.null(cl_names)) {
               cl_filtered <- intersect(cl_values, all_values_x)
               cl_names_filtered <- intersect(cl_names, all_names_x)
@@ -686,8 +686,8 @@ server <- function(input, output, session) {
       if(length(input$both_sample) >= 1) {
         
         selected_samples <- reactive({
-          value <- ann_multiomics_v8$sampleID[ann_multiomics_v8$sampleID %in% input$both_sample]
-          name <- ann_multiomics_v8$stripped_cell_line_name[ann_multiomics_v8$sampleID %in% input$both_sample]
+          value <- ann_multiomics_v9$sampleID[ann_multiomics_v9$sampleID %in% input$both_sample]
+          name <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% input$both_sample]
           choices <- setNames(as.list(value), name)
           
           return(choices)
@@ -721,7 +721,7 @@ server <- function(input, output, session) {
                           reduced_mat = selected_reduced_mat(),
                           input_sample = input$both_sample,
                           k = input$num_neighbors,
-                          ann = ann_multiomics_v8,
+                          ann = ann_multiomics_v9,
                           type = input$df_selection_output,
                           omics_name = selected_omics_name(),
                           red_method = input$reduction_method,
@@ -741,7 +741,7 @@ server <- function(input, output, session) {
                           reduced_mat = selected_reduced_mat(),
                           selected_samples = selected_samples(),
                           k = input$num_neighbors,
-                          ann = ann_multiomics_v8,
+                          ann = ann_multiomics_v9,
                           type = input$df_selection_output,
                           omics_name = selected_omics_name(),
                           red_method = input$reduction_method,
@@ -762,14 +762,14 @@ server <- function(input, output, session) {
       piechart <- get_piechart(combined_mat = selected_combined_mat(), 
                                input_sample = input$both_sample,
                                k = input$num_neighbors,
-                               ann = ann_multiomics_v8,
+                               ann = ann_multiomics_v9,
                                type = input$df_selection_output,
                                query_lineage = input$lin_output)
       
       piechart_subtype <- get_piechart_subtype(combined_mat = selected_combined_mat(), 
                                                input_sample = input$both_sample,
                                                k = input$num_neighbors,
-                                               ann = ann_multiomics_v8,
+                                               ann = ann_multiomics_v9,
                                                type = input$df_selection_output,
                                                query_lineage = input$lin_output)
       
@@ -790,14 +790,14 @@ server <- function(input, output, session) {
       piechart <- get_piechart(combined_mat = selected_combined_mat(), 
                                selected_samples = selected_samples(),
                                k = input$num_neighbors,
-                               ann = ann_multiomics_v8,
+                               ann = ann_multiomics_v9,
                                type = input$df_selection_output,
                                query_lineage = input$lin_output)
       
       piechart_subtype <- get_piechart_subtype(combined_mat = selected_combined_mat(), 
                                                selected_samples = selected_samples(),
                                                k = input$num_neighbors,
-                                               ann = ann_multiomics_v8,
+                                               ann = ann_multiomics_v9,
                                                type = input$df_selection_output,
                                                query_lineage = input$lin_output)
       
@@ -829,7 +829,7 @@ server <- function(input, output, session) {
     if (!is.null(selected_data)) {
       selected_samples <- selected_data$key
       
-      x_1 <- ann_multiomics_v8 %>%
+      x_1 <- ann_multiomics_v9 %>%
         filter(sampleID %in% selected_samples)
       
       x_2 <- NULL
@@ -872,11 +872,11 @@ server <- function(input, output, session) {
     
     selected <- list()
 
-    all_names <- ann_multiomics_v8$stripped_cell_line_name[ann_multiomics_v8$sampleID %in% rownames(selected_combined_mat())]
+    all_names <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())]
     all_values <- colnames(selected_reduced_mat())
 
     sub_values <- all_values[all_values %in% lasso_selected_samples()]
-    sub_names <- ann_multiomics_v8 %>% filter(sampleID %in% sub_values)
+    sub_names <- ann_multiomics_v9 %>% filter(sampleID %in% sub_values)
     sub_names <- sub_names$stripped_cell_line_name
     
     selected <- c(selected, setNames(as.list(sub_values), sub_names))

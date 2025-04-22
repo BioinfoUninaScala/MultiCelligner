@@ -28,8 +28,8 @@ my_plotting <- function(reduced_mat, ann, omics_name) {
                                       opacity= if_else(data_res$type == 'tumor', 1, 1))
   
   data_res_1 <- data_res_1 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
-                                      subtype,subtype_1,type,size,width,opacity)
-  
+                                      subtype,subtype_1, link,type,size,width,opacity) 
+
   shared <- SharedData$new(data_res_1, key = ~sampleID)
   
   row_1 <- bscols(
@@ -117,20 +117,23 @@ my_plotting <- function(reduced_mat, ann, omics_name) {
           ),
           tags$script(HTML(
             "
-  document.getElementById('download-svg-btn').onclick = function() {
-    var plot = document.getElementsByClassName('plotly')[0];
-    Plotly.downloadImage(plot, {
-      format: 'svg',
-      filename: 'alignment_plot',
-      width: 1500,
-      height: 700,
-      scale: 1
-    });
-  };
-  "
+                document.getElementById('download-svg-btn').onclick = function() {
+                  var plot = document.getElementsByClassName('plotly')[0];
+                  Plotly.downloadImage(plot, {
+                    format: 'svg',
+                    filename: 'alignment_plot',
+                    width: 1500,
+                    height: 700,
+                    scale: 1
+                  });
+                };
+            "
           )),
       
-              reactable(shared, searchable = TRUE, minRows = 3,  
+              reactable(
+                shared, 
+                searchable = TRUE, 
+                minRows = 3,  
               showPageSizeOptions = TRUE,
               pageSizeOptions = c(25,50,75,100,150,200,300,500),
               defaultPageSize = 25,
@@ -148,11 +151,23 @@ my_plotting <- function(reduced_mat, ann, omics_name) {
               elementId = "alignment-download-table",
               columns = list(
                 stripped_cell_line_name = colDef(name = 'Name'), 
-                sampleID = colDef(name = "ID"),
+                
+                sampleID = colDef(
+                  cell = function(value, index) {
+                    if (is.na(data_res_1$link[index])) {
+                      value 
+                    } else {
+                      url <- data_res_1$link[index]
+                      htmltools::tags$a(href = url, target = "_blank", value)
+                    }
+                  } 
+                ),
+                
                 type = colDef(name = "Type"),
                 lineage = colDef(name = "Lineage"),
                 subtype = colDef(name = "Subtype"),
                 subtype_1 = colDef(name = 'Subtype code'),
+                link = colDef(show = FALSE),
                 UMAP_1 = colDef(show = FALSE),
                 UMAP_2 = colDef(show = FALSE),
                 size = colDef(show = FALSE),
@@ -164,7 +179,11 @@ my_plotting <- function(reduced_mat, ann, omics_name) {
                 overflowY = "auto",
                 overflowX = "hidden"
               )
-              ))))
+              )
+          )
+        )
+      )
+    
     
     x <- htmltools::browsable(
       htmltools::tagList(row_1, row_2)

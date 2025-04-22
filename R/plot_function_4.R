@@ -149,7 +149,18 @@ my_plotting_tSNE <- function(reduced_mat, ann, omics_name) {
                   elementId = "alignment-download-table",
                   columns = list(
                     stripped_cell_line_name = colDef(name = 'Name'), 
-                    sampleID = colDef(name = "ID"),
+                    
+                    sampleID = colDef(
+                      cell = function(value, index) {
+                        if (is.na(data_res_1$link[index])) {
+                          value 
+                        } else {
+                          url <- data_res_1$link[index]
+                          htmltools::tags$a(href = url, target = "_blank", value)
+                        }
+                      } 
+                    ),
+                    
                     type = colDef(name = "Type"),
                     lineage = colDef(name = "Lineage"),
                     subtype = colDef(name = "Subtype"),
