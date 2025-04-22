@@ -552,7 +552,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
     data_res_3$dist <- round(data_res_3$dist, 3)
     
     data_res_3 <- data_res_3 %>% select("UMAP_1","UMAP_2","stripped_cell_line_name","sampleID","lineage",
-                                        "subtype","subtype_1","type","dist","show_it","size")
+                                        "subtype","subtype_1", "link", "type","dist","show_it","size")
     
     shared <- SharedData$new(data_res_3, key = ~sampleID)
     
@@ -671,7 +671,16 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
                       elementId = "alignment-download-table",
                       columns = list(
                         stripped_cell_line_name = colDef(name = 'Name'), 
-                        sampleID = colDef(name = "ID"),
+                        sampleID = colDef(
+                          cell = function(value, index) {
+                            if (is.na(data_res_3$link[index])) {
+                              value 
+                            } else {
+                              url <- data_res_3$link[index]
+                              htmltools::tags$a(href = url, target = "_blank", value)
+                            }
+                          } 
+                        ),
                         type = colDef(name = "Type"),
                         lineage = colDef(name = "Lineage"),
                         subtype = colDef(name = "Subtype"),
@@ -807,7 +816,16 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
                       elementId = "alignment-download-table",
                       columns = list(
                         stripped_cell_line_name = colDef(name = 'Name'), 
-                        sampleID = colDef(name = "ID"),
+                        sampleID = colDef(
+                          cell = function(value, index) {
+                            if (is.na(data_res_3$link[index])) {
+                              value 
+                            } else {
+                              url <- data_res_3$link[index]
+                              htmltools::tags$a(href = url, target = "_blank", value)
+                            }
+                          } 
+                        ),
                         type = colDef(name = "Type"),
                         lineage = colDef(name = "Lineage"),
                         subtype = colDef(name = "Subtype"),
