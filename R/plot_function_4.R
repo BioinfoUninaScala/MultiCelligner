@@ -167,6 +167,7 @@ my_plotting_tSNE <- function(reduced_mat, ann, omics_name) {
                     subtype_1 = colDef(name = 'Subtype code'),
                     UMAP_1 = colDef(show = FALSE),
                     UMAP_2 = colDef(show = FALSE),
+                    link = colDef(show = FALSE),
                     size = colDef(show = FALSE),
                     width = colDef(show = FALSE),
                     opacity = colDef(show = FALSE)),
