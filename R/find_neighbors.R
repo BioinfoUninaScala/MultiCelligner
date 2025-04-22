@@ -7,10 +7,10 @@
 #' @import htmltools
 #' @import fontawesome
 #' @import dplyr
+#' @import magrittr
 #' @import reshape
-#' @import reshape2 
 #' @import SNFtool
-#' @import tidyverse
+#' @import reshape2
 #' @param combined_mat combined_mat matrix samples x genes of corrected data by MNN
 #' @param reduced_mat dimensionally reduced matrix (tSNE and UMAP): sample x features
 #' @param input_sample single TCGA or CCLE sample chosen by the user 
@@ -152,12 +152,12 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
   
   data_res_2 <- data_res_1 %>% mutate('size' = if_else(show_it == 'show', 16, 5))
   
-  dist_metasample_2 <- dist_1 %>% dplyr::select(sampleID, dist)
+  dist_metasample_2 <- dist_1 %>% dplyr::select("sampleID", "dist")
   data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')  %>% arrange(dist)
   data_res_3$dist <- round(data_res_3$dist, 3)
   
-  data_res_3 <- data_res_3 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
-                                      subtype,subtype_1,type,dist,show_it,size)
+  data_res_3 <- data_res_3 %>% select("UMAP_1","UMAP_2","stripped_cell_line_name","sampleID","lineage",
+                                      "subtype","subtype_1","type","dist","show_it","size")
   
   shared <- SharedData$new(data_res_3, key = ~sampleID)
   
@@ -211,7 +211,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
         layout(
           dragmode = "zoom",
           title = list(
-            text = paste('tSNE projection of', omics_name, 'alignment'), 
+            #text = paste('tSNE projection of', omics_name, 'alignment'), 
             font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
             x = 0.3,          
             xanchor = "center",  
@@ -347,7 +347,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
         layout(
           dragmode = "zoom",
           title = list(
-            text = paste('UMAP projection of', omics_name, 'alignment'), 
+            #text = paste('UMAP projection of', omics_name, 'alignment'), 
             font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
             x = 0.3,          
             xanchor = "center",  
@@ -547,12 +547,12 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
     
     data_res_2 <- data_res_1 %>% mutate('size' = if_else(show_it == 'show', 16, 5))
     
-    dist_metasample_2 <- dist_1 %>% dplyr::select(sampleID, dist)
+    dist_metasample_2 <- dist_1 %>% dplyr::select("sampleID", "dist")
     data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')  %>% arrange(dist)
     data_res_3$dist <- round(data_res_3$dist, 3)
     
-    data_res_3 <- data_res_3 %>% select(UMAP_1,UMAP_2,stripped_cell_line_name,sampleID,lineage,
-                                        subtype,subtype_1,type,dist,show_it,size)
+    data_res_3 <- data_res_3 %>% select("UMAP_1","UMAP_2","stripped_cell_line_name","sampleID","lineage",
+                                        "subtype","subtype_1","type","dist","show_it","size")
     
     shared <- SharedData$new(data_res_3, key = ~sampleID)
     
@@ -606,7 +606,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
           layout(
             dragmode = "zoom",
             title = list(
-              text = paste('tSNE projection of', omics_name, 'alignment'), 
+              #text = paste('tSNE projection of', omics_name, 'alignment'), 
               font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
               x = 0.3,          
               xanchor = "center",  
@@ -742,7 +742,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
           layout(
             dragmode = "zoom",
             title = list(
-              text = paste('UMAP projection of', omics_name, 'alignment'), 
+              #text = paste('UMAP projection of', omics_name, 'alignment'), 
               font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
               x = 0.3,          
               xanchor = "center",  

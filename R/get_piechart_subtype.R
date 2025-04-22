@@ -2,11 +2,12 @@
 #' Create a pie chart that illustrates the percentage of subtype belong to the k nearest neighbors 
 #' 
 #' @import dplyr
-#' @import SNFtool
 #' @import ggplot2
 #' @import reshape
 #' @import reshape2
-#' @import tidyverse
+#' @import magrittr
+#' @import SNFtool
+#' @import stringr
 #' @param combined_mat combined_mat matrix samples x genes of corrected data by MNN
 #' @param input_sample single TCGA or CCLE sample chosen by the user 
 #' @param selected_samples multiple TCGA or CCLE samples chosen by the user
@@ -123,10 +124,10 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
     
     colnames(dist_top25_2)[c(3,4)] <- c('sample_2','Subtype_TCGA')
     
-    dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Subtype_CCLE, Subtype_TCGA)
+    dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "Subtype_CCLE", "Subtype_TCGA")
     
     dist_top25_4 <- dist_top25_3 %>% 
-      select(Subtype_TCGA, Subtype_CCLE) %>%
+      select("Subtype_TCGA", "Subtype_CCLE") %>%
       table() %>% as.data.frame()
     
     dist_top25_4 <- dist_top25_4 %>%
@@ -167,10 +168,10 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
     
     colnames(dist_top25_2)[c(3,4)] <- c('sample_2','Subtype_CCLE')
     
-    dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Subtype_TCGA, Subtype_CCLE)
+    dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "Subtype_TCGA", "Subtype_CCLE")
     
     dist_top25_4 <- dist_top25_3 %>% 
-      select(Subtype_CCLE, Subtype_TCGA) %>%
+      select("Subtype_CCLE", "Subtype_TCGA") %>%
       table() %>% as.data.frame()
     
     dist_top25_4 <- dist_top25_4 %>%
@@ -209,10 +210,10 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
     
     colnames(dist_top25_2)[c(3,4)] <- c('sample_2','Subtype_CCLE')
     
-    dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Subtype, Subtype_CCLE)
+    dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "Subtype", "Subtype_CCLE")
     
     dist_top25_4 <- dist_top25_3 %>% 
-      select(Subtype_CCLE, Subtype) %>%
+      select("Subtype_CCLE", "Subtype") %>%
       table() %>% as.data.frame()
     
     dist_top25_4 <- dist_top25_4 %>%
@@ -351,10 +352,10 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
       
       colnames(dist_top25_2)[c(3,4)] <- c('sample_2','Subtype_TCGA')
       
-      dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Subtype_CCLE, Subtype_TCGA)
+      dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "Subtype_CCLE", "Subtype_TCGA")
       
       dist_top25_4 <- dist_top25_3 %>% 
-        select(Subtype_TCGA, Subtype_CCLE) %>%
+        select("Subtype_TCGA", "Subtype_CCLE") %>%
         table() %>% as.data.frame()
       
       dist_top25_4 <- dist_top25_4 %>%
@@ -395,10 +396,10 @@ get_piechart_subtype <- function(combined_mat, input_sample = NULL, selected_sam
       
       colnames(dist_top25_2)[c(3,4)] <- c('sample_2','Subtype_CCLE')
       
-      dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Subtype_TCGA, Subtype_CCLE)
+      dist_top25_3 <- dist_top25_2 %>% select("sample_1", "sample_2", "Subtype_TCGA", "Subtype_CCLE")
       
       dist_top25_4 <- dist_top25_3 %>% 
-        select(Subtype_CCLE, Subtype_TCGA) %>%
+        select("Subtype_CCLE", "Subtype_TCGA") %>%
         table() %>% as.data.frame()
       
       dist_top25_4 <- dist_top25_4 %>%
