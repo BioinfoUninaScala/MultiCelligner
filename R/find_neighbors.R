@@ -210,13 +210,6 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
       %>%
         layout(
           dragmode = "zoom",
-          title = list(
-            #text = paste('tSNE projection of', omics_name, 'alignment'), 
-            font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
-            x = 0.3,          
-            xanchor = "center",  
-            yanchor = "top"
-          ),
           xaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
           yaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
           legend = list(
@@ -356,13 +349,6 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
       %>%
         layout(
           dragmode = "zoom",
-          title = list(
-            #text = paste('UMAP projection of', omics_name, 'alignment'), 
-            font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
-            x = 0.3,          
-            xanchor = "center",  
-            yanchor = "top"
-          ),
           xaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
           yaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
           legend = list(
@@ -625,13 +611,6 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
         %>%
           layout(
             dragmode = "zoom",
-            title = list(
-              #text = paste('tSNE projection of', omics_name, 'alignment'), 
-              font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
-              x = 0.3,          
-              xanchor = "center",  
-              yanchor = "top"
-            ),
             xaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
             yaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
             legend = list(
@@ -771,13 +750,6 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
         %>%
           layout(
             dragmode = "zoom",
-            title = list(
-              #text = paste('UMAP projection of', omics_name, 'alignment'), 
-              font = list(size = 21, family = "Arial", color = "black", weight = "bold"), 
-              x = 0.3,          
-              xanchor = "center",  
-              yanchor = "top"
-            ),
             xaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
             yaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
             legend = list(

@@ -412,16 +412,16 @@ server <- function(input, output, session) {
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'tSNE') {
         
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(tsne_exp_meth_mut, ann_multiomics_v9, selected_omics_name()))
+          return(my_plotting(tsne_exp_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting_tSNE(tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
+          return(my_plotting(tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
+          return(my_plotting(tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
+          return(my_plotting(tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
       }
       
@@ -446,16 +446,16 @@ server <- function(input, output, session) {
       if(input$multiomics_method == 'MOFA' && input$reduction_method == 'tSNE') {
         
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(mofa_tsne_all, ann_multiomics_v9, selected_omics_name()))
+          return(my_plotting(mofa_tsne_all, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting_tSNE(mofa_tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
+          return(my_plotting(mofa_tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(mofa_tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
+          return(my_plotting(mofa_tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
         }
         else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting_tSNE(mofa_tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
+          return(my_plotting(mofa_tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
       }
       
@@ -475,13 +475,13 @@ server <- function(input, output, session) {
       # --- SNF - tSNE ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting_tSNE(snf_tsne_all, ann_multiomics_v9, selected_omics_name()))
+          return()#my_plotting(snf_tsne_all, ann_multiomics_v9, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting_tSNE(snf_tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
+          return(my_plotting(snf_tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting_tSNE(snf_tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
+          return()#my_plotting(snf_tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return()#my_plotting_tSNE(snf_tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
+          return()#my_plotting(snf_tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
         }
       }
       
