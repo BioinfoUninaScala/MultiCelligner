@@ -34,7 +34,7 @@ ui <- fluidPage(
                div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
                    selectInput('omics_plot', 'Omics alignment:',
                                choices = c('Methylation',
-                                           "Mutational signature (COSMIC)",
+                                           "Mutational signature",
                                            "Expression"),
                                multiple = TRUE,
                                selected = 'Methylation'
@@ -269,7 +269,7 @@ server <- function(input, output, session) {
       
       return(switch(input$omics_plot,
              "Methylation" = 'Methylation',
-             "Mutational signature (COSMIC)" = 'Mutational signature',
+             "Mutational signature" = 'Mutational signature',
              "Expression" = 'Expression'))
     }
     
@@ -291,19 +291,19 @@ server <- function(input, output, session) {
       return(switch(input$omics_plot,
                     "Expression" = exp_umap, 
                     "Methylation" = meth_umap,
-                    "Mutational signature (COSMIC)" = mut_umap))
+                    "Mutational signature" = mut_umap))
       
     } else if (length(input$omics_plot) > 1) {
       
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'UMAP') {
         
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return(umap_exp_meth_mut)
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(umap_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return(umap_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
           return(umap_meth_mut)
         }
         
@@ -311,13 +311,13 @@ server <- function(input, output, session) {
       
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'tSNE') {
         
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return(tsne_exp_meth_mut)
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(tsne_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return(tsne_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
           return(tsne_meth_mut)
         }
         
@@ -325,13 +325,13 @@ server <- function(input, output, session) {
       
       if(input$multiomics_method == 'MOFA' && input$reduction_method == 'UMAP') {
         
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return(mofa_umap_all)
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(mofa_umap_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return(mofa_umap_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
           return(mofa_umap_meth_mut)
         }
         
@@ -339,37 +339,37 @@ server <- function(input, output, session) {
       
       if(input$multiomics_method == 'MOFA' && input$reduction_method == 'tSNE') {
         
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return(mofa_tsne_all)
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(mofa_tsne_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return(mofa_tsne_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
           return(mofa_tsne_meth_mut)
         }
       }
       
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return()
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(snf_umap_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return()
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
           return()
         }
       }
       
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return()
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(snf_tsne_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return()
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
           return()
         }
       }
@@ -385,103 +385,103 @@ server <- function(input, output, session) {
     if(length(input$omics_plot) == 1) {
       
       return(switch(input$omics_plot,
-                    "Expression" = my_plotting(exp_umap, ann_multiomics_v9, selected_omics_name()), 
-                    "Methylation" = my_plotting(meth_umap, ann_multiomics_v9, selected_omics_name()),
-                    "Mutational signature (COSMIC)" = my_plotting(mut_umap, ann_multiomics_v9, selected_omics_name())))
+                    "Expression" = get_alignment_plot(reduced_mat = exp_umap, ann = ann_multiomics_v9), 
+                    "Methylation" = get_alignment_plot(reduced_mat = meth_umap, ann = ann_multiomics_v9),
+                    "Mutational signature" = get_alignment_plot(reduced_mat = mut_umap, ann = ann_multiomics_v9)))
       
     } else if (length(input$omics_plot) > 1) {
       
       # --- MoNETA - UMAP ---
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'UMAP') {
         
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(umap_exp_meth_mut, ann_multiomics_v9, selected_omics_name()))
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = umap_exp_meth_mut, ann = ann_multiomics_v9))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting(umap_exp_meth, ann_multiomics_v9, selected_omics_name()))
+          return(get_alignment_plot(reduced_mat = umap_exp_meth, ann = ann_multiomics_v9))
         }
-        else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(umap_exp_mut, ann_multiomics_v9, selected_omics_name()))
+        else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = umap_exp_mut, ann = ann_multiomics_v9))
         }
-        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting(umap_meth_mut, ann_multiomics_v9, selected_omics_name()))
+        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = umap_meth_mut, ann = ann_multiomics_v9))
         }
       }
       
       # --- MoNETA - tSNE ---
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'tSNE') {
         
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(tsne_exp_meth_mut, ann_multiomics_v9, selected_omics_name()))
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = tsne_exp_meth_mut, ann = ann_multiomics_v9))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting(tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
+          return(get_alignment_plot(reduced_mat = tsne_exp_meth, ann = ann_multiomics_v9))
         }
-        else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
+        else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = tsne_exp_mut, ann = ann_multiomics_v9))
         }
-        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting(tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
+        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = tsne_meth_mut, ann = ann_multiomics_v9))
         }
       }
       
       # --- MOFA - UMAP ---
       if(input$multiomics_method == 'MOFA' && input$reduction_method == 'UMAP') {
         
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(mofa_umap_all, ann_multiomics_v9, selected_omics_name()))
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = mofa_umap_all, ann = ann_multiomics_v9))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting(mofa_umap_exp_meth, ann_multiomics_v9, selected_omics_name()))
+          return(get_alignment_plot(reduced_mat = mofa_umap_exp_meth, ann = ann_multiomics_v9))
         }
-        else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(mofa_umap_exp_mut, ann_multiomics_v9, selected_omics_name()))
+        else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = mofa_umap_exp_mut, ann = ann_multiomics_v9))
         }
-        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting(mofa_umap_meth_mut, ann_multiomics_v9, selected_omics_name()))
+        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = mofa_umap_meth_mut, ann = ann_multiomics_v9))
         }
       }
       
       # --- MOFA - tSNE ---
       if(input$multiomics_method == 'MOFA' && input$reduction_method == 'tSNE') {
         
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(mofa_tsne_all, ann_multiomics_v9, selected_omics_name()))
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = mofa_tsne_all, ann = ann_multiomics_v9))
         }
         else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting(mofa_tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
+          return(get_alignment_plot(reduced_mat = mofa_tsne_exp_meth, ann = ann_multiomics_v9))
         }
-        else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return(my_plotting(mofa_tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
+        else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = mofa_tsne_exp_mut, ann = ann_multiomics_v9))
         }
-        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return(my_plotting(mofa_tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
+        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
+          return(get_alignment_plot(reduced_mat = mofa_tsne_meth_mut, ann = ann_multiomics_v9))
         }
       }
       
       # --- SNF - UMAP ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting(snf_umap_all, ann_multiomics_v9, selected_omics_name()))
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
+          return()#get_alignment_plot(reduced_mat = snf_umap_all, ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting(snf_umap_exp_meth, ann_multiomics_v9, selected_omics_name()))
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting(snf_umap_exp_mut, ann_multiomics_v9, selected_omics_name()))
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return()#my_plotting(snf_umap_meth_mut, ann_multiomics_v9, selected_omics_name()))
+          return(get_alignment_plot(reduced_mat = snf_umap_exp_meth, ann = ann_multiomics_v9))
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
+          return()#get_alignment_plot(reduced_mat = snf_umap_exp_mut, ann = ann_multiomics_v9))
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
+          return()#get_alignment_plot(reduced_mat = snf_umap_meth_mut, ann = ann_multiomics_v9))
         }
       }
       
       # --- SNF - tSNE ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting(snf_tsne_all, ann_multiomics_v9, selected_omics_name()))
+        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
+          return()#get_alignment_plot(reduced_mat = snf_tsne_all, ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(my_plotting(snf_tsne_exp_meth, ann_multiomics_v9, selected_omics_name()))
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
-          return()#my_plotting(snf_tsne_exp_mut, ann_multiomics_v9, selected_omics_name()))
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
-          return()#my_plotting(snf_tsne_meth_mut, ann_multiomics_v9, selected_omics_name()))
+          return(get_alignment_plot(reduced_mat = snf_tsne_exp_meth, ann = ann_multiomics_v9))
+        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
+          return()#get_alignment_plot(reduced_mat = snf_tsne_exp_mut, ann = ann_multiomics_v9))
+        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
+          return()#get_alignment_plot(reduced_mat = snf_tsne_meth_mut, ann = ann_multiomics_v9))
         }
       }
       
@@ -498,45 +498,45 @@ server <- function(input, output, session) {
       return(switch(input$omics_plot,
              "Expression" = pca_exp, 
              "Methylation" = pca_meth_1,
-             "Mutational signature (COSMIC)" = combined_mat_mut
+             "Mutational signature" = combined_mat_mut
       ))
       
     } else if (length(input$omics_plot) > 1) {
       
       if (input$multiomics_method == 'MoNETA') {
         
-        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return(emb_exp_meth_mut_1)
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(emb_exp_meth_1)
-        } else if (setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+        } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return(emb_exp_mut_1)
-        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
           return(emb_meth_mut_1)
         }
       }
       
       if (input$multiomics_method == 'MOFA') {
         
-        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return(MOFA_mat_all)
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(MOFA_mat_exp_meth)
-        } else if (setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+        } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return(MOFA_mat_exp_mut)
-        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
           return(MOFA_mat_meth_mut)
         }
       }
       
       if (input$multiomics_method == 'SNF') {
-        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature (COSMIC)"))) {
+        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return()
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(pca_snf_exp_meth)
-        } else if (setequal(input$omics_plot, c("Expression","Mutational signature (COSMIC)"))) {
+        } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return()
-        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature (COSMIC)"))) {
+        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
           return()
         }
       }
@@ -720,65 +720,42 @@ server <- function(input, output, session) {
   })
   
   #### click show in the shiny to find neighbors
+  #### click show in the shiny to get both kind of piechart
   observeEvent(input$subset_btn, {
     
     if(length(input$both_sample) == 1) {
       
-      x <- find_neighbors(combined_mat = selected_combined_mat(), 
+      n <- find_neighbors(combined_mat = selected_combined_mat(), 
                           reduced_mat = selected_reduced_mat(),
                           input_sample = input$both_sample,
                           k = input$num_neighbors,
                           ann = ann_multiomics_v9,
                           type = input$df_selection_output,
-                          omics_name = selected_omics_name(),
-                          red_method = input$reduction_method,
                           query_lineage = input$lin_output)
+      
+      x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
+                              ann = ann_multiomics_v9,
+                              dist_top_n = n)
       
       output$plot <- renderUI({
         x  
       })
-      
-    } else if (length(input$both_sample) > 1) {
-      
-      selected_samples <- reactive({
-        input$both_sample
-      })
-      
-      x <- find_neighbors(combined_mat = selected_combined_mat(), 
-                          reduced_mat = selected_reduced_mat(),
-                          selected_samples = selected_samples(),
-                          k = input$num_neighbors,
-                          ann = ann_multiomics_v9,
-                          type = input$df_selection_output,
-                          omics_name = selected_omics_name(),
-                          red_method = input$reduction_method,
-                          query_lineage = input$lin_output)
-      
-      
-      output$plot <- renderUI({
-        x  
-      })
-    }
-  })
-  
-  #### click show in the shiny to get both kind of piechart
-  observeEvent(input$subset_btn, {
-    
-    if(length(input$both_sample) == 1) {
       
       piechart <- get_piechart(combined_mat = selected_combined_mat(), 
                                input_sample = input$both_sample,
                                k = input$num_neighbors,
                                ann = ann_multiomics_v9,
                                type = input$df_selection_output,
-                               query_lineage = input$lin_output)
+                               value = 'lineage',
+                               dist_top_n = n)
       
-      piechart_subtype <- get_piechart_subtype(combined_mat = selected_combined_mat(), 
-                                               input_sample = input$both_sample,
-                                               k = input$num_neighbors,
-                                               ann = ann_multiomics_v9,
-                                               type = input$df_selection_output,
-                                               query_lineage = input$lin_output)
+      piechart_subtype <- get_piechart(combined_mat = selected_combined_mat(), 
+                                       input_sample = input$both_sample,
+                                       k = input$num_neighbors,
+                                       ann = ann_multiomics_v9,
+                                       type = input$df_selection_output,
+                                       value = 'subtype',
+                                       dist_top_n = n)
       
       output$piechart_subtype <- renderPlot({
         piechart_subtype
@@ -792,6 +769,23 @@ server <- function(input, output, session) {
       
       selected_samples <- reactive({
         input$both_sample
+      })
+      
+      n <- find_neighbors(combined_mat = selected_combined_mat(), 
+                          reduced_mat = selected_reduced_mat(),
+                          selected_samples = selected_samples(),
+                          k = input$num_neighbors,
+                          ann = ann_multiomics_v9,
+                          type = input$df_selection_output,
+                          query_lineage = input$lin_output)
+      
+      x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
+                              ann = ann_multiomics_v9,
+                              dist_top_n = n)
+      
+      
+      output$plot <- renderUI({
+        x  
       })
       
       piechart <- get_piechart(combined_mat = selected_combined_mat(), 
@@ -799,15 +793,16 @@ server <- function(input, output, session) {
                                k = input$num_neighbors,
                                ann = ann_multiomics_v9,
                                type = input$df_selection_output,
-                               query_lineage = input$lin_output)
+                               value = 'lineage',
+                               dist_top_n = n)
       
-      piechart_subtype <- get_piechart_subtype(combined_mat = selected_combined_mat(), 
-                                               selected_samples = selected_samples(),
-                                               k = input$num_neighbors,
-                                               ann = ann_multiomics_v9,
-                                               type = input$df_selection_output,
-                                               query_lineage = input$lin_output)
-      
+      piechart_subtype <- get_piechart(combined_mat = selected_combined_mat(), 
+                                       selected_samples = selected_samples(),
+                                       k = input$num_neighbors,
+                                       ann = ann_multiomics_v9,
+                                       type = input$df_selection_output,
+                                       value = 'subtype',
+                                       dist_top_n = n)
       
       output$piechart_subtype <- renderPlot({
         piechart_subtype
@@ -816,6 +811,7 @@ server <- function(input, output, session) {
       output$piechart <- renderPlot({
         piechart
       })
+      
     }
   })
   
