@@ -352,25 +352,25 @@ server <- function(input, output, session) {
       
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return()
+          return(snf_umap_all)
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(snf_umap_exp_meth)
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return()
+          return(snf_umap_exp_mut)
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return()
+          return(snf_umap_meth_mut)
         }
       }
       
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return()
+          return(snf_tsne_all)
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(snf_tsne_exp_meth)
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return()
+          return(snf_tsne_exp_mut)
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return()
+          return(snf_tsne_meth_mut)
         }
       }
       
@@ -462,26 +462,26 @@ server <- function(input, output, session) {
       # --- SNF - UMAP ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return()#get_alignment_plot(reduced_mat = snf_umap_all, ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = t(snf_umap_all), ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(get_alignment_plot(reduced_mat = snf_umap_exp_meth, ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = t(snf_umap_exp_meth), ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return()#get_alignment_plot(reduced_mat = snf_umap_exp_mut, ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = t(snf_umap_exp_mut), ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return()#get_alignment_plot(reduced_mat = snf_umap_meth_mut, ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = t(snf_umap_meth_mut), ann = ann_multiomics_v9))
         }
       }
       
       # --- SNF - tSNE ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return()#get_alignment_plot(reduced_mat = snf_tsne_all, ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = snf_tsne_all, ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(get_alignment_plot(reduced_mat = snf_tsne_exp_meth, ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return()#get_alignment_plot(reduced_mat = snf_tsne_exp_mut, ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = snf_tsne_exp_mut, ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return()#get_alignment_plot(reduced_mat = snf_tsne_meth_mut, ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = snf_tsne_meth_mut, ann = ann_multiomics_v9))
         }
       }
       
@@ -531,13 +531,13 @@ server <- function(input, output, session) {
       
       if (input$multiomics_method == 'SNF') {
         if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return()
+          return(pca_snf_all)
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(pca_snf_exp_meth)
         } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return()
+          return(pca_snf_exp_mut)
         } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return()
+          return(pca_snf_meth_mut)
         }
       }
       
@@ -860,12 +860,6 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$load_selection, {
-
-            # if(is.null(input$both_sample)) {
-    #   showNotification("Select samples and then click on Load")
-    #   warning("Select samples and then click on Load")
-    #   return()}
-    
     if(is.null(input$sel_type)) {
       return()
     }
