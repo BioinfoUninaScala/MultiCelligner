@@ -83,13 +83,13 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
   
   if (all(c("Cell lines", "Tumors") %in% type) & value %in% "subtype") {
     colnames(dist_top25_2)[3:4] <- c('sample_2','subtype_ccle')
-    dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, subtype_tcga, subtype_ccle)
+    dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Subtype_tcga, subtype_ccle)
     colnames(dist_top25_3)[3] <- 'Subtype'
     dist_top25_4 <- dist_top25_3 %>%
       select(subtype_ccle, Subtype) %>%
       table() %>% as.data.frame()
     fill_var <- "Subtype"
-  } else if ("Cell lines" %in% type & value %in% "subtype") {
+  } else if ("Cell lines" %in% type & length(type) == 1 & value %in% "subtype") {
     colnames(dist_top25_2)[3:4] <- c('sample_2','subtype_tcga')
     dist_top25_3 <- dist_top25_2 %>% select(sample_1, sample_2, Subtype_CCLE, subtype_tcga)
     dist_top25_4 <- dist_top25_3 %>%
@@ -116,7 +116,7 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
     fill_var <- "Subtype_wrap"
   }
   
-  if ("Cell lines" %in% type & value %in% "subtype") {
+  else if ("Cell lines" %in% type & length(type) == 1 & value %in% "subtype") {
     dist_top25_4 <- dist_top25_4 %>%
       mutate(Subtype_CCLE_wrap = stringr::str_wrap(Subtype_CCLE, width = 14))
     fill_var <- "Subtype_CCLE_wrap"

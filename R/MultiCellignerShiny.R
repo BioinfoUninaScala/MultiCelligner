@@ -175,7 +175,7 @@ ui <- fluidPage(
       ')),
       
       div(style = "text-align: center;",
-          actionButton("subset_btn", "Get alignment", 
+          actionButton("subset_btn", "Plot alignment", 
                        style = "
                    font-size: 14px;
                    padding: 15px 70px;
@@ -464,7 +464,7 @@ server <- function(input, output, session) {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
           return(get_alignment_plot(reduced_mat = t(snf_umap_all), ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(get_alignment_plot(reduced_mat = t(snf_umap_exp_meth), ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = snf_umap_exp_meth, ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
           return(get_alignment_plot(reduced_mat = t(snf_umap_exp_mut), ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
@@ -547,7 +547,7 @@ server <- function(input, output, session) {
   a <- c('Cell lines', 'Tumors')
   b <- c('Cell lines (CL)', 'Tumors')
   choices_CL <- setNames(a,b)
-  updateSelectizeInput(session, "sel_type", choices = choices_CL, selected = 'Cell lines')
+  updateSelectizeInput(session, "sel_type", choices = choices_CL, selected = c("Cell lines", "Tumors"))
 
   ### get the multiomics data intergration method in the menu
   updateSelectizeInput(session, "multiomics_method", choices = c('MoNETA','MOFA','SNF'), selected = 'MoNETA')
@@ -561,8 +561,13 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0))
     
     ### update lineage sel
+    
+    l <- reactiveVal(NULL)
+    
     observeEvent(input$subset_btn, {
-      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = input$sel_lineage)
+      l(input$sel_lineage)
+      selected_linages(lin)
+      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = l())
     })
   })
   
@@ -576,8 +581,11 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = 'All')
     
     ### update lineage out
+    q <- reactiveVal(NULL)
+    
     observeEvent(input$subset_btn, {
-      updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = input$lin_output)
+      q(input$lin_output)
+      updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = q())
     })
   })
   
