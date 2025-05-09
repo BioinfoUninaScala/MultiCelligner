@@ -589,16 +589,6 @@ server <- function(input, output, session) {
     })
   })
   
-  ### when there is no sample/s in search bar, reolad the omics base plot
-  observeEvent(input$subset_btn, {
-    if(is.null(input$both_sample) || length(input$both_sample) == 0) {
-      
-      output$plot <- renderUI({
-        selected_plot()
-      })
-    }
-  })
-  
   ### update the sample/s for each selected omics; using depmap code but show nameID
   r_choices <- reactiveVal()
   
@@ -731,6 +721,14 @@ server <- function(input, output, session) {
   #### click show in the shiny to get both kind of piechart
   observeEvent(input$subset_btn, {
     
+    ### when there is no sample/s in search bar, reolad the omics base plot
+    if(is.null(input$both_sample) || length(input$both_sample) == 0) {
+      
+      output$plot <- renderUI({
+        selected_plot()
+      })
+    }
+    
     if(length(input$both_sample) == 1) {
       
       n <- find_neighbors(combined_mat = selected_combined_mat(), 
@@ -740,6 +738,8 @@ server <- function(input, output, session) {
                           ann = ann_multiomics_v9,
                           type = input$df_selection_output,
                           query_lineage = input$lin_output)
+      
+      if(!is.null(n)) {
       
       x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
                               ann = ann_multiomics_v9,
@@ -773,7 +773,12 @@ server <- function(input, output, session) {
         piechart
       })
       
-    } else if (length(input$both_sample) > 1) {
+      }
+      
+      else {}
+      
+    } 
+    else if (length(input$both_sample) > 1) {
       
       selected_samples <- reactive({
         input$both_sample
@@ -786,6 +791,8 @@ server <- function(input, output, session) {
                           ann = ann_multiomics_v9,
                           type = input$df_selection_output,
                           query_lineage = input$lin_output)
+      
+      if(!is.null(n)) {
       
       x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
                               ann = ann_multiomics_v9,
@@ -820,7 +827,11 @@ server <- function(input, output, session) {
         piechart
       })
       
+      }
     }
+    
+    else {}
+    
   })
   
   #### lasso select code

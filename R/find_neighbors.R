@@ -149,7 +149,9 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
     combined_mat <- combined_mat[rownames(combined_mat) %in% ann_query$sampleID,]
     
     if(sum(rownames(combined_mat) %in% input_sample) == 0) {
-      stop("working in progress")
+      showNotification("Select an input lineage")
+      warning("Select an input lineage")
+      return(NULL)
     }
     
     if(all(!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = rownames(combined_mat)))) {
