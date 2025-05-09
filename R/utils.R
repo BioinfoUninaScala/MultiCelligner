@@ -192,15 +192,15 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
       list(
         div(style = "height: 40px;"),
         filter_checkbox("Type", 
-                        label = "Select Model",
+                        label = "View Model",
                         sharedData = shared, 
                         group = ~type),
         filter_select("Lineage", 
-                      label = "Select Lineage",
+                      label = "View Lineage",
                       sharedData = shared, 
                       group = ~lineage),
         filter_select("Subtype",
-                      label = "Select Subtype",
+                      label = "View Subtype",
                       sharedData = shared, 
                       group = ~subtype)
       ),
@@ -376,17 +376,17 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
       list(
         div(style = "height: 40px;"),
         filter_checkbox("Type",
-                        label = "Select Model",
+                        label = "View Model",
                         sharedData = shared,
                         group = ~type
         ),
         filter_select("Lineage",
-                      label = "Select Lineage",
+                      label = "View Lineage",
                       sharedData = shared,
                       group = ~lineage
         ),
         filter_select("Subtype",
-                      label = "Select Subtype",
+                      label = "View Subtype",
                       sharedData = shared,
                       group = ~subtype
         )
