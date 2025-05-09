@@ -146,7 +146,15 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
   } else {
     
     ann_query <- ann[ann$lineage %in% query_lineage,]
-    combined_mat <- combined_mat[rownames(combined_mat) %in% ann_query$sampleID,]
+
+    if(is.null(selected_samples)) {
+      ann_query2 <- c(ann_query$sampleID, input_sample)
+    }
+    else {
+      ann_query2 <- c(ann_query$sampleID, selected_samples)
+    }
+    
+    combined_mat <- combined_mat[rownames(combined_mat) %in% ann_query2,]
     
     if(sum(rownames(combined_mat) %in% input_sample) == 0) {
       showNotification("Select an input lineage")
