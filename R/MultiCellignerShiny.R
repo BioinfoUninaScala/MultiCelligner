@@ -702,8 +702,8 @@ server <- function(input, output, session) {
         updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples())
         } else {
           updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples())
-        } ### due possibilità: o le mantieni tutte (cioè nel menù della sel compaiono anche quelle che non ci sono) e metti choices = choices 
-      } ### o altrimenti: lasci r_choices ma quando non sono presenti nell'omica i campioni spariscono!
+        } 
+      } 
     })
   })
   
