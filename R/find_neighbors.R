@@ -146,7 +146,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
   } else {
     
     ann_query <- ann[ann$lineage %in% query_lineage,]
-
+    
     if(is.null(selected_samples)) {
       ann_query2 <- c(ann_query$sampleID, input_sample)
     }
@@ -156,11 +156,11 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selec
     
     combined_mat <- combined_mat[rownames(combined_mat) %in% ann_query2,]
     
-    if(sum(rownames(combined_mat) %in% input_sample) == 0) {
-      showNotification("Select an input lineage")
-      warning("Select an input lineage")
-      return(NULL)
-    }
+    # if(sum(rownames(combined_mat) %in% input_sample) == 0) {
+    #   showNotification("Select an input lineage")
+    #   warning("Select an input lineage")
+    #   return(NULL)
+    # }
     
     if(all(!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', x = rownames(combined_mat)))) {
       showNotification("There are no tumor samples for this lineage in this omics")
