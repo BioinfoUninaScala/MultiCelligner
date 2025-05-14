@@ -1,5 +1,5 @@
 #' 
-#' Create an interactive plot that highlighting k nearest neighbors for the choosed query
+#' Create a data frame with the neighbors and related annotation of a query sample/s
 #'
 #' @import plotly
 #' @import crosstalk

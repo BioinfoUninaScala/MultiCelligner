@@ -1,5 +1,5 @@
 #' 
-#' Create a pie chart that illustrates the percentage of subtype belong to the k nearest neighbors 
+#' Create a pie chart that illustrates the percentage of lineage or subtype belong to the k nearest neighbors 
 #' 
 #' @import dplyr
 #' @import ggplot2
@@ -14,6 +14,7 @@
 #' @param type type of the k neighbors samples (Tumor or Cell Line)
 #' @param k number of the nearest neighbors
 #' @param ann annotation file of tumors and cell lines 
+#' @param dist_top_n 
 #' @param value string value to select to determine if the pie chart will be based on subtype percentage or lineage percentage
 #' @return pie chart illustrating the distribution of k nearest neighbors subtype to the query 
 #' @export
