@@ -126,7 +126,7 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
   y <- ggplot(dist_top25_4, aes(x = "", y = Freq, fill = .data[[fill_var]])) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
-    scale_fill_brewer(palette = "Spectral") +
+    scale_fill_brewer(palette = "Dark2") +
     theme_void() +
     theme(axis.text.x = element_blank(),
           plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) +
@@ -134,7 +134,7 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
               position = position_stack(vjust = 0.5),
               size = 3) +
     labs(if(value %in% 'lineage') title = "Neighbors lineage distribution" else title = "Subtype lineage distribution")
-  
+
   return(y)
   
 }
@@ -650,3 +650,4 @@ c_distribution <- function(dist_top_n, ann) {
               subtype_distribution = y))
   
 }
+
