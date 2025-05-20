@@ -248,7 +248,20 @@ ui <- fluidPage(
       ),
 
       uiOutput("plot"),
-      width = 9
+      width = 9,
+      
+      tabsetPanel(
+        type = "tabs",
+        selected = 'Lineage distribution',
+        
+        tabPanel("Lineage distribution",          
+                 plotlyOutput("distribution_s", width = '90%')
+        ),
+        
+        tabPanel("Subtype distribution", 
+                 plotlyOutput("distribution_l", width = "90%")
+        ))
+      
     )
   )
 )                                
@@ -711,6 +724,9 @@ server <- function(input, output, session) {
   observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
     output$piechart_subtype <- renderPlot({ NULL })
     output$piechart <- renderPlot({ NULL })
+    
+    output$distribution_l <- renderPlotly({ NULL })
+    output$distribution_s <- renderPlotly({ NULL })
   })
   
   selected_samples <- reactive({
@@ -727,7 +743,12 @@ server <- function(input, output, session) {
       output$plot <- renderUI({
         selected_plot()
       })
+      
+      output$distribution_l <- renderPlotly({ NULL })
+      output$distribution_s <- renderPlotly({ NULL })
     }
+    
+    
     
     if(length(input$both_sample) == 1) {
       
@@ -738,6 +759,11 @@ server <- function(input, output, session) {
                           ann = ann_multiomics_v9,
                           type = input$df_selection_output,
                           query_lineage = input$lin_output)
+      
+      p <- c_distribution(dist_top_n = n, ann = ann_multiomics_v9)
+      
+      output$distribution_l <- renderPlotly({p$lineage_distribution})
+      output$distribution_s <- renderPlotly({p$subtype_distribution})
       
       if(!is.null(n)) {
       
@@ -791,6 +817,11 @@ server <- function(input, output, session) {
                           ann = ann_multiomics_v9,
                           type = input$df_selection_output,
                           query_lineage = input$lin_output)
+      
+      p <- c_distribution(dist_top_n = n, ann = ann_multiomics_v9)
+
+      output$distribution_l <- renderPlotly({p$lineage_distribution})
+      output$distribution_s <- renderPlotly({p$subtype_distribution})
       
       if(!is.null(n)) {
       

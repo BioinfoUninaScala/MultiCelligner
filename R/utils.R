@@ -133,7 +133,7 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
     geom_text(aes(label = label),
               position = position_stack(vjust = 0.5),
               size = 3) +
-    labs(if(value %in% 'lineage') title = "Neighbors lineage distribution" else title = "Subtype lineage distribution") 
+    labs(if(value %in% 'lineage') title = "Neighbors lineage distribution" else title = "Subtype lineage distribution")
   
   return(y)
   
@@ -158,7 +158,6 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
 #' @param ann annotation file of tumors and cell lines 
 #' @param dist_top_n neighbors dataframe
 #' @return an interactive plot that highlighting the tumor k nearest neighbors 
-#' @export
 
 get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
   
@@ -568,7 +567,6 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
 #' @param combined_mat matrix samples x genes of corrected data by MNN: 
 #' @param ann annotation file of tumors and cell lines 
 #' @return a vector with the stripped cell line name
-#' @export
 
 
 get_CL_strp_names <- function(combined_mat ,ann) {
@@ -580,5 +578,75 @@ get_CL_strp_names <- function(combined_mat ,ann) {
   nm <- df$stripped_cell_line_name[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', df$stripped_cell_line_name)]
   
   return(nm)
+  
+}
+
+#' 
+#' Generate a lineage and subtype distance distribution plot
+#'
+#' @import plotly
+#' @import dplyr
+#' @import scales
+#' @param ann annotation file of tumors and cell lines 
+#' @param dist_top_n neighbors dataframe
+#' @return lineage and subtype distance distribution plot
+
+c_distribution <- function(dist_top_n, ann) {
+  
+  df <- dist_top_n %>%
+    arrange(dist)  
+  
+  df$position <- 1:nrow(df)
+  
+  df <- df %>%
+    left_join(., ann, by = join_by(sampleID))
+  
+  df$to_sum <- c(0, df$dist[-length(df$dist)])
+  df$cum_dist <- df$dist + df$to_sum
+  
+  p1 <- ggplot(df, aes(x = position, y = dist)) +
+    geom_line(linewidth = 1.2, color = "steelblue") +
+    theme_minimal() +
+    ylab("Cumulative Distance") +
+    xlab(NULL) 
+  
+  p2 <- ggplot(df, aes(x = position, y = 1, fill = lineage)) +
+    geom_tile() +
+    scale_y_continuous(expand = c(0, 0)) +
+    theme_void() +
+    scale_fill_brewer(palette = "Dark2")
+  #theme(legend.position = "bottom") 
+  
+  
+  # p2 <- ggplot(df, aes(x = position, y = 1, fill = lineage, text= paste(
+  #   "Position:", position,
+  #   "\nID:", sampleID,
+  #   "\nName:", stripped_cell_line_name,
+  #   "\nLineage:", lineage,
+  #   "\nSubtype:", subtype_1,))) +
+  #   geom_tile() +
+  #   scale_y_continuous(expand = c(0, 0)) +
+  #   theme_void() +
+  #   scale_fill_brewer(palette = "Dark2")
+  # #theme(legend.position = "bottom") 
+  
+  
+  
+  p3 <- ggplot(df, aes(x = position, y = 1, fill = subtype_1)) +
+    geom_tile() +
+    scale_y_continuous(expand = c(0, 0)) +
+    theme_void() +
+    theme(legend.position = "bottom") +
+    scale_fill_brewer(palette = "Dark2")
+  
+  p1_plotly <- ggplotly(p1)
+  p2_plotly <- ggplotly(p2, tooltip = "text")
+  p3_plotly <- ggplotly(p3)
+  
+  x <- subplot(p1_plotly, p3_plotly, nrows = 2, heights = c(0.75, 0.25), shareX = TRUE)
+  y <- subplot(p1_plotly, p2_plotly, nrows = 2, heights = c(0.75, 0.25), shareX = TRUE)
+  
+  return(list(lineage_distribution = x,
+              subtype_distribution = y))
   
 }
