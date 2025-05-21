@@ -162,11 +162,22 @@ ui <- fluidPage(
       
       hr(),
       
+      fluidRow(
+        column(12,
+               checkboxGroupInput("show_input", 
+                                  label = "Highlight input sample/s in Alignment Plot", 
+                                  choices = c("On", "Off"), 
+                                  selected = "Off", 
+                                  inline = TRUE))
+      ),
+      
+      hr(),
+      
       tags$script(HTML('
         $(document).ready(function(){
           // Tooltip per il bottone "Show"
           $("#subset_btn").tooltip({
-            title: "Click on Show without sample/s in search bar to get the basic plot without neighbors",
+            title: "Click on Plot Alignment without sample/s in search bar to get the basic plot without neighbors",
             placement: "right",
             trigger: "hover",
             html: true

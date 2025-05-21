@@ -168,7 +168,7 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
 #' @param dist_top_n neighbors dataframe
 #' @return an interactive plot that highlighting the tumor k nearest neighbors 
 
-get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
+get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample = NULL, selected_samples = NULL) {
   
   top_k_tumors_1 <- unique(as.character(dist_top_n$sampleID))
   
@@ -187,11 +187,13 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
   
   if(!is.null(dist_top_n) || !missing(dist_top_n)) {
     
+    if(is.null(selected_samples)) {ins <- input_sample} else {ins <- selected_samples}
+    
     data_res_1 <- data_res %>% mutate('show_it' = ifelse(data_res$sampleID %in% top_k_tumors_1, 'show', 'not'))
     
+    data_res_1$show_it[data_res_1$sampleID == ins] <- 'green'
+    
     data_res_2 <- data_res_1 %>% mutate('size' = if_else(show_it == 'show', 16, 5))
-    
-    
     
     dist_metasample_2 <- dist_top_n %>% dplyr::select("sampleID", "dist")
     data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')  %>% arrange(dist)
@@ -220,7 +222,11 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
         filter_select("Subtype",
                       label = "View Subtype",
                       sharedData = shared, 
-                      group = ~subtype)
+                      group = ~subtype),
+        filter_select("Sample", 
+                      label = "View Sample/s", 
+                      sharedData = shared, 
+                      group = ~stripped_cell_line_name)
       ),
       
       div(
@@ -260,7 +266,8 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
               traceorder = 'normal'),
             height = 600) %>% 
           event_register("plotly_selected") %>% 
-          highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE)
+          highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE) %>% 
+          highlight(., on = "plotly_click",  selectize = FALSE, persistent = FALSE, off = 'plotly_doubleclick')
       ))
     
     
@@ -388,6 +395,9 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
       "subtype", "subtype_1", "link", "type", "size", "width", "opacity"
     )
     
+    n_colors <- length(unique(data_res_1$lineage))
+    palette_colors <- brewer_recycled("Dark2", n_colors)
+    
     shared <- SharedData$new(data_res_1, key = ~sampleID)
     
     row_1 <- bscols(
@@ -408,7 +418,11 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
                       label = "View Subtype",
                       sharedData = shared,
                       group = ~subtype
-        )
+        ),
+        filter_select("Sample", 
+                      label = "View Sample/s", 
+                      sharedData = shared, 
+                      group = ~stripped_cell_line_name)
       ),
       div(
         style = "height: 600px; width: 100%;",
@@ -421,6 +435,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
           type = "scatter",
           mode = "markers",
           color = ~lineage,
+          colors = palette_colors,
           symbol = ~type,
           symbols = c("circle", "x"),
           stroke = ~type,
@@ -451,7 +466,8 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
             height = 600
           ) %>%
           event_register(event = "plotly_selected") %>%
-          highlight(on = "plotly_selected", off = "plotly_doubleclick", color = "green", persistent = FALSE)
+          highlight(on = "plotly_selected", off = "plotly_doubleclick", color = "green", persistent = FALSE) %>% 
+          highlight(., on = "plotly_click",  selectize = FALSE, persistent = FALSE, off = 'plotly_doubleclick')
       )
     )
     
