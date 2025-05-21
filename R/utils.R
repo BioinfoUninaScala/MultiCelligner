@@ -123,17 +123,26 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
     fill_var <- "Subtype_CCLE_wrap"
   }
   
+  brewer_recycled <- function(palette = "Dark2", n) {
+    max_colors <- RColorBrewer::brewer.pal.info[palette, "maxcolors"]
+    base_colors <- RColorBrewer::brewer.pal(max_colors, palette)
+    colorRampPalette(base_colors)(n)
+  }
+  
+  n_colors <- length(unique(dist_top25_4[[fill_var]]))
+  palette_colors <- brewer_recycled("Dark2", n_colors)
+  
   y <- ggplot(dist_top25_4, aes(x = "", y = Freq, fill = .data[[fill_var]])) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
-    scale_fill_brewer(palette = "Dark2") +
+    scale_fill_manual(values = palette_colors) +
     theme_void() +
     theme(axis.text.x = element_blank(),
           plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) +
     geom_text(aes(label = label),
               position = position_stack(vjust = 0.5),
               size = 3) +
-    labs(if(value %in% 'lineage') title = "Neighbors lineage distribution" else title = "Subtype lineage distribution")
+    labs(title = if(value %in% 'lineage') "Neighbors lineage distribution" else "Subtype lineage distribution")
 
   return(y)
   
@@ -170,6 +179,12 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
   
   colnames(data_res)[c(1,2)] <- c("UMAP_1", "UMAP_2")
   
+  brewer_recycled <- function(palette = "Dark2", n) {
+    max_colors <- RColorBrewer::brewer.pal.info[palette, "maxcolors"]
+    base_colors <- RColorBrewer::brewer.pal(max_colors, palette)
+    colorRampPalette(base_colors)(n)
+  }
+  
   if(!is.null(dist_top_n) || !missing(dist_top_n)) {
     
     data_res_1 <- data_res %>% mutate('show_it' = ifelse(data_res$sampleID %in% top_k_tumors_1, 'show', 'not'))
@@ -186,6 +201,9 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
                                         "subtype","subtype_1", "link", "type","dist","show_it","size")
     
     shared <- SharedData$new(data_res_3, key = ~sampleID)
+    
+    n_colors <- length(unique(data_res_3$lineage))
+    palette_colors <- brewer_recycled("Dark2", n_colors)
     
     row_1 <- bscols(
       widths = c(2, 10),
@@ -215,7 +233,8 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL) {
           source = 'A',
           type = 'scatter',
           mode = 'markers',
-          color = ~lineage,  
+          color = ~lineage,
+          colors = palette_colors,
           symbol = ~type, 
           symbols = c('circle',"x"),
           stroke = ~show_it,
@@ -587,14 +606,22 @@ get_CL_strp_names <- function(combined_mat ,ann) {
 #' @import plotly
 #' @import dplyr
 #' @import scales
+#' @import RColorBrewer
 #' @param ann annotation file of tumors and cell lines 
 #' @param dist_top_n neighbors dataframe
 #' @return lineage and subtype distance distribution plot
 
 c_distribution <- function(dist_top_n, ann) {
   
+  # Funzione per riciclare i colori da una palette brewer
+  brewer_recycled <- function(palette = "Dark2", n) {
+    max_colors <- RColorBrewer::brewer.pal.info[palette, "maxcolors"]
+    base_colors <- RColorBrewer::brewer.pal(max_colors, palette)
+    colorRampPalette(base_colors)(n)
+  }
+  
   df <- dist_top_n %>%
-    arrange(dist)  
+    arrange(dist)
   
   df$position <- 1:nrow(df)
   
@@ -604,50 +631,55 @@ c_distribution <- function(dist_top_n, ann) {
   df$to_sum <- c(0, df$dist[-length(df$dist)])
   df$cum_dist <- df$dist + df$to_sum
   
+  # Numero di categorie
+  n_lineages <- length(unique(df$lineage))
+  n_subtypes <- length(unique(df$subtype_1))
+  
   p1 <- ggplot(df, aes(x = position, y = dist)) +
     geom_line(linewidth = 1.2, color = "steelblue") +
     theme_minimal() +
     ylab("Cumulative Distance") +
-    xlab(NULL) 
+    xlab(NULL)
   
-  p2 <- ggplot(df, aes(x = position, y = 1, fill = lineage)) +
+  p2 <- ggplot(df, aes(x = position, y = 1, fill = lineage, text = paste(
+    "Position:", position,
+    "\nID:", sampleID,
+    "\nName:", stripped_cell_line_name,
+    "\nLineage:", lineage,
+    "\nSubtype:", subtype_1
+  ))) +
     geom_tile() +
     scale_y_continuous(expand = c(0, 0)) +
     theme_void() +
-    scale_fill_brewer(palette = "Dark2")
-  #theme(legend.position = "bottom") 
+    scale_fill_manual(values = brewer_recycled("Dark2", n_lineages)) +
+    theme(legend.position = "right")
   
-  
-  # p2 <- ggplot(df, aes(x = position, y = 1, fill = lineage, text= paste(
-  #   "Position:", position,
-  #   "\nID:", sampleID,
-  #   "\nName:", stripped_cell_line_name,
-  #   "\nLineage:", lineage,
-  #   "\nSubtype:", subtype_1,))) +
-  #   geom_tile() +
-  #   scale_y_continuous(expand = c(0, 0)) +
-  #   theme_void() +
-  #   scale_fill_brewer(palette = "Dark2")
-  # #theme(legend.position = "bottom") 
-  
-  
-  
-  p3 <- ggplot(df, aes(x = position, y = 1, fill = subtype_1)) +
+  p3 <- ggplot(df, aes(x = position, y = 1, fill = subtype_1, text = paste(
+    "Position:", position,
+    "\nID:", sampleID,
+    "\nName:", stripped_cell_line_name,
+    "\nLineage:", lineage,
+    "\nSubtype:", subtype_1
+  ))) +
     geom_tile() +
     scale_y_continuous(expand = c(0, 0)) +
     theme_void() +
-    theme(legend.position = "bottom") +
-    scale_fill_brewer(palette = "Dark2")
+    scale_fill_manual(values = brewer_recycled("Dark2", n_subtypes)) +
+    theme(legend.position = "bottom")
   
+  # Converti in plotly
   p1_plotly <- ggplotly(p1)
   p2_plotly <- ggplotly(p2, tooltip = "text")
-  p3_plotly <- ggplotly(p3)
+  p3_plotly <- ggplotly(p3, tooltip = "text")
   
+  # Subplot
   x <- subplot(p1_plotly, p3_plotly, nrows = 2, heights = c(0.75, 0.25), shareX = TRUE)
   y <- subplot(p1_plotly, p2_plotly, nrows = 2, heights = c(0.75, 0.25), shareX = TRUE)
   
-  return(list(lineage_distribution = x,
-              subtype_distribution = y))
-  
+  return(list(
+    lineage_distribution = x,
+    subtype_distribution = y
+  ))
 }
+
 
