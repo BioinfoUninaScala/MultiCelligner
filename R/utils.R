@@ -191,9 +191,11 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
     
     data_res_1 <- data_res %>% mutate('show_it' = ifelse(data_res$sampleID %in% top_k_tumors_1, 'show', 'not'))
     
-    data_res_1$show_it[data_res_1$sampleID == ins] <- 'green'
+    data_res_1$show_it[data_res_1$sampleID %in% ins] <- 'input'
     
     data_res_2 <- data_res_1 %>% mutate('size' = if_else(show_it == 'show', 16, 5))
+    
+    data_res_2$size[data_res$show_it %in% "input"] <- 16
     
     dist_metasample_2 <- dist_top_n %>% dplyr::select("sampleID", "dist")
     data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')  %>% arrange(dist)
@@ -222,11 +224,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
         filter_select("Subtype",
                       label = "View Subtype",
                       sharedData = shared, 
-                      group = ~subtype),
-        filter_select("Sample", 
-                      label = "View Sample/s", 
-                      sharedData = shared, 
-                      group = ~stripped_cell_line_name)
+                      group = ~subtype)
       ),
       
       div(
@@ -244,7 +242,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
           symbol = ~type, 
           symbols = c('circle',"x"),
           stroke = ~show_it,
-          strokes = c('show' = "red"),
+          strokes = c('show' = "red", 'input' = "green"),
           size = ~size,
           sizes = c(5,9),
           hoverinfo = "text",
@@ -267,7 +265,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
             height = 600) %>% 
           event_register("plotly_selected") %>% 
           highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE) %>% 
-          highlight(., on = "plotly_click",  selectize = FALSE, persistent = FALSE, off = 'plotly_doubleclick')
+          highlight(., on = "plotly_click",  selectize = FALSE, persistent = TRUE, off = 'plotly_doubleclick')
       ))
     
     
@@ -418,11 +416,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
                       label = "View Subtype",
                       sharedData = shared,
                       group = ~subtype
-        ),
-        filter_select("Sample", 
-                      label = "View Sample/s", 
-                      sharedData = shared, 
-                      group = ~stripped_cell_line_name)
+        )
       ),
       div(
         style = "height: 600px; width: 100%;",
@@ -467,7 +461,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
           ) %>%
           event_register(event = "plotly_selected") %>%
           highlight(on = "plotly_selected", off = "plotly_doubleclick", color = "green", persistent = FALSE) %>% 
-          highlight(., on = "plotly_click",  selectize = FALSE, persistent = FALSE, off = 'plotly_doubleclick')
+          highlight(., on = "plotly_click",  selectize = FALSE, persistent = TRUE, off = 'plotly_doubleclick')
       )
     )
     

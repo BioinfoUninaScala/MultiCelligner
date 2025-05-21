@@ -162,17 +162,6 @@ ui <- fluidPage(
       
       hr(),
       
-      fluidRow(
-        column(12,
-               checkboxGroupInput("show_input", 
-                                  label = "Highlight input sample/s in Alignment Plot", 
-                                  choices = c("On", "Off"), 
-                                  selected = "Off", 
-                                  inline = TRUE))
-      ),
-      
-      hr(),
-      
       tags$script(HTML('
         $(document).ready(function(){
           // Tooltip per il bottone "Show"
@@ -780,7 +769,7 @@ server <- function(input, output, session) {
       
       x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
                               ann = ann_multiomics_v9,
-                              dist_top_n = n)
+                              dist_top_n = n, input_sample = input$both_sample)
       
       output$plot <- renderUI({
         x  
@@ -838,7 +827,7 @@ server <- function(input, output, session) {
       
       x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
                               ann = ann_multiomics_v9,
-                              dist_top_n = n)
+                              dist_top_n = n, selected_samples = selected_samples())
       
       
       output$plot <- renderUI({
