@@ -26,7 +26,7 @@ ui <- fluidPage(
       fluidRow(column(3,tags$img(src = "MultiCelligner_Logo_2.png", height = "100px"),), 
                column(6,div(h3("MultiCelligner"), class = "text-center",style="padding:15px;")),
                #column(3,tags$img(src = "Mcell_logo.png", height = "100px"))
-               ),
+      ),
       hr(),
       
       fluidRow(
@@ -38,7 +38,7 @@ ui <- fluidPage(
                                            "Expression"),
                                multiple = TRUE,
                                selected = 'Methylation'
-                               ))
+                   ))
         )),
       
       fluidRow(
@@ -123,7 +123,7 @@ ui <- fluidPage(
         ),
         column(4,
                div(style = "align-items: flex-start; justify-content: center;",
-               actionButton("rm", "Clear Selection", style = "text-align: center;")) %>%
+                   actionButton("rm", "Clear Selection", style = "text-align: center;")) %>%
                  tagAppendChild(tags$script(HTML('
     $(document).ready(function(){
       $("#rm").tooltip({
@@ -135,7 +135,7 @@ ui <- fluidPage(
     });
   ')))
         )
-        ),
+      ),
       
       
       hr(),
@@ -246,7 +246,7 @@ ui <- fluidPage(
       tags$div(
         tags$p(h3(textOutput("omics_name"),class = "text-center"), style = "text-align: center; font-size: 18px; font-weight: bold;"),
       ),
-
+      
       uiOutput("plot"),
       width = 9,
       
@@ -281,17 +281,17 @@ server <- function(input, output, session) {
     if(length(input$omics_plot) == 1) {
       
       return(switch(input$omics_plot,
-             "Methylation" = 'Methylation',
-             "Mutational signature" = 'Mutational signature',
-             "Expression" = 'Expression'))
+                    "Methylation" = 'Methylation',
+                    "Mutational signature" = 'Mutational signature',
+                    "Expression" = 'Expression'))
     }
     
     if(length(input$omics_plot) > 1) {
       
       return(switch(input$multiomics_method,
-             "MoNETA" = 'MoNETA multiomics',
-             "MOFA" = 'MOFA multiomics',
-             "SNF" = 'SNF multiomics'))
+                    "MoNETA" = 'MoNETA multiomics',
+                    "MOFA" = 'MOFA multiomics',
+                    "SNF" = 'SNF multiomics'))
     }
     
   })
@@ -509,9 +509,9 @@ server <- function(input, output, session) {
     if(length(input$omics_plot) == 1) {
       
       return(switch(input$omics_plot,
-             "Expression" = pca_exp, 
-             "Methylation" = pca_meth_1,
-             "Mutational signature" = combined_mat_mut
+                    "Expression" = pca_exp, 
+                    "Methylation" = pca_meth_1,
+                    "Mutational signature" = combined_mat_mut
       ))
       
     } else if (length(input$omics_plot) > 1) {
@@ -561,44 +561,41 @@ server <- function(input, output, session) {
   b <- c('Cell lines (CL)', 'Tumors')
   choices_CL <- setNames(a,b)
   updateSelectizeInput(session, "sel_type", choices = choices_CL, selected = c("Cell lines", "Tumors"))
-
+  
   ### get the multiomics data intergration method in the menu
   updateSelectizeInput(session, "multiomics_method", choices = c('MoNETA','MOFA','SNF'), selected = 'MoNETA')
   
   ### select the linage based on the mat that the user choose
   selected_linages <- reactiveVal(NULL)
+  l <- reactiveVal(NULL)
   
   observe({
     lin <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
     selected_linages(lin)
-    updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0))
+    updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0), server = TRUE)
     
     ### update lineage sel
-    
-    l <- reactiveVal(NULL)
-    
     observeEvent(input$subset_btn, {
       l(input$sel_lineage)
       selected_linages(lin)
-      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = l())
+      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = l(), server = TRUE)
     })
   })
   
   
   ### select the Query lineage/s for neighbors search
   query_linages <- reactiveVal(NULL)
+  q <- reactiveVal(NULL)
   
   observe({
     lin_out <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
     query_linages(lin_out)
-    updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = 'All')
+    updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = 'All', server = TRUE)
     
     ### update lineage out
-    q <- reactiveVal(NULL)
-    
     observeEvent(input$subset_btn, {
       q(input$lin_output)
-      updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = q())
+      updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = q(), server = TRUE)
     })
   })
   
@@ -608,7 +605,7 @@ server <- function(input, output, session) {
   observe({
     choices <- list() 
     subset_1 <- ann_multiomics_v9
-
+    
     if (input$sel_lineage == "") {
       if ("Cell lines" %in% input$sel_type) {
         cl_values <- rownames(selected_combined_mat())
@@ -702,7 +699,7 @@ server <- function(input, output, session) {
     ### the samples will be saved and update in the search bar!
     observeEvent(input$subset_btn,{
       if(length(input$both_sample) >= 1) {
-   
+        
         selected_samples <- reactive({
           value <- ann_multiomics_v9$sampleID[ann_multiomics_v9$sampleID %in% input$both_sample]
           name <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% input$both_sample]
@@ -711,10 +708,14 @@ server <- function(input, output, session) {
           return(choices)
         })
         
+        # if (!input$sel_lineage == "") {
+        #   updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = input$both_sample, server = TRUE)
+        # }
+        
         if(!is.null(filtered_data())) {
-        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples())
+          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples(), server = TRUE)
         } else {
-          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples())
+          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
         } 
       } 
     })
@@ -760,45 +761,45 @@ server <- function(input, output, session) {
                           type = input$df_selection_output,
                           query_lineage = input$lin_output)
       
-      p <- c_distribution(dist_top_n = n, ann = ann_multiomics_v9)
-      
-      output$distribution_l <- renderPlotly({p$lineage_distribution})
-      output$distribution_s <- renderPlotly({p$subtype_distribution})
-      
       if(!is.null(n)) {
-      
-      x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
-                              ann = ann_multiomics_v9,
-                              dist_top_n = n, input_sample = input$both_sample)
-      
-      output$plot <- renderUI({
-        x  
-      })
-      
-      piechart <- get_piechart(combined_mat = selected_combined_mat(), 
-                               input_sample = input$both_sample,
-                               k = input$num_neighbors,
-                               ann = ann_multiomics_v9,
-                               type = input$df_selection_output,
-                               value = 'lineage',
-                               dist_top_n = n)
-      
-      piechart_subtype <- get_piechart(combined_mat = selected_combined_mat(), 
-                                       input_sample = input$both_sample,
-                                       k = input$num_neighbors,
-                                       ann = ann_multiomics_v9,
-                                       type = input$df_selection_output,
-                                       value = 'subtype',
-                                       dist_top_n = n)
-      
-      output$piechart_subtype <- renderPlot({
-        piechart_subtype
-      })
-      
-      output$piechart <- renderPlot({
-        piechart
-      })
-      
+        
+        x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
+                                ann = ann_multiomics_v9,
+                                dist_top_n = n, input_sample = input$both_sample)
+        
+        output$plot <- renderUI({
+          x  
+        })
+        
+        piechart <- get_piechart(combined_mat = selected_combined_mat(), 
+                                 input_sample = input$both_sample,
+                                 k = input$num_neighbors,
+                                 ann = ann_multiomics_v9,
+                                 type = input$df_selection_output,
+                                 value = 'lineage',
+                                 dist_top_n = n)
+        
+        piechart_subtype <- get_piechart(combined_mat = selected_combined_mat(), 
+                                         input_sample = input$both_sample,
+                                         k = input$num_neighbors,
+                                         ann = ann_multiomics_v9,
+                                         type = input$df_selection_output,
+                                         value = 'subtype',
+                                         dist_top_n = n)
+        
+        output$piechart_subtype <- renderPlot({
+          piechart_subtype
+        })
+        
+        output$piechart <- renderPlot({
+          piechart
+        })
+        
+        p <- c_distribution(dist_top_n = n, ann = ann_multiomics_v9)
+        
+        output$distribution_l <- renderPlotly({p$lineage_distribution})
+        output$distribution_s <- renderPlotly({p$subtype_distribution})
+        
       }
       
       else {}
@@ -818,46 +819,46 @@ server <- function(input, output, session) {
                           type = input$df_selection_output,
                           query_lineage = input$lin_output)
       
-      p <- c_distribution(dist_top_n = n, ann = ann_multiomics_v9)
-
-      output$distribution_l <- renderPlotly({p$lineage_distribution})
-      output$distribution_s <- renderPlotly({p$subtype_distribution})
-      
       if(!is.null(n)) {
-      
-      x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
-                              ann = ann_multiomics_v9,
-                              dist_top_n = n, selected_samples = selected_samples())
-      
-      
-      output$plot <- renderUI({
-        x  
-      })
-      
-      piechart <- get_piechart(combined_mat = selected_combined_mat(), 
-                               selected_samples = selected_samples(),
-                               k = input$num_neighbors,
-                               ann = ann_multiomics_v9,
-                               type = input$df_selection_output,
-                               value = 'lineage',
-                               dist_top_n = n)
-      
-      piechart_subtype <- get_piechart(combined_mat = selected_combined_mat(), 
-                                       selected_samples = selected_samples(),
-                                       k = input$num_neighbors,
-                                       ann = ann_multiomics_v9,
-                                       type = input$df_selection_output,
-                                       value = 'subtype',
-                                       dist_top_n = n)
-      
-      output$piechart_subtype <- renderPlot({
-        piechart_subtype
-      })
-      
-      output$piechart <- renderPlot({
-        piechart
-      })
-      
+        
+        x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
+                                ann = ann_multiomics_v9,
+                                dist_top_n = n, selected_samples = selected_samples())
+        
+        
+        output$plot <- renderUI({
+          x  
+        })
+        
+        piechart <- get_piechart(combined_mat = selected_combined_mat(), 
+                                 selected_samples = selected_samples(),
+                                 k = input$num_neighbors,
+                                 ann = ann_multiomics_v9,
+                                 type = input$df_selection_output,
+                                 value = 'lineage',
+                                 dist_top_n = n)
+        
+        piechart_subtype <- get_piechart(combined_mat = selected_combined_mat(), 
+                                         selected_samples = selected_samples(),
+                                         k = input$num_neighbors,
+                                         ann = ann_multiomics_v9,
+                                         type = input$df_selection_output,
+                                         value = 'subtype',
+                                         dist_top_n = n)
+        
+        output$piechart_subtype <- renderPlot({
+          piechart_subtype
+        })
+        
+        output$piechart <- renderPlot({
+          piechart
+        })
+        
+        p <- c_distribution(dist_top_n = n, ann = ann_multiomics_v9)
+        
+        output$distribution_l <- renderPlotly({p$lineage_distribution})
+        output$distribution_s <- renderPlotly({p$subtype_distribution})
+        
       }
     }
     
@@ -878,7 +879,7 @@ server <- function(input, output, session) {
     }
     
     selected_data <- event_data("plotly_selected")
-   
+    
     if (!is.null(selected_data)) {
       selected_samples <- selected_data$key
       
@@ -898,7 +899,7 @@ server <- function(input, output, session) {
       else if('Cell lines' %in% input$sel_type) {
         x_2 <- x_1 %>% dplyr::filter(type == 'CL')
       }
-
+      
       filtered_data(x_2$sampleID)
     }
   })
@@ -917,14 +918,20 @@ server <- function(input, output, session) {
     req(lasso_selected_samples())
     req(input$sel_type)
     
-    selected <- list()
-
+        selected <- list()
+    
     all_names <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())]
     all_values <- colnames(selected_reduced_mat())
-
+    
     sub_values <- all_values[all_values %in% lasso_selected_samples()]
     sub_names <- ann_multiomics_v9 %>% filter(sampleID %in% sub_values)
     sub_names <- sub_names$stripped_cell_line_name
+    
+    sub_nccle <- sub_names[!grepl("TCGA|TARGET|TH0|TH1|TH2|TH3|THR", sub_names)]
+    
+    sub_names_tcga <- sub_values[grepl("TCGA|TARGET|TH0|TH1|TH2|TH3|THR", sub_values)]
+    
+    sub_names <- c(sub_names_tcga, sub_nccle)
     
     selected <- c(selected, setNames(as.list(sub_values), sub_names))
     
@@ -934,8 +941,9 @@ server <- function(input, output, session) {
                          server = TRUE)
   })
   
-### remove all the sample form the query bar  
+  ### remove all the sample form the query bar  
   observeEvent(input$rm, {
+    filtered_data(NULL)
     updateSelectizeInput(session, "both_sample", choices = r_choices(), server = TRUE)
   })
   
@@ -951,6 +959,3 @@ server <- function(input, output, session) {
 }
 
 shiny::shinyApp(ui, server)
-
-
-

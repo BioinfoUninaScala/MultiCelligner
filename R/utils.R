@@ -641,7 +641,6 @@ c_distribution <- function(dist_top_n, ann) {
   df$to_sum <- c(0, df$dist[-length(df$dist)])
   df$cum_dist <- df$dist + df$to_sum
   
-  # Numero di categorie
   n_lineages <- length(unique(df$lineage))
   n_subtypes <- length(unique(df$subtype_1))
   
@@ -678,12 +677,10 @@ c_distribution <- function(dist_top_n, ann) {
     scale_fill_manual(values = brewer_recycled("Dark2", n_subtypes)) +
     theme(legend.position = "bottom")
   
-  # Converti in plotly
   p1_plotly <- ggplotly(p1)
   p2_plotly <- ggplotly(p2, tooltip = "text")
   p3_plotly <- ggplotly(p3, tooltip = "text")
   
-  # Subplot
   x <- subplot(p1_plotly, p3_plotly, nrows = 2, heights = c(0.75, 0.25), shareX = TRUE)
   y <- subplot(p1_plotly, p2_plotly, nrows = 2, heights = c(0.75, 0.25), shareX = TRUE)
   
