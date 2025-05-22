@@ -702,7 +702,7 @@ server <- function(input, output, session) {
     ### the samples will be saved and update in the search bar!
     observeEvent(input$subset_btn,{
       if(length(input$both_sample) >= 1) {
-        
+   
         selected_samples <- reactive({
           value <- ann_multiomics_v9$sampleID[ann_multiomics_v9$sampleID %in% input$both_sample]
           name <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% input$both_sample]

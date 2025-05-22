@@ -265,7 +265,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
             height = 600) %>% 
           event_register("plotly_selected") %>% 
           highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE) %>% 
-          highlight(., on = "plotly_click",  selectize = FALSE, persistent = TRUE, off = 'plotly_doubleclick')
+          highlight(on = "plotly_click",  selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick', main = "View Sample/s")
       ))
     
     
@@ -461,7 +461,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
           ) %>%
           event_register(event = "plotly_selected") %>%
           highlight(on = "plotly_selected", off = "plotly_doubleclick", color = "green", persistent = FALSE) %>% 
-          highlight(., on = "plotly_click",  selectize = FALSE, persistent = TRUE, off = 'plotly_doubleclick')
+          highlight(., on = "plotly_click",  selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick')
       )
     )
     
@@ -647,6 +647,7 @@ c_distribution <- function(dist_top_n, ann) {
   
   p1 <- ggplot(df, aes(x = position, y = dist)) +
     geom_line(linewidth = 1.2, color = "steelblue") +
+    geom_point(colour = 'black')
     theme_minimal() +
     ylab("Cumulative Distance") +
     xlab(NULL)
