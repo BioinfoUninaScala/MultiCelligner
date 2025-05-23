@@ -247,7 +247,7 @@ ui <- fluidPage(
         tags$p(h3(textOutput("omics_name"),class = "text-center"), style = "text-align: center; font-size: 18px; font-weight: bold;"),
       ),
       
-      uiOutput("plot"),
+      shinycssloaders::withSpinner(uiOutput("plot"), type = 6, color = "#4FC3F7", color.background = "white"), 
       width = 9,
       
       tabsetPanel(
@@ -744,8 +744,9 @@ server <- function(input, output, session) {
           g1 <- lasso_selected_samples()[!lasso_selected_samples() %in% rownames(selected_combined_mat())]
           g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
           
-          showNotification(paste("There isn't this input sample/s: ", g2, "in this omics"))
-          warning(paste("There isn't this input sample/s: ", g2, "in this omics"))
+          msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
+          showNotification(msg)
+          warning(msg)
         }
       } else {
         if(!all(selected_samples() %in% rownames(selected_combined_mat()))) {
@@ -753,8 +754,9 @@ server <- function(input, output, session) {
           g1 <- selected_samples()[!selected_samples() %in% rownames(selected_combined_mat())]
           g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
           
-          showNotification(paste("There isn't this input sample/s: ", g2, "in this omics"))
-          warning(paste("There isn't this input sample/s: ", g2, "in this omics"))
+          msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
+          showNotification(msg)
+          warning(msg)
         }
       }
     }, ignoreInit = TRUE)
