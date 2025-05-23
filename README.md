@@ -10,7 +10,7 @@ editor_options:
 
 <p align="right">
 
-<img src="docs/meth_ppn1.png" width="1000"/>
+<img src="R/www/meth_ppn1.png" width="1000"/>
 
 </p>
 
