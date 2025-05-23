@@ -504,58 +504,69 @@ server <- function(input, output, session) {
   })
   
   
+  last_combined_mat <- reactiveVal(NULL)
+  
   selected_combined_mat <- reactive({
     
-    if(length(input$omics_plot) == 1) {
-      
-      return(switch(input$omics_plot,
+    ### if there is no omics selected will be use the last combined_mat: 
+    ### this is for keep the sample in the search bar
+    if (length(input$omics_plot) == 0) {
+      return(last_combined_mat())
+    }
+    
+    mat <- NULL
+    
+    if (length(input$omics_plot) == 1) {
+      mat <- switch(input$omics_plot,
                     "Expression" = pca_exp, 
                     "Methylation" = pca_meth_1,
-                    "Mutational signature" = combined_mat_mut
-      ))
-      
+                    "Mutational signature" = combined_mat_mut)
     } else if (length(input$omics_plot) > 1) {
       
       if (input$multiomics_method == 'MoNETA') {
-        
         if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(emb_exp_meth_mut_1)
+          mat <- emb_exp_meth_mut_1
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(emb_exp_meth_1)
+          mat <- emb_exp_meth_1
         } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(emb_exp_mut_1)
+          mat <- emb_exp_mut_1
         } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(emb_meth_mut_1)
+          mat <- emb_meth_mut_1
         }
       }
       
       if (input$multiomics_method == 'MOFA') {
-        
         if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(MOFA_mat_all)
+          mat <- MOFA_mat_all
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(MOFA_mat_exp_meth)
+          mat <- MOFA_mat_exp_meth
         } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(MOFA_mat_exp_mut)
+          mat <- MOFA_mat_exp_mut
         } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(MOFA_mat_meth_mut)
+          mat <- MOFA_mat_meth_mut
         }
       }
       
       if (input$multiomics_method == 'SNF') {
         if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(pca_snf_all)
+          mat <- pca_snf_all
         } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(pca_snf_exp_meth)
+          mat <- pca_snf_exp_meth
         } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(pca_snf_exp_mut)
+          mat <- pca_snf_exp_mut
         } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(pca_snf_meth_mut)
+          mat <- pca_snf_meth_mut
         }
       }
-      
     }
+    
+    if (!is.null(mat)) {
+      last_combined_mat(mat)
+    }
+    
+    return(mat)
   })
+  
   
   a <- c('Cell lines', 'Tumors')
   b <- c('Cell lines (CL)', 'Tumors')
@@ -572,31 +583,40 @@ server <- function(input, output, session) {
   observe({
     lin <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
     selected_linages(lin)
-    updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0), server = TRUE)
     
-    ### update lineage sel
-    observeEvent(input$subset_btn, {
-      l(input$sel_lineage)
-      selected_linages(lin)
-      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = l(), server = TRUE)
-    })
+    sel <- l()
+    if (!is.null(sel) && sel %in% lin) {
+      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = sel, server = TRUE)
+    } else {
+      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0), server = TRUE)
+    }
+  })
+  
+  ### update the value of l with the chooise of the user
+  observeEvent(input$subset_btn, {
+    l(input$sel_lineage)
   })
   
   
   ### select the Query lineage/s for neighbors search
-  query_linages <- reactiveVal(NULL)
   q <- reactiveVal(NULL)
+  query_linages <- reactiveVal(NULL)
   
   observe({
     lin_out <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
     query_linages(lin_out)
-    updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = 'All', server = TRUE)
     
-    ### update lineage out
-    observeEvent(input$subset_btn, {
-      q(input$lin_output)
-      updateSelectizeInput(session, "lin_output", choices = c('All',lin_out), selected = q(), server = TRUE)
-    })
+    sel <- q()
+    if (!is.null(sel) && (any(sel %in% lin_out) || isTRUE(sel == 'All'))) {
+      updateSelectizeInput(session, "lin_output", choices = c('All', lin_out), selected = sel)
+    } else {
+      updateSelectizeInput(session, "lin_output", choices = c('All', lin_out), selected = 'All')
+    }
+  })
+  
+  ### update the value of q with the chooise of the user
+  observeEvent(input$subset_btn, {
+    q(input$lin_output)
   })
   
   ### update the sample/s for each selected omics; using depmap code but show nameID
@@ -651,6 +671,7 @@ server <- function(input, output, session) {
         subset_1 <- subset_1[ann_multiomics_v9$lineage == input$sel_lineage, ]
         subset_1 <- subset_1[subset_1$sampleID %in% rownames(selected_combined_mat()),]
         subset <- subset_1$sampleID
+        
         all_names <- subset_1$stripped_cell_line_name[subset_1$sampleID %in% rownames(selected_combined_mat())]
         all_values <- rownames(selected_combined_mat())[rownames(selected_combined_mat()) %in% subset]
         
@@ -697,20 +718,15 @@ server <- function(input, output, session) {
     
     ### when user already search neighbors and he switch between the combination of input$ and then click on Plot alignment:
     ### the samples will be saved and update in the search bar!
-    observeEvent(input$subset_btn,{
+    observeEvent(list(input$subset_btn, input$sel_lineage),{
       if(length(input$both_sample) >= 1) {
         
         selected_samples <- reactive({
           value <- ann_multiomics_v9$sampleID[ann_multiomics_v9$sampleID %in% input$both_sample]
           name <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% input$both_sample]
           choices <- setNames(as.list(value), name)
-          
           return(choices)
         })
-        
-        # if (!input$sel_lineage == "") {
-        #   updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = input$both_sample, server = TRUE)
-        # }
         
         if(!is.null(filtered_data())) {
           updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples(), server = TRUE)
@@ -719,7 +735,32 @@ server <- function(input, output, session) {
         } 
       } 
     })
+    
+    ### when samples is present in one omic, then you switch omic and that samples are no more present, will appear a warning
+    observeEvent(input$omics_plot,{
+      if(!is.null(filtered_data())){
+        if(!all(lasso_selected_samples() %in% rownames(selected_combined_mat()))) {
+          
+          g1 <- lasso_selected_samples()[!lasso_selected_samples() %in% rownames(selected_combined_mat())]
+          g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
+          
+          showNotification(paste("There isn't this input sample/s: ", g2, "in this omics"))
+          warning(paste("There isn't this input sample/s: ", g2, "in this omics"))
+        }
+      } else {
+        if(!all(selected_samples() %in% rownames(selected_combined_mat()))) {
+          
+          g1 <- selected_samples()[!selected_samples() %in% rownames(selected_combined_mat())]
+          g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
+          
+          showNotification(paste("There isn't this input sample/s: ", g2, "in this omics"))
+          warning(paste("There isn't this input sample/s: ", g2, "in this omics"))
+        }
+      }
+    }, ignoreInit = TRUE)
+    
   })
+  
   
   ### when you change omics or red_method or integration_method the piecharts will go away
   observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
