@@ -10,7 +10,7 @@ editor_options:
 
 <p align="right">
 
-<img src="docs/meth_ppn1.png" width="1000"/>
+<img src="R/www/meth_ppn1.png" width="1000"/>
 
 </p>
 
@@ -18,9 +18,9 @@ editor_options:
 
 ### Introduction
 
-MultiCelligner is a Celligner-based pipline for aligning tumor and cell
+MultiCelligner is a Celligner-based pipeline for aligning tumor and cell
 line expression, methylation and mutational signature data.
-MultiCelligner also provides a Shiny App that allows user to explore
+MultiCelligner also provides a Shiny App that allows users to explore
 dimensionality reduction projections in order to find the best cell line
 model for a tumor sample or for a set of them at the subtype resolution.
 
