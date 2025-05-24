@@ -220,7 +220,7 @@ ui <- fluidPage(
         hr(),
         
         tabPanel("Neighbors lineages", 
-                 plotOutput("piechart",height = "270px") , 
+                 plotOutput("piechart",height = "430px") , 
                  
                  # CSS x tooltip
                  tags$style(HTML('
@@ -237,7 +237,7 @@ ui <- fluidPage(
         #hr(),
         
         tabPanel("Neighbors subtypes", 
-                 plotOutput("piechart_subtype",height = "270px"),
+                 plotOutput("piechart_subtype",height = "430px"),
         ),
         
       )),
@@ -475,13 +475,13 @@ server <- function(input, output, session) {
       # --- SNF - UMAP ---
       if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
         if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = t(snf_umap_all), ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = snf_umap_all, ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
           return(get_alignment_plot(reduced_mat = snf_umap_exp_meth, ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = t(snf_umap_exp_mut), ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = snf_umap_exp_mut, ann = ann_multiomics_v9))
         } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = t(snf_umap_meth_mut), ann = ann_multiomics_v9))
+          return(get_alignment_plot(reduced_mat = snf_umap_meth_mut, ann = ann_multiomics_v9))
         }
       }
       
@@ -745,7 +745,7 @@ server <- function(input, output, session) {
           g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
           
           msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
-          showNotification(msg)
+          showNotification(msg, type = "warning")
           warning(msg)
         }
       } else {
@@ -755,7 +755,7 @@ server <- function(input, output, session) {
           g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
           
           msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
-          showNotification(msg)
+          showNotification(msg, type = "warning")
           warning(msg)
         }
       }
@@ -849,7 +849,6 @@ server <- function(input, output, session) {
       
     } 
     else if (length(input$both_sample) > 1) {
-      
       selected_samples <- reactive({
         input$both_sample
       })
@@ -919,6 +918,11 @@ server <- function(input, output, session) {
       showNotification("Select the model type and then load the samples from the plot")
       warning("Select the model type and then load the samples from the plot")
       return()
+    }
+    
+    if(!is.null(input$sel_lineage)) {
+      showNotification("Deselect the section: Select lineage", type = "warning")
+      warning("Deselect the section: Select lineage")
     }
     
     selected_data <- event_data("plotly_selected")

@@ -129,20 +129,23 @@ get_piechart <- function(combined_mat, input_sample = NULL, selected_samples = N
     colorRampPalette(base_colors)(n)
   }
   
+  lineage_levels <- sort(unique(ann$lineage))  
+  lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
+  
   n_colors <- length(unique(dist_top25_4[[fill_var]]))
   palette_colors <- brewer_recycled("Dark2", n_colors)
   
   y <- ggplot(dist_top25_4, aes(x = "", y = Freq, fill = .data[[fill_var]])) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
-    scale_fill_manual(values = palette_colors) +
+    scale_fill_manual(values = if(value %in% "lineage") lineage_colors else palette_colors) +
     theme_void() +
     theme(axis.text.x = element_blank(),
           plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) +
     geom_text(aes(label = label),
               position = position_stack(vjust = 0.5),
               size = 3) +
-    labs(title = if(value %in% 'lineage') "Neighbors lineage distribution" else "Subtype lineage distribution")
+    labs(title = if(value %in% "lineage") "Neighbors lineage distribution" else "Subtype lineage distribution")
 
   return(y)
   
@@ -186,8 +189,8 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
   }
   
   if(!is.null(dist_top_n) || !missing(dist_top_n)) {
-    
-    if(is.null(selected_samples)) {ins <- input_sample} else {ins <- selected_samples}
+
+        if(is.null(selected_samples)) {ins <- input_sample} else {ins <- selected_samples}
     
     data_res_1 <- data_res %>% mutate('show_it' = ifelse(data_res$sampleID %in% top_k_tumors_1, 'show', 'not'))
     
@@ -206,8 +209,11 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
     
     shared <- SharedData$new(data_res_3, key = ~sampleID)
     
-    n_colors <- length(unique(data_res_3$lineage))
-    palette_colors <- brewer_recycled("Dark2", n_colors)
+    lineage_levels <- sort(unique(ann$lineage))  
+    lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
+    
+    # n_colors <- length(unique(data_res_3$lineage))
+    # palette_colors <- brewer_recycled("Dark2", n_colors)
     
     row_1 <- bscols(
       widths = c(2, 10),
@@ -237,8 +243,8 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
           source = 'A',
           type = 'scatter',
           mode = 'markers',
-          color = ~lineage,
-          colors = palette_colors,
+          color = ~factor(lineage, levels = lineage_levels),
+          colors = lineage_colors,
           symbol = ~type, 
           symbols = c('circle',"x"),
           stroke = ~show_it,
@@ -393,9 +399,9 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
       "subtype", "subtype_1", "link", "type", "size", "width", "opacity"
     )
     
-    n_colors <- length(unique(data_res_1$lineage))
-    palette_colors <- brewer_recycled("Dark2", n_colors)
-    
+    lineage_levels <- sort(unique(ann$lineage))  
+    lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
+
     shared <- SharedData$new(data_res_1, key = ~sampleID)
     
     row_1 <- bscols(
@@ -428,8 +434,8 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
           source = "A",
           type = "scatter",
           mode = "markers",
-          color = ~lineage,
-          colors = palette_colors,
+          color = ~factor(lineage, levels = lineage_levels),
+          colors = lineage_colors,
           symbol = ~type,
           symbols = c("circle", "x"),
           stroke = ~type,
@@ -623,7 +629,7 @@ get_CL_strp_names <- function(combined_mat ,ann) {
 
 c_distribution <- function(dist_top_n, ann) {
   
-  # Funzione per riciclare i colori da una palette brewer
+  ### fun for reuse palette colors
   brewer_recycled <- function(palette = "Dark2", n) {
     max_colors <- RColorBrewer::brewer.pal.info[palette, "maxcolors"]
     base_colors <- RColorBrewer::brewer.pal(max_colors, palette)
@@ -644,6 +650,9 @@ c_distribution <- function(dist_top_n, ann) {
   n_lineages <- length(unique(df$lineage))
   n_subtypes <- length(unique(df$subtype_1))
   
+  lineage_levels <- sort(unique(ann$lineage))  
+  lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
+  
   p1 <- ggplot(df, aes(x = position, y = dist)) +
     geom_line(linewidth = 1.2, color = "steelblue") +
     geom_point(colour = 'black')
@@ -661,7 +670,7 @@ c_distribution <- function(dist_top_n, ann) {
     geom_tile() +
     scale_y_continuous(expand = c(0, 0)) +
     theme_void() +
-    scale_fill_manual(values = brewer_recycled("Dark2", n_lineages)) +
+    scale_fill_manual(values = lineage_colors) +
     theme(legend.position = "right")
   
   p3 <- ggplot(df, aes(x = position, y = 1, fill = subtype_1, text = paste(
