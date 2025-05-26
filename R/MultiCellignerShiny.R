@@ -1,6 +1,7 @@
 #' 
 #' MultiCelligner Shiny App
 #'
+#' @import shinycssloaders
 #' @import shiny
 #' @import magrittr
 #' @import crosstalk
@@ -246,7 +247,7 @@ ui <- fluidPage(
         tags$p(h3(textOutput("omics_name"),class = "text-center"), style = "text-align: center; font-size: 18px; font-weight: bold;"),
       ),
       
-      shinycssloaders::withSpinner(uiOutput("plot"), type = 6, color = "#4FC3F7", color.background = "white"), 
+      shinycssloaders::withSpinner(uiOutput("plot"), type = 6, color = "#4FC3F7", color.background = "white", ), 
       width = 9,
       
       tabsetPanel(
