@@ -271,7 +271,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
             height = 600) %>% 
           event_register("plotly_selected") %>% 
           highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE) %>% 
-          highlight(on = "plotly_click",  selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick', main = "View Sample/s")
+          highlight(on = "plotly_click",  selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick', emptyOptionLabel = "View Sample/s")
       ))
     
     

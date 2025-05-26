@@ -36,9 +36,8 @@ ui <- fluidPage(
                                choices = c('Methylation',
                                            "Mutational signature",
                                            "Expression"),
-                               multiple = TRUE,
-                               selected = 'Methylation'
-                   ))
+                               multiple = TRUE
+                               ))
         )),
       
       fluidRow(
@@ -763,6 +762,9 @@ server <- function(input, output, session) {
     
   })
   
+  output$plot <- renderUI({
+    selected_plot()
+  })
   
   ### when you change omics or red_method or integration_method the piecharts will go away
   observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
