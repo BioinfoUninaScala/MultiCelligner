@@ -418,7 +418,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
       "subtype", "subtype_1", "link", "type", "size", "width", "opacity"
     )
     
-    shared <- highlight_key(data_res_1,~stripped_cell_line_name,"Highligth a sample")
+    shared <- highlight_key(data_res_1,~stripped_cell_line_name,"Highlight one or more samples")
     
     lineage_levels <- sort(unique(ann$lineage))  
     lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
