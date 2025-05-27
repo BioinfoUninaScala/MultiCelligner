@@ -250,6 +250,8 @@ ui <- fluidPage(
       shinycssloaders::withSpinner(uiOutput("plot"), type = 6, color = "#4FC3F7", color.background = "white", ), 
       width = 9,
       
+      hr(),
+      
       tabsetPanel(
         type = "tabs",
         selected = 'Lineage distribution',
@@ -565,6 +567,39 @@ server <- function(input, output, session) {
     }
     
     return(mat)
+  })
+  
+  ### if that sample is present only in any omics in MoNETA, there will be a warning that said in which omic is present
+  observeEvent(input$subset_btn,{
+    if("MoNETA" %in% input$multiomics_method){
+      if(!all(input$both_sample %in% rownames(pca_exp))){
+        
+        s1 <- input$both_sample[!input$both_sample %in% rownames(pca_exp)]
+        s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
+        
+        msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in expression layer")
+        showNotification(msg, type = "warning")
+        warning(msg)
+      }
+      if(!all(input$both_sample %in% rownames(pca_meth_1))){
+        
+        s1 <- input$both_sample[!input$both_sample %in% rownames(pca_meth_1)]
+        s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
+        
+        msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in methylation layer")
+        showNotification(msg, type = "warning")
+        warning(msg)
+      }
+      if(!all(input$both_sample %in% rownames(combined_mat_mut))){
+        
+        s1 <- input$both_sample[!input$both_sample %in% rownames(combined_mat_mut)]
+        s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
+        
+        msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in mutational signature layer")
+        showNotification(msg, type = "warning")
+        warning(msg)
+      }
+    }
   })
   
   

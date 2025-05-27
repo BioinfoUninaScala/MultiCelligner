@@ -12,7 +12,7 @@ LazyData: true
 RoxygenNote: 7.3.2
 Imports: fontawesome, htmltools,ggplot2,SNFtool,
          reactable,shiny, plotly, dplyr,stringr, reshape2,
-         crosstalk, magrittr, reshape, shinyjs
+         crosstalk, magrittr, reshape, shinyjs, shinycssloaders
 Suggests: 
     rmarkdown,
     knitr

@@ -212,8 +212,8 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
     lineage_levels <- sort(unique(ann$lineage))  
     lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
     
-    # n_colors <- length(unique(data_res_3$lineage))
-    # palette_colors <- brewer_recycled("Dark2", n_colors)
+    x_range <- range(shared$data()$UMAP_1, na.rm = TRUE)
+    y_range <- range(shared$data()$UMAP_2, na.rm = TRUE)
     
     row_1 <- bscols(
       widths = c(2, 10),
@@ -263,15 +263,30 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
         %>%
           layout(
             dragmode = "zoom",
-            xaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
-            yaxis = list(zeroline  = F, showticklabels = FALSE, showgrid = FALSE, title = ''),
+            autosize = TRUE,
+            xaxis = list(
+              title = "",
+              zeroline = FALSE,
+              showticklabels = FALSE,
+              showgrid = FALSE,
+              range = x_range 
+            ),
+            yaxis = list(
+              title = "",
+              zeroline = FALSE,
+              showticklabels = FALSE,
+              showgrid = FALSE,
+              range = y_range 
+            ),
             legend = list(
-              title = list(text = 'Select lineage-type pair'),
-              traceorder = 'normal'),
-            height = 600) %>% 
+              title = list(text = "Select lineage-type pair"),
+              traceorder = "normal"
+            ),
+            height = 600
+          ) %>% 
           event_register("plotly_selected") %>% 
           highlight(on = "plotly_selected", off = "plotly_doubleclick",color = 'green', persistent = FALSE) %>% 
-          highlight(on = "plotly_click",  selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick', emptyOptionLabel = "View Sample/s")
+          highlight(on = "plotly_click",  selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick')
       ))
     
     
@@ -343,9 +358,9 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
                     showPageSizeOptions = TRUE,
                     pageSizeOptions = c(25,50,75,100,150,200),
                     defaultPageSize = 25,
-                    resizable = TRUE, highlight = TRUE, 
-                    selection = "multiple",
-                    onClick = "select",
+                    resizable = TRUE, #highlight = TRUE, 
+                    # selection = "multiple",
+                    # onClick = "select",
                     theme = reactableTheme(
                       headerStyle = list(
                         "&:hover[aria-sort]" = list(background = "hsl(0, 0%, 96%)"),
@@ -401,8 +416,11 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
     
     lineage_levels <- sort(unique(ann$lineage))  
     lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
-
+    
     shared <- SharedData$new(data_res_1, key = ~sampleID)
+    
+    x_range <- range(shared$data()$UMAP_1, na.rm = TRUE)
+    y_range <- range(shared$data()$UMAP_2, na.rm = TRUE)
     
     row_1 <- bscols(
       widths = c(2, 10),
@@ -457,8 +475,20 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
           layout(
             dragmode = "zoom",
             autosize = TRUE,
-            xaxis = list(title = "", zeroline = F, showticklabels = FALSE, showgrid = FALSE),
-            yaxis = list(title = "", zeroline = F, showticklabels = FALSE, showgrid = FALSE),
+            xaxis = list(
+              title = "",
+              zeroline = FALSE,
+              showticklabels = FALSE,
+              showgrid = FALSE,
+              range = x_range 
+            ),
+            yaxis = list(
+              title = "",
+              zeroline = FALSE,
+              showticklabels = FALSE,
+              showgrid = FALSE,
+              range = y_range 
+            ),
             legend = list(
               title = list(text = "Select lineage-type pair"),
               traceorder = "normal"
