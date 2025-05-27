@@ -204,10 +204,13 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
     data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')  %>% arrange(dist)
     data_res_3$dist <- round(data_res_3$dist, 3)
     
+    
+    
     data_res_3 <- data_res_3 %>% select("UMAP_1","UMAP_2","stripped_cell_line_name","sampleID","lineage",
                                         "subtype","subtype_1", "link", "type","dist","show_it","size")
     
-    shared <- SharedData$new(data_res_3, key = ~sampleID)
+    
+    shared <- highlight_key(data_res_3,~stripped_cell_line_name,"Highligth a sample")
     
     lineage_levels <- sort(unique(ann$lineage))  
     lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
@@ -239,7 +242,6 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
           data = shared,
           x = ~UMAP_1,
           y = ~UMAP_2,
-          key = ~sampleID,
           source = 'A',
           type = 'scatter',
           mode = 'markers',
@@ -295,43 +297,6 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
       
       htmltools::browsable(
         tagList(
-          tags$button(
-            tagList(fontawesome::fa("download"), "Download Table"),
-            id = "download-table-btn"
-          ),
-          tags$script(HTML("
-  document.getElementById('download-table-btn').onclick = function() {
-    const table = Reactable.getState('alignment-download-table');
-    if (!table) {
-      alert('Table not ready yet!');
-      return;
-    }
-
-    const data = table.data.map(row => ({
-      stripped_cell_line_name: row.stripped_cell_line_name ?? '',
-      sampleID: row.sampleID ?? '',
-      lineage: row.lineage ?? '',
-      subtype: row.subtype ?? '',
-      subtype_1: row.subtype_1 ?? '',
-      type: row.type ?? ''
-    }));
-
-    const csvHeader = ['stripped_cell_line_name','sampleID', 'lineage', 'subtype', 'subtype_1', 'type'];
-    const csvRows = data.map(row => [row.stripped_cell_line_name, row.sampleID, row.lineage, row.subtype, row.subtype_1, row.type]);
-
-    const csvContent = [csvHeader, ...csvRows]
-      .map(e => e.join(','))
-      .join('\\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', 'alignment.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-")),
           
           tags$div(
             style = "margin-bottom: 10px;",
@@ -353,6 +318,45 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
   };
   "
           )),
+          
+          tags$button(
+            tagList(fontawesome::fa("download"), "Download Table"),
+            id = "download-table-btn"
+          ),
+          tags$script(HTML("
+  document.getElementById('download-table-btn').onclick = function() {
+    const table = Reactable.getState('alignment-download-table');
+    if (!table) {
+      alert('Table not ready yet!');
+      return;
+    }
+
+    const data = table.data.map(row => ({
+      stripped_cell_line_name: row.stripped_cell_line_name ?? '',
+      sampleID: row.sampleID ?? '',
+      lineage: row.lineage ?? '',
+      subtype: row.subtype ?? '',
+      subtype_1: row.subtype_1 ?? '',
+      type: row.type ?? '',
+      dist: row.dist ?? ''
+    }));
+
+    const csvHeader = ['stripped_cell_line_name','sampleID', 'lineage', 'subtype', 'subtype_1', 'type', 'dist'];
+    const csvRows = data.map(row => [row.stripped_cell_line_name, row.sampleID, row.lineage, row.subtype, row.subtype_1, row.type, row.dist]);
+
+    const csvContent = [csvHeader, ...csvRows]
+      .map(e => e.join(','))
+      .join('\\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'alignment.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+")),
           
           reactable(shared$origData()[shared$origData()$show_it == 'show',], searchable = TRUE, minRows = 3, 
                     showPageSizeOptions = TRUE,
@@ -414,11 +418,11 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
       "subtype", "subtype_1", "link", "type", "size", "width", "opacity"
     )
     
+    shared <- highlight_key(data_res_1,~stripped_cell_line_name,"Highligth a sample")
+    
     lineage_levels <- sort(unique(ann$lineage))  
     lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
-    
-    shared <- SharedData$new(data_res_1, key = ~sampleID)
-    
+
     x_range <- range(shared$data()$UMAP_1, na.rm = TRUE)
     y_range <- range(shared$data()$UMAP_2, na.rm = TRUE)
     
@@ -448,7 +452,6 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
           data = shared,
           x = ~UMAP_1,
           y = ~UMAP_2,
-          key = ~sampleID,
           source = "A",
           type = "scatter",
           mode = "markers",
@@ -497,7 +500,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
           ) %>%
           event_register(event = "plotly_selected") %>%
           highlight(on = "plotly_selected", off = "plotly_doubleclick", color = "green", persistent = FALSE) %>% 
-          highlight(., on = "plotly_click",  selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick')
+          highlight(on = "plotly_click",  selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick')
       )
     )
     
@@ -506,6 +509,30 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
       widths = c(10, 2),
       htmltools::browsable(
         tagList(
+          
+          tags$script(HTML(
+            "
+                document.getElementById('download-svg-btn').onclick = function() {
+                  var plot = document.getElementsByClassName('plotly')[0];
+                  Plotly.downloadImage(plot, {
+                    format: 'svg',
+                    filename: 'alignment_plot',
+                    width: 1500,
+                    height: 700,
+                    scale: 1
+                  });
+                };
+            "
+          )),
+          tags$div(
+            style = "margin-bottom: 10px;",
+            tags$button(
+              tagList(fontawesome::fa("download"), "Download plot as SVG"),
+              id = "download-svg-btn"
+            )
+          ),
+          
+          
           tags$button(
             tagList(fontawesome::fa("download"), "Download Table"),
             id = "download-table-btn"
@@ -543,28 +570,7 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
     document.body.removeChild(link);
   };
 ")),
-          
-          tags$div(
-            style = "margin-bottom: 10px;",
-            tags$button(
-              tagList(fontawesome::fa("download"), "Download plot as SVG"),
-              id = "download-svg-btn"
-            )
-          ),
-          tags$script(HTML(
-            "
-                document.getElementById('download-svg-btn').onclick = function() {
-                  var plot = document.getElementsByClassName('plotly')[0];
-                  Plotly.downloadImage(plot, {
-                    format: 'svg',
-                    filename: 'alignment_plot',
-                    width: 1500,
-                    height: 700,
-                    scale: 1
-                  });
-                };
-            "
-          )),
+
           reactable(
             shared,
             searchable = TRUE,

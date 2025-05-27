@@ -571,7 +571,7 @@ server <- function(input, output, session) {
   
   ### if that sample is present only in any omics in MoNETA, there will be a warning that said in which omic is present
   observeEvent(input$subset_btn,{
-    if("MoNETA" %in% input$multiomics_method){
+    if("MoNETA" %in% input$multiomics_method & length(input$omics_plot) > 1){
       if(!all(input$both_sample %in% rownames(pca_exp))){
         
         s1 <- input$both_sample[!input$both_sample %in% rownames(pca_exp)]
@@ -1040,6 +1040,18 @@ server <- function(input, output, session) {
       return()
     }
   })
+  
+  ### allow multiomics research when is selected almost two omics
+  observe({
+    if(length(input$omics_plot) <= 1) {
+      shinyjs::disable(id = "multiomics_method")
+    }
+    else {
+      shinyjs::enable(id = "multiomics_method")
+    }
+  })
+
+  
   
 }
 
