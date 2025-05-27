@@ -12,7 +12,8 @@
 #' @export
 #'
 
-MultiCellignerShiny <- function() {shiny::shinyApp(ui, server)}
+MultiCellignerShiny <- function() {addResourcePath("static", system.file("www", package = "MultiCelligner"))
+;shiny::shinyApp(ui, server)}
 
 ui <- fluidPage(              
   
@@ -24,7 +25,7 @@ ui <- fluidPage(
       
       tags$style(HTML("hr { margin-top: 4px !important; margin-bottom: 4px !important; padding: 4px !important; }")),
       
-      fluidRow(column(3,tags$img(src = "MultiCelligner_Logo_2.png", height = "100px"),), 
+      fluidRow(column(3,tags$img(src = "static/MultiCelligner_Logo_2.png", height = "100px"),), 
                column(6,div(h3("MultiCelligner"), class = "text-center",style="padding:15px;")),
                #column(3,tags$img(src = "Mcell_logo.png", height = "100px"))
       ),
