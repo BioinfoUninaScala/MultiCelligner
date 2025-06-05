@@ -5,7 +5,7 @@
 
 <p align="right">
 
-<img src="inst/www/meth_ppn1.png" width="1000"/>
+<img src="inst/www/MultiCelligner_Logo_2" width="1000"/>
 
 </p>
 
