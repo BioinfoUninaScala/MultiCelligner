@@ -1,8 +1,3 @@
----
-editor_options:
-  markdown:
-    wrap: 72
----
 
 ## **MultiCelligner**
 
@@ -10,7 +5,7 @@ editor_options:
 
 <p align="right">
 
-<img src="R/www/meth_ppn1.png" width="1000"/>
+<img src="inst/www/meth_ppn1.png" width="1000"/>
 
 </p>
 
