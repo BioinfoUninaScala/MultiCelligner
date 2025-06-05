@@ -3,9 +3,9 @@
 
 ------------------------------------------------------------------------
 
-<p align="right">
+<p align="center">
 
-<img src="inst/www/MultiCelligner_Logo_2.png" width="100"/>
+<img src="inst/www/MultiCelligner_Logo_2.png" width="200"/>
 
 </p>
 
