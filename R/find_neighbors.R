@@ -24,8 +24,8 @@
 #' 
 
 find_neighbors <- function(combined_mat, reduced_mat, input_sample = NULL, selected_samples = NULL, type, k, ann, query_lineage) {
-  
-    if ("All" %in% query_lineage && length(query_lineage) > 1) {
+
+      if ("All" %in% query_lineage && length(query_lineage) > 1) {
     showNotification("Select only All or choose multiple lineage without All")
     warning("Select only All or choose multiple lineage without All")
     return(NULL)}

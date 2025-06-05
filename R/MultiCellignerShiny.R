@@ -19,20 +19,20 @@ ui <- fluidPage(
   
   shinyjs::useShinyjs(),
   
-  sidebarLayout(
-    sidebarPanel(
+  shiny::sidebarLayout(
+    shiny::sidebarPanel(
       width = 3,
       
       tags$style(HTML("hr { margin-top: 4px !important; margin-bottom: 4px !important; padding: 4px !important; }")),
       
-      fluidRow(column(3,tags$img(src = "static/MultiCelligner_Logo_2.png", height = "100px"),), 
-               column(6,div(h3("MultiCelligner"), class = "text-center",style="padding:15px;")),
-               #column(3,tags$img(src = "Mcell_logo.png", height = "100px"))
+      shiny::fluidRow(shiny::column(3,tags$img(src = "static/MultiCelligner_Logo_2.png", height = "100px"),), 
+                      shiny::column(6,div(h3("MultiCelligner"), class = "text-center",style="padding:15px;")),
+                      #column(3,tags$img(src = "Mcell_logo.png", height = "100px"))
       ),
       hr(),
       
-      fluidRow(
-        column(12, 
+      shiny::fluidRow(
+        shiny::column(12, 
                div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
                    selectInput('omics_plot', 'Omics alignment:',
                                choices = c('Methylation',
@@ -42,17 +42,17 @@ ui <- fluidPage(
                                ))
         )),
       
-      fluidRow(
-        column(6, 
-               div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
+      shiny::fluidRow(
+        shiny::column(6, 
+               div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
                    selectInput('reduction_method', "Reduction:",
                                choices = c('UMAP', "tSNE"),
                                selected = 'UMAP',
                                width = "150px"))
         ),
         
-        column(6,
-               div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
+        shiny::column(6,
+               div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
                    selectInput('multiomics_method', 'Integration method:',
                                choices = NULL))
         )),
@@ -61,13 +61,13 @@ ui <- fluidPage(
       
       tags$p("Find neighbors", style = "text-align: center; font-size: 18px; font-weight: bold;"),
       
-      fluidRow(
-        column(6,
+      shiny::fluidRow(
+        shiny::column(6,
                selectizeInput("sel_type",
                               'Select model type',
                               choices = NULL, 
                               multiple = TRUE)),
-        column(6,
+        shiny::column(6,
                selectizeInput('sel_lineage',
                               'Select lineage',
                               choices = NULL,
@@ -106,10 +106,10 @@ ui <- fluidPage(
       
       hr(),
       
-      fluidRow(
-        column(6,
+      shiny::fluidRow(
+        shiny::column(6,
                tags$strong("or load from map selection:")),
-        column(2,
+        shiny::column(2,
                actionButton("load_selection", "Load", style = "text-align: center;") %>%
                  tagAppendChild(tags$script(HTML('
     $(document).ready(function(){
@@ -122,8 +122,8 @@ ui <- fluidPage(
     });
   ')))
         ),
-        column(4,
-               div(style = "align-items: flex-start; justify-content: center;",
+        shiny::column(4,
+                      shiny::div(style = "align-items: flex-start; justify-content: center;",
                    actionButton("rm", "Clear Selection", style = "text-align: center;")) %>%
                  tagAppendChild(tags$script(HTML('
     $(document).ready(function(){
@@ -141,19 +141,19 @@ ui <- fluidPage(
       
       hr(),
       
-      fluidRow(
-        column(7,
+      shiny::fluidRow(
+        shiny::column(7,
                checkboxGroupInput("df_selection_output", 
                                   "Search among the closest:", 
                                   choices = c("Cell lines", "Tumors"), 
                                   selected = 'Tumors', inline = TRUE)),
-        column(5,
+        shiny::column(5,
                div("Number of neighbors:", style = "text-align: left; font-weight: bold;"),
                numericInput("num_neighbors", NULL, value = 25, min = 1, width = "70px"),
         )),
       
-      fluidRow(
-        column(12,
+      shiny::fluidRow(
+        shiny::column(12,
                selectizeInput("lin_output", 
                               "Limit query lineage/s to:", 
                               choices = NULL, 
@@ -302,13 +302,21 @@ server <- function(input, output, session) {
   
   selected_reduced_mat <- reactive({
     
-    if(length(input$omics_plot) == 1) {
+    if(length(input$omics_plot) == 1 & input$reduction_method == 'UMAP') {
       
       return(switch(input$omics_plot,
                     "Expression" = exp_umap, 
                     "Methylation" = meth_umap,
                     "Mutational signature" = mut_umap))
+    }
+    
+    if(length(input$omics_plot) == 1 & input$reduction_method == 'tSNE') {
       
+      return(switch(input$omics_plot,
+                    "Expression" = tsne_exp, 
+                    "Methylation" = tsne_meth,
+                    "Mutational signature" = tsne_mut))
+    
     } else if (length(input$omics_plot) > 1) {
       
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'UMAP') {
@@ -398,14 +406,23 @@ server <- function(input, output, session) {
   
   selected_plot <- eventReactive(input$subset_btn, {
     
-    if(length(input$omics_plot) == 1) {
-      
+    if(length(input$omics_plot) == 1 & input$reduction_method == 'UMAP') {
+
       return(switch(input$omics_plot,
-                    "Expression" = get_alignment_plot(reduced_mat = exp_umap, ann = ann_multiomics_v9), 
+                    "Expression" = get_alignment_plot(reduced_mat = exp_umap, ann = ann_multiomics_v9),
                     "Methylation" = get_alignment_plot(reduced_mat = meth_umap, ann = ann_multiomics_v9),
                     "Mutational signature" = get_alignment_plot(reduced_mat = mut_umap, ann = ann_multiomics_v9)))
+
+    }
       
-    } else if (length(input$omics_plot) > 1) {
+      if (length(input$omics_plot) == 1 & input$reduction_method == 'tSNE'){
+
+        return(switch(input$omics_plot,
+                      "Expression" = get_alignment_plot(reduced_mat = tsne_exp, ann = ann_multiomics_v9),
+                      "Methylation" = get_alignment_plot(reduced_mat = tsne_meth, ann = ann_multiomics_v9),
+                      "Mutational signature" = get_alignment_plot(reduced_mat = tsne_mut, ann = ann_multiomics_v9)))
+
+      } else if (length(input$omics_plot) > 1) {
       
       # --- MoNETA - UMAP ---
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'UMAP') {
@@ -781,8 +798,10 @@ server <- function(input, output, session) {
           g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
           
           msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
-          showNotification(msg, type = "warning")
+          showNotification(msg, type = "warning", duration = 60)
           warning(msg)
+          
+          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples(), server = TRUE)
         }
       } else {
         if(!all(selected_samples() %in% rownames(selected_combined_mat()))) {
@@ -791,8 +810,11 @@ server <- function(input, output, session) {
           g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
           
           msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
-          showNotification(msg, type = "warning")
+          showNotification(msg, type = "warning", duration = 60)
           warning(msg)
+          
+          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
+          
         }
       }
     }, ignoreInit = TRUE)
