@@ -5,7 +5,7 @@
 
 <p align="right">
 
-<img src="inst/www/MultiCelligner_Logo_2.png" width="500"/>
+<img src="inst/www/MultiCelligner_Logo_2.png" width="100"/>
 
 </p>
 
