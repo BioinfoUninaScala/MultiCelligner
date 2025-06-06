@@ -17,7 +17,7 @@ MultiCelligner is a Celligner-based pipeline for aligning tumor and cell
 line expression, methylation and mutational signature data.
 MultiCelligner also provides a Shiny App that allows users to explore
 dimensionality reduction projections in order to find the best cell line
-model for a tumor sample or for a set of them at the subtype resolution.
+model for a tumor sample or for a set of them also at the subtype resolution.
 
 ------------------------------------------------------------------------
 
