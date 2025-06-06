@@ -34,7 +34,7 @@ ui <- fluidPage(
       shiny::fluidRow(
         shiny::column(12, 
                div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
-                   selectInput('omics_plot', 'Omics alignment:',
+                   selectInput('omics_plot', '(Multi-)Omics alignment:',
                                choices = c('Methylation',
                                            "Mutational signature",
                                            "Expression"),
