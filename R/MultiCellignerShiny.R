@@ -167,7 +167,7 @@ ui <- fluidPage(
         $(document).ready(function(){
           // Tooltip per il bottone "Show"
           $("#subset_btn").tooltip({
-            title: "Click on Plot Alignment without sample/s in search bar to get the basic plot without neighbors",
+            title: "Click on Plot Alignment without sample/s in the search bar to get the basic plot without neighbors",
             placement: "right",
             trigger: "hover",
             html: true
