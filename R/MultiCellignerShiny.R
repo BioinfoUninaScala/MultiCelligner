@@ -33,6 +33,7 @@ ui <- fluidPage(
       
       shiny::fluidRow(
         shiny::column(12, 
+<<<<<<< HEAD
                       div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
                           selectInput('omics_plot', 'Omics alignment:',
                                       choices = c('Methylation',
@@ -40,6 +41,15 @@ ui <- fluidPage(
                                                   "Expression"),
                                       multiple = TRUE
                           ))
+=======
+               div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
+                   selectInput('omics_plot', '(Multi-)Omics alignment:',
+                               choices = c('Methylation',
+                                           "Mutational signature",
+                                           "Expression"),
+                               multiple = TRUE
+                               ))
+>>>>>>> 802d2c99dacaab08eadc172cfcc5926c03a90784
         )),
       
       shiny::fluidRow(
@@ -167,7 +177,7 @@ ui <- fluidPage(
         $(document).ready(function(){
           // Tooltip per il bottone "Show"
           $("#subset_btn").tooltip({
-            title: "Click on Plot Alignment without sample/s in search bar to get the basic plot without neighbors",
+            title: "Click on Plot Alignment without sample/s in the search bar to get the basic plot without neighbors",
             placement: "right",
             trigger: "hover",
             html: true
