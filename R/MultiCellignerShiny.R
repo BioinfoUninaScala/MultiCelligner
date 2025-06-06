@@ -13,7 +13,7 @@
 #'
 
 MultiCellignerShiny <- function() {addResourcePath("static", system.file("www", package = "MultiCelligner"))
-;shiny::shinyApp(ui, server)}
+  ;shiny::shinyApp(ui, server)}
 
 ui <- fluidPage(              
   
@@ -33,28 +33,28 @@ ui <- fluidPage(
       
       shiny::fluidRow(
         shiny::column(12, 
-               div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
-                   selectInput('omics_plot', 'Omics alignment:',
-                               choices = c('Methylation',
-                                           "Mutational signature",
-                                           "Expression"),
-                               multiple = TRUE
-                               ))
+                      div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
+                          selectInput('omics_plot', 'Omics alignment:',
+                                      choices = c('Methylation',
+                                                  "Mutational signature",
+                                                  "Expression"),
+                                      multiple = TRUE
+                          ))
         )),
       
       shiny::fluidRow(
         shiny::column(6, 
-               div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
-                   selectInput('reduction_method', "Reduction:",
-                               choices = c('UMAP', "tSNE"),
-                               selected = 'UMAP',
-                               width = "150px"))
+                      div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
+                          selectInput('reduction_method', "Reduction:",
+                                      choices = c('UMAP', "tSNE"),
+                                      selected = 'UMAP',
+                                      width = "150px"))
         ),
         
         shiny::column(6,
-               div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
-                   selectInput('multiomics_method', 'Integration method:',
-                               choices = NULL))
+                      div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
+                          selectInput('multiomics_method', 'Integration method:',
+                                      choices = NULL))
         )),
       
       hr(),
@@ -63,15 +63,15 @@ ui <- fluidPage(
       
       shiny::fluidRow(
         shiny::column(6,
-               selectizeInput("sel_type",
-                              'Select model type',
-                              choices = NULL, 
-                              multiple = TRUE)),
+                      selectizeInput("sel_type",
+                                     'Select model type',
+                                     choices = NULL, 
+                                     multiple = TRUE)),
         shiny::column(6,
-               selectizeInput('sel_lineage',
-                              'Select lineage',
-                              choices = NULL,
-                              multiple = FALSE))
+                      selectizeInput('sel_lineage',
+                                     'Select lineage',
+                                     choices = NULL,
+                                     multiple = FALSE))
       ),
       
       tags$style(HTML("
@@ -108,10 +108,10 @@ ui <- fluidPage(
       
       shiny::fluidRow(
         shiny::column(6,
-               tags$strong("or load from map selection:")),
+                      tags$strong("or load from map selection:")),
         shiny::column(2,
-               actionButton("load_selection", "Load", style = "text-align: center;") %>%
-                 tagAppendChild(tags$script(HTML('
+                      actionButton("load_selection", "Load", style = "text-align: center;") %>%
+                        tagAppendChild(tags$script(HTML('
     $(document).ready(function(){
       $("#load_selection").tooltip({
         title: "Possibility to drop in the samples directly from the plot using Lasso Select",
@@ -124,8 +124,8 @@ ui <- fluidPage(
         ),
         shiny::column(4,
                       shiny::div(style = "align-items: flex-start; justify-content: center;",
-                   actionButton("rm", "Clear Selection", style = "text-align: center;")) %>%
-                 tagAppendChild(tags$script(HTML('
+                                 actionButton("rm", "Clear Selection", style = "text-align: center;")) %>%
+                        tagAppendChild(tags$script(HTML('
     $(document).ready(function(){
       $("#rm").tooltip({
         title: "Remove all the samples",
@@ -143,21 +143,21 @@ ui <- fluidPage(
       
       shiny::fluidRow(
         shiny::column(7,
-               checkboxGroupInput("df_selection_output", 
-                                  "Search among the closest:", 
-                                  choices = c("Cell lines", "Tumors"), 
-                                  selected = 'Tumors', inline = TRUE)),
+                      checkboxGroupInput("df_selection_output", 
+                                         "Search among the closest:", 
+                                         choices = c("Cell lines", "Tumors"), 
+                                         selected = 'Tumors', inline = TRUE)),
         shiny::column(5,
-               div("Number of neighbors:", style = "text-align: left; font-weight: bold;"),
-               numericInput("num_neighbors", NULL, value = 25, min = 1, width = "70px"),
+                      div("Number of neighbors:", style = "text-align: left; font-weight: bold;"),
+                      numericInput("num_neighbors", NULL, value = 25, min = 1, width = "70px"),
         )),
       
       shiny::fluidRow(
         shiny::column(12,
-               selectizeInput("lin_output", 
-                              "Limit query lineage/s to:", 
-                              choices = NULL, 
-                              multiple = TRUE)
+                      selectizeInput("lin_output", 
+                                     "Limit query lineage/s to:", 
+                                     choices = NULL, 
+                                     multiple = TRUE)
         )
       ),
       
@@ -316,7 +316,7 @@ server <- function(input, output, session) {
                     "Expression" = tsne_exp, 
                     "Methylation" = tsne_meth,
                     "Mutational signature" = tsne_mut))
-    
+      
     } else if (length(input$omics_plot) > 1) {
       
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'UMAP') {
@@ -407,22 +407,22 @@ server <- function(input, output, session) {
   selected_plot <- eventReactive(input$subset_btn, {
     
     if(length(input$omics_plot) == 1 & input$reduction_method == 'UMAP') {
-
+      
       return(switch(input$omics_plot,
                     "Expression" = get_alignment_plot(reduced_mat = exp_umap, ann = ann_multiomics_v9),
                     "Methylation" = get_alignment_plot(reduced_mat = meth_umap, ann = ann_multiomics_v9),
                     "Mutational signature" = get_alignment_plot(reduced_mat = mut_umap, ann = ann_multiomics_v9)))
-
-    }
       
-      if (length(input$omics_plot) == 1 & input$reduction_method == 'tSNE'){
-
-        return(switch(input$omics_plot,
-                      "Expression" = get_alignment_plot(reduced_mat = tsne_exp, ann = ann_multiomics_v9),
-                      "Methylation" = get_alignment_plot(reduced_mat = tsne_meth, ann = ann_multiomics_v9),
-                      "Mutational signature" = get_alignment_plot(reduced_mat = tsne_mut, ann = ann_multiomics_v9)))
-
-      } else if (length(input$omics_plot) > 1) {
+    }
+    
+    if (length(input$omics_plot) == 1 & input$reduction_method == 'tSNE'){
+      
+      return(switch(input$omics_plot,
+                    "Expression" = get_alignment_plot(reduced_mat = tsne_exp, ann = ann_multiomics_v9),
+                    "Methylation" = get_alignment_plot(reduced_mat = tsne_meth, ann = ann_multiomics_v9),
+                    "Mutational signature" = get_alignment_plot(reduced_mat = tsne_mut, ann = ann_multiomics_v9)))
+      
+    } else if (length(input$omics_plot) > 1) {
       
       # --- MoNETA - UMAP ---
       if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'UMAP') {
@@ -590,33 +590,43 @@ server <- function(input, output, session) {
   ### if that sample is present only in any omics in MoNETA, there will be a warning that said in which omic is present
   observeEvent(input$subset_btn,{
     if("MoNETA" %in% input$multiomics_method & length(input$omics_plot) > 1){
-      if(!all(input$both_sample %in% rownames(pca_exp))){
-        
-        s1 <- input$both_sample[!input$both_sample %in% rownames(pca_exp)]
-        s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
-        
-        msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in expression layer")
-        showNotification(msg, type = "warning")
-        warning(msg)
+      
+      if("Expression" %in% input$omics_plot) {
+        if(!all(input$both_sample %in% rownames(pca_exp))){
+          
+          s1 <- input$both_sample[!input$both_sample %in% rownames(pca_exp)]
+          s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
+          
+          msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in expression layer")
+          showNotification(msg, type = "warning", duration = 30)
+          warning(msg)
+        }
       }
-      if(!all(input$both_sample %in% rownames(pca_meth_1))){
-        
-        s1 <- input$both_sample[!input$both_sample %in% rownames(pca_meth_1)]
-        s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
-        
-        msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in methylation layer")
-        showNotification(msg, type = "warning")
-        warning(msg)
+
+      if("Methylation" %in% input$omics_plot){
+        if(!all(input$both_sample %in% rownames(pca_meth_1))){
+          
+          s1 <- input$both_sample[!input$both_sample %in% rownames(pca_meth_1)]
+          s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
+          
+          msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in methylation layer")
+          showNotification(msg, type = "warning", duration = 30)
+          warning(msg)
+        }
       }
-      if(!all(input$both_sample %in% rownames(combined_mat_mut))){
-        
-        s1 <- input$both_sample[!input$both_sample %in% rownames(combined_mat_mut)]
-        s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
-        
-        msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in mutational signature layer")
-        showNotification(msg, type = "warning")
-        warning(msg)
+      
+      if("Mutational signature" %in% input$omics_plot) {
+        if(!all(input$both_sample %in% rownames(combined_mat_mut))){
+          
+          s1 <- input$both_sample[!input$both_sample %in% rownames(combined_mat_mut)]
+          s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
+          
+          msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in mutational signature layer")
+          showNotification(msg, type = "warning", duration = 30)
+          warning(msg)
+        }
       }
+
     }
   })
   
@@ -789,37 +799,49 @@ server <- function(input, output, session) {
       } 
     })
     
-    ### when samples is present in one omic, then you switch omic and that samples are no more present, will appear a warning
-    observeEvent(input$omics_plot,{
+    if(length(input$omics_plot) > 1) {
       if(!is.null(filtered_data())){
-        if(!all(lasso_selected_samples() %in% rownames(selected_combined_mat()))) {
-          
-          g1 <- lasso_selected_samples()[!lasso_selected_samples() %in% rownames(selected_combined_mat())]
-          g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
-          
-          msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
-          showNotification(msg, type = "warning", duration = 60)
-          warning(msg)
-          
-          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples(), server = TRUE)
-        }
+        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples(), server = TRUE)
       } else {
-        if(!all(selected_samples() %in% rownames(selected_combined_mat()))) {
-          
-          g1 <- selected_samples()[!selected_samples() %in% rownames(selected_combined_mat())]
-          g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
-          
-          msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
-          showNotification(msg, type = "warning", duration = 60)
-          warning(msg)
-          
-          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
-          
-        }
+        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
       }
-    }, ignoreInit = TRUE)
+      
+    }
     
   })
+  
+  ### when samples is present in one omic, then you switch omic and that samples are no more present, will appear a warning
+  observeEvent(input$subset_btn,{
+    if(!is.null(filtered_data())){
+      if(!all(after_c() %in% rownames(selected_combined_mat()))) {
+        
+        g1 <- lasso_selected_samples()[!lasso_selected_samples() %in% rownames(selected_combined_mat())]
+        g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
+        
+        if(length(g2) > 0) {
+          
+          msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
+          showNotification(msg, type = "warning", duration = 30)
+          warning(msg)
+        }
+        
+        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples(), server = TRUE)
+      }
+    } else {
+      if(!all(selected_samples() %in% rownames(selected_combined_mat()))) {
+        
+        g1 <- selected_samples()[!selected_samples() %in% rownames(selected_combined_mat())]
+        g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
+        
+        msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
+        showNotification(msg, type = "warning", duration = 30)
+        warning(msg)
+        
+        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
+        
+      }
+    }
+  }, ignoreInit = TRUE)
   
   output$plot <- renderUI({
     selected_plot()
@@ -972,6 +994,7 @@ server <- function(input, output, session) {
   #### lasso select code
   
   filtered_data <- reactiveVal()
+  after_c <- reactiveVal()
   
   observeEvent(event_data("plotly_selected"), {
     
@@ -981,7 +1004,7 @@ server <- function(input, output, session) {
       return()
     }
     
-    if(!is.null(input$sel_lineage)) {
+    if(length(input$sel_lineage) > 1) {
       showNotification("Deselect the section: Select lineage", type = "warning")
       warning("Deselect the section: Select lineage")
     }
@@ -992,7 +1015,12 @@ server <- function(input, output, session) {
       selected_samples <- selected_data$key
       
       x_1 <- ann_multiomics_v9 %>%
+        filter(stripped_cell_line_name %in% selected_samples)
+      
+      c <- ann_multiomics_v9 %>%
         filter(sampleID %in% selected_samples)
+      
+      after_c(c)
       
       x_2 <- NULL
       
@@ -1026,7 +1054,7 @@ server <- function(input, output, session) {
     req(lasso_selected_samples())
     req(input$sel_type)
     
-        selected <- list()
+    selected <- list()
     
     all_names <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())]
     all_values <- colnames(selected_reduced_mat())
@@ -1073,9 +1101,10 @@ server <- function(input, output, session) {
       shinyjs::enable(id = "multiomics_method")
     }
   })
-
+  
   
   
 }
 
 shiny::shinyApp(ui, server)
+
