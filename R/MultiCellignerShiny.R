@@ -33,23 +33,14 @@ ui <- fluidPage(
       
       shiny::fluidRow(
         shiny::column(12, 
-<<<<<<< HEAD
                       div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
-                          selectInput('omics_plot', 'Omics alignment:',
+                          selectInput('omics_plot', '(Multi-)Omics alignment:',
                                       choices = c('Methylation',
                                                   "Mutational signature",
                                                   "Expression"),
                                       multiple = TRUE
-                          ))
-=======
-               div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
-                   selectInput('omics_plot', '(Multi-)Omics alignment:',
-                               choices = c('Methylation',
-                                           "Mutational signature",
-                                           "Expression"),
-                               multiple = TRUE
-                               ))
->>>>>>> 802d2c99dacaab08eadc172cfcc5926c03a90784
+                          )),
+
         )),
       
       shiny::fluidRow(
