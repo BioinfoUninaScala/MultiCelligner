@@ -192,14 +192,13 @@ get_alignment_plot <- function(reduced_mat, ann, dist_top_n = NULL, input_sample
 
         if(is.null(selected_samples)) {ins <- input_sample} else {ins <- selected_samples}
     
+    
     data_res_1 <- data_res %>% mutate('show_it' = ifelse(data_res$sampleID %in% top_k_tumors_1, 'show', 'not'))
     
     data_res_1$show_it[data_res_1$sampleID %in% ins] <- 'input'
     
-    data_res_2 <- data_res_1 %>% mutate('size' = if_else(show_it == 'show', 16, 5))
-    
-    data_res_2$size[data_res$show_it %in% "input"] <- 16
-    
+    data_res_2 <- data_res_1 %>% mutate('size' = if_else(show_it %in% c('show', 'input'), 16, 5))
+  
     dist_metasample_2 <- dist_top_n %>% dplyr::select("sampleID", "dist")
     data_res_3 <- data_res_2 %>% left_join(dist_metasample_2, by = 'sampleID')  %>% arrange(dist)
     data_res_3$dist <- round(data_res_3$dist, 3)
