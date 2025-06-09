@@ -56,7 +56,7 @@ Finally, use MultiCelligner shiny in a browser by typing http://localhost:8585 (
 
 ----------
 
-### Discalimer
+### Disclaimer
 This tool is currently in beta. It is still under active development and may contain bugs, errors, or incomplete features. 
 We recommend using it with caution, especially in critical or production environments.
 By using this beta version, you acknowledge and agree that:
