@@ -12,14 +12,17 @@
 #' @export
 #'
 
-MultiCellignerShiny <- function() {addResourcePath("static", system.file("www", package = "MultiCelligner"))
+MultiCellignerShiny <- function() {shiny::addResourcePath("static", system.file("www", package = "MultiCelligner"))
   ;shiny::shinyApp(ui, server)}
 
+
+################################## UI ###################################
 ui <- fluidPage(              
   
   shinyjs::useShinyjs(),
   
   shiny::sidebarLayout(
+    ################# side bar panel #################
     shiny::sidebarPanel(
       width = 3,
       
@@ -34,7 +37,7 @@ ui <- fluidPage(
       shiny::fluidRow(
         shiny::column(12, 
                       div(style = "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;",
-                          selectInput('omics_plot', '(Multi-)Omics alignment:',
+                          shiny::selectInput('omics_plot', '(Multi-)Omics alignment:',
                                       choices = c('Methylation',
                                                   "Mutational signature",
                                                   "Expression"),
@@ -46,7 +49,7 @@ ui <- fluidPage(
       shiny::fluidRow(
         shiny::column(6, 
                       div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
-                          selectInput('reduction_method', "Reduction:",
+                          shiny::selectInput('reduction_method', "Reduction:",
                                       choices = c('UMAP', "tSNE"),
                                       selected = 'UMAP',
                                       width = "150px"))
@@ -54,8 +57,9 @@ ui <- fluidPage(
         
         shiny::column(6,
                       div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
-                          selectInput('multiomics_method', 'Integration method:',
-                                      choices = NULL))
+                          shiny::selectInput('multiomics_method', 'Integration method:',
+                                      choices = c('MoNETA','MOFA','SNF'),
+                                      selected = 'MoNETA'))
         )),
       
       hr(),
@@ -64,12 +68,12 @@ ui <- fluidPage(
       
       shiny::fluidRow(
         shiny::column(6,
-                      selectizeInput("sel_type",
+                      shiny::selectizeInput("sel_type",
                                      'Select model type',
                                      choices = NULL, 
                                      multiple = TRUE)),
         shiny::column(6,
-                      selectizeInput('sel_lineage',
+                      shiny::selectizeInput('sel_lineage',
                                      'Select lineage',
                                      choices = NULL,
                                      multiple = FALSE))
@@ -100,7 +104,7 @@ ui <- fluidPage(
   }
 ")),
       
-      selectizeInput("both_sample", 
+      shiny::selectizeInput("both_sample", 
                      "Select one or more reference tumor/cell line:", 
                      choices = NULL, 
                      multiple = TRUE),
@@ -111,7 +115,7 @@ ui <- fluidPage(
         shiny::column(6,
                       tags$strong("or load from map selection:")),
         shiny::column(2,
-                      actionButton("load_selection", "Load", style = "text-align: center;") %>%
+                      shiny::actionButton("load_selection", "Load", style = "text-align: center;") %>%
                         tagAppendChild(tags$script(HTML('
     $(document).ready(function(){
       $("#load_selection").tooltip({
@@ -125,7 +129,7 @@ ui <- fluidPage(
         ),
         shiny::column(4,
                       shiny::div(style = "align-items: flex-start; justify-content: center;",
-                                 actionButton("rm", "Clear Selection", style = "text-align: center;")) %>%
+                                 shiny::actionButton("rm", "Clear Selection", style = "text-align: center;")) %>%
                         tagAppendChild(tags$script(HTML('
     $(document).ready(function(){
       $("#rm").tooltip({
@@ -144,18 +148,18 @@ ui <- fluidPage(
       
       shiny::fluidRow(
         shiny::column(7,
-                      checkboxGroupInput("df_selection_output", 
+                      shiny::checkboxGroupInput("df_selection_output", 
                                          "Search among the closest:", 
                                          choices = c("Cell lines", "Tumors"), 
                                          selected = 'Tumors', inline = TRUE)),
         shiny::column(5,
                       div("Number of neighbors:", style = "text-align: left; font-weight: bold;"),
-                      numericInput("num_neighbors", NULL, value = 25, min = 1, width = "70px"),
+                      shiny::numericInput("num_neighbors", NULL, value = 25, min = 1, width = "70px"),
         )),
       
       shiny::fluidRow(
         shiny::column(12,
-                      selectizeInput("lin_output", 
+                      shiny::selectizeInput("lin_output", 
                                      "Limit query lineage/s to:", 
                                      choices = NULL, 
                                      multiple = TRUE)
@@ -177,7 +181,7 @@ ui <- fluidPage(
       ')),
       
       div(style = "text-align: center;",
-          actionButton("subset_btn", "Plot alignment", 
+          shiny::actionButton("subset_btn", "Plot alignment", 
                        style = "
                    font-size: 14px;
                    padding: 15px 70px;
@@ -215,14 +219,14 @@ ui <- fluidPage(
     }
   ")),
       
-      tabsetPanel(
+      shiny::tabsetPanel(
         type = "tabs",
         selected = 'Neighbors lineages',
         
         hr(),
         
-        tabPanel("Neighbors lineages", 
-                 plotOutput("piechart",height = "430px") , 
+        shiny::tabPanel("Neighbors lineages", 
+                 shiny::plotOutput("piechart",height = "430px") , 
                  
                  # CSS x tooltip
                  tags$style(HTML('
@@ -238,70 +242,51 @@ ui <- fluidPage(
         
         #hr(),
         
-        tabPanel("Neighbors subtypes", 
-                 plotOutput("piechart_subtype",height = "430px"),
+        shiny::tabPanel("Neighbors subtypes", 
+                 shiny::plotOutput("piechart_subtype",height = "430px"),
         ),
         
       )),
     
-    mainPanel(
+    ################# main panel ################# 
+    shiny::mainPanel(
       tags$div(
-        tags$p(h3(textOutput("omics_name"),class = "text-center"), style = "text-align: center; font-size: 18px; font-weight: bold;"),
+        tags$p(h3(shiny::textOutput("omics_name"),class = "text-center"), style = "text-align: center; font-size: 18px; font-weight: bold;"),
       ),
       
-      shinycssloaders::withSpinner(uiOutput("plot"), type = 6, color = "#4FC3F7", color.background = "white", ), 
+      shinycssloaders::withSpinner(shiny::uiOutput("plot"), type = 6, color = "#4FC3F7", color.background = "white", ), 
       width = 9,
       
       hr(),
       
-      tabsetPanel(
+      shiny::tabsetPanel(
         type = "tabs",
         selected = 'Lineage distribution',
         
-        tabPanel("Lineage distribution",          
-                 plotlyOutput("distribution_s", width = '90%')
+        shiny::tabPanel("Lineage distribution",          
+                        plotly::plotlyOutput("distribution_l", width = '90%')
         ),
         
-        tabPanel("Subtype distribution", 
-                 plotlyOutput("distribution_l", width = "90%")
+        shiny::tabPanel("Subtype distribution", 
+                        plotly::plotlyOutput("distribution_s", width = "90%")
         ))
       
     )
   )
 )                                
 
-
+################################## SERVER ###################################
 server <- function(input, output, session) { 
   
   
-  output$omics_name <- eventReactive(input$subset_btn,{ 
+  output$omics_name <- shiny::eventReactive(input$subset_btn,{ 
     if(length(input$omics_plot) == 1) 
       paste(input$reduction_method,paste(input$omics_plot, collapse=" "))
     else paste(input$reduction_method,paste(input$omics_plot, collapse=" "), input$multiomics_method)
   })
   
-  selected_omics_name <- reactive({
-    
-    if(length(input$omics_plot) == 1) {
-      
-      return(switch(input$omics_plot,
-                    "Methylation" = 'Methylation',
-                    "Mutational signature" = 'Mutational signature',
-                    "Expression" = 'Expression'))
-    }
-    
-    if(length(input$omics_plot) > 1) {
-      
-      return(switch(input$multiomics_method,
-                    "MoNETA" = 'MoNETA multiomics',
-                    "MOFA" = 'MOFA multiomics',
-                    "SNF" = 'SNF multiomics'))
-    }
-    
-  })
-  
-  
-  selected_reduced_mat <- reactive({
+  ##################### Load low-dimensional combined matrix ###################
+  selected_reduced_mat <- shiny::reactive({
     
     if(length(input$omics_plot) == 1 & input$reduction_method == 'UMAP') {
       
@@ -405,129 +390,10 @@ server <- function(input, output, session) {
   }) 
   
   
-  selected_plot <- eventReactive(input$subset_btn, {
-    
-    if(length(input$omics_plot) == 1 & input$reduction_method == 'UMAP') {
-      
-      return(switch(input$omics_plot,
-                    "Expression" = get_alignment_plot(reduced_mat = exp_umap, ann = ann_multiomics_v9),
-                    "Methylation" = get_alignment_plot(reduced_mat = meth_umap, ann = ann_multiomics_v9),
-                    "Mutational signature" = get_alignment_plot(reduced_mat = mut_umap, ann = ann_multiomics_v9)))
-      
-    }
-    
-    if (length(input$omics_plot) == 1 & input$reduction_method == 'tSNE'){
-      
-      return(switch(input$omics_plot,
-                    "Expression" = get_alignment_plot(reduced_mat = tsne_exp, ann = ann_multiomics_v9),
-                    "Methylation" = get_alignment_plot(reduced_mat = tsne_meth, ann = ann_multiomics_v9),
-                    "Mutational signature" = get_alignment_plot(reduced_mat = tsne_mut, ann = ann_multiomics_v9)))
-      
-    } else if (length(input$omics_plot) > 1) {
-      
-      # --- MoNETA - UMAP ---
-      if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'UMAP') {
-        
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = umap_exp_meth_mut, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(get_alignment_plot(reduced_mat = umap_exp_meth, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = umap_exp_mut, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = umap_meth_mut, ann = ann_multiomics_v9))
-        }
-      }
-      
-      # --- MoNETA - tSNE ---
-      if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'tSNE') {
-        
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = tsne_exp_meth_mut, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(get_alignment_plot(reduced_mat = tsne_exp_meth, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = tsne_exp_mut, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = tsne_meth_mut, ann = ann_multiomics_v9))
-        }
-      }
-      
-      # --- MOFA - UMAP ---
-      if(input$multiomics_method == 'MOFA' && input$reduction_method == 'UMAP') {
-        
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = mofa_umap_all, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(get_alignment_plot(reduced_mat = mofa_umap_exp_meth, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = mofa_umap_exp_mut, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = mofa_umap_meth_mut, ann = ann_multiomics_v9))
-        }
-      }
-      
-      # --- MOFA - tSNE ---
-      if(input$multiomics_method == 'MOFA' && input$reduction_method == 'tSNE') {
-        
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = mofa_tsne_all, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(get_alignment_plot(reduced_mat = mofa_tsne_exp_meth, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = mofa_tsne_exp_mut, ann = ann_multiomics_v9))
-        }
-        else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = mofa_tsne_meth_mut, ann = ann_multiomics_v9))
-        }
-      }
-      
-      # --- SNF - UMAP ---
-      if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = snf_umap_all, ann = ann_multiomics_v9))
-        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(get_alignment_plot(reduced_mat = snf_umap_exp_meth, ann = ann_multiomics_v9))
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = snf_umap_exp_mut, ann = ann_multiomics_v9))
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = snf_umap_meth_mut, ann = ann_multiomics_v9))
-        }
-      }
-      
-      # --- SNF - tSNE ---
-      if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = snf_tsne_all, ann = ann_multiomics_v9))
-        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(get_alignment_plot(reduced_mat = snf_tsne_exp_meth, ann = ann_multiomics_v9))
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = snf_tsne_exp_mut, ann = ann_multiomics_v9))
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(get_alignment_plot(reduced_mat = snf_tsne_meth_mut, ann = ann_multiomics_v9))
-        }
-      }
-      
-    }
-    
-    return(NULL)  
-  })
   
-  
-  last_combined_mat <- reactiveVal(NULL)
-  
-  selected_combined_mat <- reactive({
+  ##################### Nearest neighbor search: retrieve combined mat ###################
+  last_combined_mat <- shiny::reactiveVal(NULL)
+  selected_combined_mat <- shiny::reactive({
     
     ### if there is no omics selected will be use the last combined_mat: 
     ### this is for keep the sample in the search bar
@@ -588,247 +454,128 @@ server <- function(input, output, session) {
     return(mat)
   })
   
-  ### if that sample is present only in any omics in MoNETA, there will be a warning that said in which omic is present
-  observeEvent(input$subset_btn,{
-    if("MoNETA" %in% input$multiomics_method & length(input$omics_plot) > 1){
+  ######## Warning: not perfect overlap between omics for MoNETA ###############
+  ### if that sample is present only in some omics in MoNETA, there will be a warning that said in which omics is present
+  shiny::observeEvent(input$subset_btn,{
+    if(input$multiomics_method == "MoNETA" & length(input$omics_plot) > 1){
       
-      if("Expression" %in% input$omics_plot) {
-        if(!all(input$both_sample %in% rownames(pca_exp))){
+      for (omics in input$omics_plot){
+        pca_mat <- switch(omics,
+                          "Expression" = pca_exp, 
+                          "Methylation" = pca_meth_1,
+                          "Mutational signature" = combined_mat_mut)
+        
+        if(!all(input$both_sample %in% rownames(pca_mat))){
           
-          s1 <- input$both_sample[!input$both_sample %in% rownames(pca_exp)]
+          s1 <- input$both_sample[!input$both_sample %in% rownames(pca_mat)]
           s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
           
-          msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in expression layer")
-          showNotification(msg, type = "warning", duration = 30)
+          msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in", omics, "layer")
+          shiny::showNotification(msg, type = "warning", duration = 30)
           warning(msg)
         }
       }
-
-      if("Methylation" %in% input$omics_plot){
-        if(!all(input$both_sample %in% rownames(pca_meth_1))){
-          
-          s1 <- input$both_sample[!input$both_sample %in% rownames(pca_meth_1)]
-          s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
-          
-          msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in methylation layer")
-          showNotification(msg, type = "warning", duration = 30)
-          warning(msg)
-        }
-      }
-      
-      if("Mutational signature" %in% input$omics_plot) {
-        if(!all(input$both_sample %in% rownames(combined_mat_mut))){
-          
-          s1 <- input$both_sample[!input$both_sample %in% rownames(combined_mat_mut)]
-          s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
-          
-          msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in mutational signature layer")
-          showNotification(msg, type = "warning", duration = 30)
-          warning(msg)
-        }
-      }
-
     }
   })
   
-  
+  ######## Side-bar options ###############
   a <- c('Cell lines', 'Tumors')
   b <- c('Cell lines (CL)', 'Tumors')
   choices_CL <- setNames(a,b)
-  updateSelectizeInput(session, "sel_type", choices = choices_CL, selected = c("Cell lines", "Tumors"))
+  shiny::updateSelectizeInput(session, "sel_type", choices = choices_CL, selected = c("Cell lines", "Tumors"))
   
-  ### get the multiomics data intergration method in the menu
-  updateSelectizeInput(session, "multiomics_method", choices = c('MoNETA','MOFA','SNF'), selected = 'MoNETA')
+  ### select the lineage based on the selected matrix
+  selected_linages <-  shiny::reactiveVal(NULL)
+  l <-  shiny::reactiveVal(NULL)
   
-  ### select the linage based on the mat that the user choose
-  selected_linages <- reactiveVal(NULL)
-  l <- reactiveVal(NULL)
-  
-  observe({
-    lin <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
+  shiny::observe({
+    lin <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())]) %>% sort
     selected_linages(lin)
     
     sel <- l()
     if (!is.null(sel) && sel %in% lin) {
-      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = sel, server = TRUE)
+      shiny::updateSelectizeInput(session, "sel_lineage", choices = lin, selected = sel, server = TRUE)
     } else {
-      updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0), server = TRUE)
+      shiny::updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0), server = TRUE)
     }
   })
   
-  ### update the value of l with the chooise of the user
-  observeEvent(input$subset_btn, {
+  ### update the value of l with the choice of the user
+  shiny::observeEvent(input$subset_btn, {
     l(input$sel_lineage)
   })
   
   
   ### select the Query lineage/s for neighbors search
-  q <- reactiveVal(NULL)
-  query_linages <- reactiveVal(NULL)
+  q <-  shiny::reactiveVal(NULL)
+  query_linages <- shiny::reactiveVal(NULL)
   
-  observe({
+  shiny::observe({
     lin_out <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
     query_linages(lin_out)
     
     sel <- q()
     if (!is.null(sel) && (any(sel %in% lin_out) || isTRUE(sel == 'All'))) {
-      updateSelectizeInput(session, "lin_output", choices = c('All', lin_out), selected = sel)
+      shiny::updateSelectizeInput(session, "lin_output", choices = c('All', lin_out), selected = sel)
     } else {
-      updateSelectizeInput(session, "lin_output", choices = c('All', lin_out), selected = 'All')
+      shiny::updateSelectizeInput(session, "lin_output", choices = c('All', lin_out), selected = 'All')
     }
   })
   
-  ### update the value of q with the chooise of the user
-  observeEvent(input$subset_btn, {
+  ### update the value of q with the choice of the user
+  shiny::observeEvent(input$subset_btn, {
     q(input$lin_output)
   })
   
-  ### update the sample/s for each selected omics; using depmap code but show nameID
-  r_choices <- reactiveVal()
   
-  observe({
-    choices <- list() 
-    subset_1 <- ann_multiomics_v9
+  ################# Nearest neighbor search: Select samples ####################
+  ### update the sample/s for each selected omics; using depmap code but show nameID
+  ###### Define the CHOICES of the SelectizeInput "both_sample" using the rownames of the selected combined mat.
+  ## these choices are not controlled by a botton, but are automatically updated when changing the selected type and/or lineage.
+  ## Here, no selection is defined.
+  r_choices <- shiny::reactive({  
+    selected_type <- input$sel_type
+    selected_lineage <- if_else(input$sel_lineage == "", NA, input$sel_lineage)
     
-    if (input$sel_lineage == "") {
-      if ("Cell lines" %in% input$sel_type) {
-        cl_values <- rownames(selected_combined_mat())
-        if (!is.null(cl_values)) {
-          cl_values <- cl_values[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', cl_values)]
-          cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v9)
-          if (!is.null(cl_names)) {
-            choices <- c(choices, setNames(as.list(cl_values), cl_names))
-            r_choices(choices)
-          }
-        }
-      }
-      
-      if ("Tumors" %in% input$sel_type) {
-        tumor_values <- rownames(selected_combined_mat())
-        if (!is.null(tumor_values)) {
-          tumor_values <- tumor_values[grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', tumor_values)]
-          choices <- c(choices, setNames(as.list(tumor_values), tumor_values))
-          r_choices(choices)
-        }
-      }
-      
-      if (all(c("Cell lines", "Tumors") %in% input$sel_type)) {
-        all_values <- rownames(selected_combined_mat())
-        if (!is.null(all_values)) {
-          cl_values <- all_values[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', all_values)]
-          tumor_values <- all_values[grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', all_values)]
-          cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v9)
-          
-          if (!is.null(cl_values) && !is.null(cl_names)) {
-            choices <- c(choices, setNames(as.list(cl_values), cl_names))
-            r_choices(choices)
-          }
-          
-          if (!is.null(tumor_values)) {
-            choices <- c(choices, setNames(as.list(tumor_values), tumor_values))
-            r_choices(choices)
-          }
-        }
-      }
-    } else {
-      if (length(input$sel_lineage) >= 1) {
-        subset_1 <- subset_1[ann_multiomics_v9$lineage == input$sel_lineage, ]
-        subset_1 <- subset_1[subset_1$sampleID %in% rownames(selected_combined_mat()),]
-        subset <- subset_1$sampleID
-        
-        all_names <- subset_1$stripped_cell_line_name[subset_1$sampleID %in% rownames(selected_combined_mat())]
-        all_values <- rownames(selected_combined_mat())[rownames(selected_combined_mat()) %in% subset]
-        
-        if (!is.null(all_values) && !is.null(all_names)) {
-          all_values_x <- all_values[all_values %in% subset]
-          all_names_x <- all_names[all_names %in% subset_1$stripped_cell_line_name]
-        } else {
-          all_values_x <- character(0)
-          all_names_x <- character(0)
-        }
-        
-        if ("Cell lines" %in% input$sel_type) {
-          cl_values <- rownames(selected_combined_mat())
-          if (!is.null(cl_values)) {
-            cl_values <- cl_values[!grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', cl_values)]
-            cl_names <- get_CL_strp_names(selected_combined_mat(), ann_multiomics_v9)
-            if (!is.null(cl_names)) {
-              cl_filtered <- intersect(cl_values, all_values_x)
-              cl_names_filtered <- intersect(cl_names, all_names_x)
-              choices <- c(choices, setNames(as.list(cl_filtered), cl_names_filtered))
-              r_choices(choices)
-            }
-          }
-        }
-        
-        if ("Tumors" %in% input$sel_type) {
-          tumor_values <- rownames(selected_combined_mat())
-          if (!is.null(tumor_values)) {
-            tumor_values <- tumor_values[grepl('TCGA|TARGET|TH0|TH1|TH2|TH3|THR', tumor_values)]
-            tumor_filtered <- intersect(tumor_values, all_values_x)
-            choices <- c(choices, setNames(as.list(tumor_filtered), tumor_filtered))
-            r_choices(choices)
-          }
-        }
-        
-        if (all(c("Cell lines", "Tumors") %in% input$sel_type)) {
-          choices <- c(choices, setNames(as.list(all_values_x), all_names_x))
-          r_choices(choices)
-        }
-      }
+    point_ids <- ann_multiomics_v9 %>% 
+      dplyr::select(sampleID, stripped_cell_line_name, type, lineage) %>% 
+      dplyr:: mutate(type2 = case_when(type == 'Tumor' ~ "Tumors", 
+                                       type ==  'CL' ~ "Cell lines")  
+      ) %>% 
+      dplyr::filter(type2 %in% selected_type)
+    
+    if (!is.na(selected_lineage)) {
+      point_ids <- point_ids %>% 
+        dplyr::filter(lineage %in% selected_lineage)
     }
     
-    updateSelectizeInput(session, "both_sample", choices = choices, server = TRUE)
-    
-    ### when user already search neighbors and he switch between the combination of input$ and then click on Plot alignment:
-    ### the samples will be saved and update in the search bar!
-    observeEvent(list(input$subset_btn, input$sel_lineage),{
-      if(length(input$both_sample) >= 1) {
-        
-        selected_samples <- reactive({
-          value <- ann_multiomics_v9$sampleID[ann_multiomics_v9$sampleID %in% input$both_sample]
-          name <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% input$both_sample]
-          choices <- setNames(as.list(value), name)
-          return(choices)
-        })
-        
-        if(!is.null(filtered_data())) {
-          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples(), server = TRUE)
-        } else {
-          updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
-        } 
-      } 
-    })
-    
-    if(length(input$omics_plot) > 1) {
-      if(!is.null(filtered_data())){
-        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples(), server = TRUE)
-      } else {
-        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
-      }
-      
-    }
-    
+    choices <- point_ids %>% select(stripped_cell_line_name, sampleID) %>% deframe %>% as.list
+    return(choices)
   })
   
-  ### when samples is present in one omic, then you switch omic and that samples are no more present, will appear a warning
-  observeEvent(input$subset_btn,{
-    if(!is.null(filtered_data())){
-      if(!all(after_c() %in% rownames(selected_combined_mat()))) {
-        
-        g1 <- lasso_selected_samples()[!lasso_selected_samples() %in% rownames(selected_combined_mat())]
-        g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
-        
-        if(length(g2) > 0) {
-          
-          msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
-          showNotification(msg, type = "warning", duration = 30)
-          warning(msg)
-        }
-        
-        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = lasso_selected_samples(), server = TRUE)
-      }
-    } else {
+  
+  shiny::observe({
+      shiny::updateSelectizeInput(session, "both_sample", choices = r_choices(), server = TRUE)
+  })
+  
+  
+  
+  ###### Define the SELECTION of the SelectizeInput "both_sample", using the typed sampleID ("selected_samples") 
+  ## or the highlighted points on the plot ("lasso_selected_samples")
+  
+  selected_samples <- shiny::reactive({
+    value <- ann_multiomics_v9$sampleID[ann_multiomics_v9$sampleID %in% input$both_sample]
+    name <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% input$both_sample]
+    choices <- setNames(as.list(value), name)
+    return(choices)
+  })
+  
+  
+  ### When changing omics selection, previous selected samples might not be present anymore. Hence, a Warning message will appear.
+  shiny::observeEvent(input$subset_btn,{
+    if(!is.null(selected_samples())){ 
+      shiny::updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
+      
       if(!all(selected_samples() %in% rownames(selected_combined_mat()))) {
         
         g1 <- selected_samples()[!selected_samples() %in% rownames(selected_combined_mat())]
@@ -838,69 +585,69 @@ server <- function(input, output, session) {
         showNotification(msg, type = "warning", duration = 30)
         warning(msg)
         
-        updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
-        
       }
     }
   }, ignoreInit = TRUE)
   
-  output$plot <- renderUI({
+  
+  
+  ############################### Plot: visualization ##############################
+  
+  selected_plot <- shiny::eventReactive(input$subset_btn, {
+    if (!is.null(selected_reduced_mat())){
+      print('Generate plot ')
+      get_alignment_plot(reduced_mat = selected_reduced_mat(),
+                         ann = ann_multiomics_v9, 
+                         annot_value = 'lineage')
+    }else{
+      return(NULL)
+    }
+    
+  })
+  
+  #### This is important to not show the loading symbol whrn user opens the app
+  output$plot <-  shiny::renderUI({
     selected_plot()
   })
   
-  ### when you change omics or red_method or integration_method the piecharts will go away
-  observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
-    output$piechart_subtype <- renderPlot({ NULL })
-    output$piechart <- renderPlot({ NULL })
-    
-    output$distribution_l <- renderPlotly({ NULL })
-    output$distribution_s <- renderPlotly({ NULL })
-  })
-  
-  selected_samples <- reactive({
-    input$both_sample
-  })
   
   #### click show in the shiny to find neighbors
   #### click show in the shiny to get both kind of piechart
-  observeEvent(input$subset_btn, {
+  shiny::observeEvent(input$subset_btn, {
     
     ### when there is no sample/s in search bar, reolad the omics base plot
     if(is.null(input$both_sample) || length(input$both_sample) == 0) {
       
-      output$plot <- renderUI({
+      output$plot <-  shiny::renderUI({
         selected_plot()
       })
       
-      output$distribution_l <- renderPlotly({ NULL })
-      output$distribution_s <- renderPlotly({ NULL })
-    }
-    
-    
-    
-    if(length(input$both_sample) == 1) {
+      output$distribution_l <- plotly::renderPlotly({ NULL })
+      output$distribution_s <- plotly::renderPlotly({ NULL })
+      
+    } else {
       
       n <- find_neighbors(combined_mat = selected_combined_mat(), 
                           reduced_mat = selected_reduced_mat(),
                           input_sample = input$both_sample,
                           k = input$num_neighbors,
                           ann = ann_multiomics_v9,
-                          type = input$df_selection_output,
+                          query_type = input$df_selection_output,
                           query_lineage = input$lin_output)
       
       if(!is.null(n)) {
         
         x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
                                 ann = ann_multiomics_v9,
-                                dist_top_n = n, input_sample = input$both_sample)
+                                dist_top_n = n, 
+                                input_sample = input$both_sample)
         
-        output$plot <- renderUI({
+        output$plot <-  shiny::renderUI({
           x  
         })
         
         piechart <- get_piechart(combined_mat = selected_combined_mat(), 
                                  input_sample = input$both_sample,
-                                 k = input$num_neighbors,
                                  ann = ann_multiomics_v9,
                                  type = input$df_selection_output,
                                  value = 'lineage',
@@ -908,120 +655,65 @@ server <- function(input, output, session) {
         
         piechart_subtype <- get_piechart(combined_mat = selected_combined_mat(), 
                                          input_sample = input$both_sample,
-                                         k = input$num_neighbors,
                                          ann = ann_multiomics_v9,
                                          type = input$df_selection_output,
                                          value = 'subtype',
                                          dist_top_n = n)
         
-        output$piechart_subtype <- renderPlot({
-          piechart_subtype
-        })
-        
-        output$piechart <- renderPlot({
+        output$piechart <-  shiny::renderPlot({
           piechart
         })
         
+        output$piechart_subtype <-  shiny::renderPlot({
+          piechart_subtype
+        })
+        
+        
         p <- c_distribution(dist_top_n = n, ann = ann_multiomics_v9)
         
-        output$distribution_l <- renderPlotly({p$lineage_distribution})
-        output$distribution_s <- renderPlotly({p$subtype_distribution})
+        output$distribution_l <- plotly::renderPlotly({p$lineage_distribution})
+        output$distribution_s <- plotly::renderPlotly({p$subtype_distribution})
         
       }
-      
-      else {}
-      
     } 
-    else if (length(input$both_sample) > 1) {
-      selected_samples <- reactive({
-        input$both_sample
-      })
-      
-      n <- find_neighbors(combined_mat = selected_combined_mat(), 
-                          reduced_mat = selected_reduced_mat(),
-                          selected_samples = selected_samples(),
-                          k = input$num_neighbors,
-                          ann = ann_multiomics_v9,
-                          type = input$df_selection_output,
-                          query_lineage = input$lin_output)
-      
-      if(!is.null(n)) {
-        
-        x <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
-                                ann = ann_multiomics_v9,
-                                dist_top_n = n, selected_samples = selected_samples())
-        
-        
-        output$plot <- renderUI({
-          x  
-        })
-        
-        piechart <- get_piechart(combined_mat = selected_combined_mat(), 
-                                 selected_samples = selected_samples(),
-                                 k = input$num_neighbors,
-                                 ann = ann_multiomics_v9,
-                                 type = input$df_selection_output,
-                                 value = 'lineage',
-                                 dist_top_n = n)
-        
-        piechart_subtype <- get_piechart(combined_mat = selected_combined_mat(), 
-                                         selected_samples = selected_samples(),
-                                         k = input$num_neighbors,
-                                         ann = ann_multiomics_v9,
-                                         type = input$df_selection_output,
-                                         value = 'subtype',
-                                         dist_top_n = n)
-        
-        output$piechart_subtype <- renderPlot({
-          piechart_subtype
-        })
-        
-        output$piechart <- renderPlot({
-          piechart
-        })
-        
-        p <- c_distribution(dist_top_n = n, ann = ann_multiomics_v9)
-        
-        output$distribution_l <- renderPlotly({p$lineage_distribution})
-        output$distribution_s <- renderPlotly({p$subtype_distribution})
-        
-      }
-    }
-    
-    else {}
-    
   })
   
-  #### lasso select code
   
-  filtered_data <- reactiveVal()
-  after_c <- reactiveVal()
+  ### when you change omics or red_method or integration_method the piecharts will go away
+  shiny::observeEvent(list(input$multiomics_method, input$omics_plot, input$reduction_method), {
+    output$piechart_subtype <- shiny::renderPlot({ NULL })
+    output$piechart <- shiny::renderPlot({ NULL })
+    
+    output$distribution_l <- plotly::renderPlotly({ NULL })
+    output$distribution_s <- plotly::renderPlotly({ NULL })
+  })
   
-  observeEvent(event_data("plotly_selected"), {
+  
+  
+  ############################# Plot: lasso select  ############################# 
+  
+  filtered_data <- shiny::reactiveVal()
+  
+  shiny::observeEvent(plotly::event_data("plotly_selected"), {
     
     if(is.null(input$sel_type)) {
-      showNotification("Select the model type and then load the samples from the plot")
+      shiny::showNotification("Select the model type and then load the samples from the plot")
       warning("Select the model type and then load the samples from the plot")
       return()
     }
     
-    if(length(input$sel_lineage) > 1) {
-      showNotification("Deselect the section: Select lineage", type = "warning")
-      warning("Deselect the section: Select lineage")
+    if(length(input$sel_lineage) == 1) {
+      shiny::showNotification(paste("", input$sel_lineage), type = "warning")
+      warning("")
     }
     
-    selected_data <- event_data("plotly_selected")
+    selected_data <- plotly::event_data("plotly_selected")
     
     if (!is.null(selected_data)) {
-      selected_samples <- selected_data$key
+      selected_samples <- selected_data$key ### these correspond to the stripped_cell_line_name
       
       x_1 <- ann_multiomics_v9 %>%
-        filter(stripped_cell_line_name %in% selected_samples)
-      
-      c <- ann_multiomics_v9 %>%
-        filter(sampleID %in% selected_samples)
-      
-      after_c(c)
+        dplyr::filter(stripped_cell_line_name %in% selected_samples) # select cl and tumors
       
       x_2 <- NULL
       
@@ -1041,13 +733,15 @@ server <- function(input, output, session) {
     }
   })
   
-  lasso_selected_samples <- reactive({
+  ##### "lasso_selected_samples" is equal to "filtered_data", but it is not affected by the "rm" button
+  lasso_selected_samples <- shiny::reactive({
     req(filtered_data()) 
-    
     filtered_data()
   })
   
-  observeEvent(input$load_selection, {
+  
+  ### load selected sample from the plot
+  shiny::observeEvent(input$load_selection, {
     if(is.null(input$sel_type)) {
       return()
     }
@@ -1055,34 +749,31 @@ server <- function(input, output, session) {
     req(lasso_selected_samples())
     req(input$sel_type)
     
-    selected <- list()
+    # commento perchè se cambio selected_reduced_mat e riclicco load mi restituisce l'intersezione
+    # noi invece vogliamo continuare a vedere tutte le query come selected e usare il warning per stampare quelle assenti 
+    # all_values <- colnames(selected_reduced_mat())
+    # sub_values <- all_values[all_values %in% lasso_selected_samples()]
+    sub_values <- lasso_selected_samples()
     
-    all_names <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())]
-    all_values <- colnames(selected_reduced_mat())
+    selected <- ann_multiomics_v9 %>% filter(sampleID %in% sub_values) %>%
+      select(stripped_cell_line_name, sampleID) %>% deframe %>% as.list
     
-    sub_values <- all_values[all_values %in% lasso_selected_samples()]
-    sub_names <- ann_multiomics_v9 %>% filter(sampleID %in% sub_values)
-    sub_names <- sub_names$stripped_cell_line_name
-    
-    sub_nccle <- sub_names[!grepl("TCGA|TARGET|TH0|TH1|TH2|TH3|THR", sub_names)]
-    
-    sub_names_tcga <- sub_values[grepl("TCGA|TARGET|TH0|TH1|TH2|TH3|THR", sub_values)]
-    
-    sub_names <- c(sub_names_tcga, sub_nccle)
-    
-    selected <- c(selected, setNames(as.list(sub_values), sub_names))
-    
-    updateSelectizeInput(session, "both_sample",
-                         choices = r_choices(),
-                         selected = selected,
-                         server = TRUE)
+    shiny::updateSelectizeInput(
+      session, "both_sample",
+      choices = r_choices(),
+      selected = selected,
+      server = TRUE)
   })
   
+  
   ### remove all the sample form the query bar  
-  observeEvent(input$rm, {
-    filtered_data(NULL)
-    updateSelectizeInput(session, "both_sample", choices = r_choices(), server = TRUE)
+  shiny::observeEvent(input$rm, {
+    # filtered_data(NULL)
+    shiny::updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = NULL, server = TRUE)
   })
+  
+  
+  ############################# MISCELLANEOUS   #############################  
   
   ### debug
   observeEvent(input$subset_btn, {
@@ -1103,9 +794,6 @@ server <- function(input, output, session) {
     }
   })
   
-  
-  
 }
 
 shiny::shinyApp(ui, server)
-
