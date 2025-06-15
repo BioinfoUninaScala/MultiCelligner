@@ -12,7 +12,7 @@
 #' @param input_sample a vector of one or multiple TCGA and/or CCLE IDs. 
 #' @param type type of the k neighbors samples (Tumor or Cell Line)
 #' @param ann annotation file of tumors and cell lines 
-#' @param dist_top_n 
+#' @param dist_top_n neighbors dataframe
 #' @param value string value to select to determine if the pie chart will be based on subtype percentage or lineage percentage
 #' @return pie chart illustrating the distribution of k nearest neighbors subtype to the query 
 #' @export
@@ -21,7 +21,7 @@ get_piechart <- function(combined_mat, input_sample, type, ann, value, dist_top_
   
   annot_col <- ifelse(value == 'lineage', 'lineage', 'subtype_1')
   
-  dist_topk_1 <- dist_top_n %>% dplyr::select(sampleID) %>% distinct %>% 
+  dist_topk_1 <- dist_top_n %>% dplyr::select(sampleID) %>% distinct() %>% 
     left_join(., ann[, c('sampleID', annot_col)], by = 'sampleID')
   colnames(dist_topk_1) <- c('neighbor', 'annot_neighbor')
   
@@ -74,10 +74,12 @@ get_piechart <- function(combined_mat, input_sample, type, ann, value, dist_top_
 #' @import reshape
 #' @import SNFtool
 #' @import reshape2
+#' @importFrom tibble rownames_to_column
 #' @param reduced_mat dimensionally reduced matrix (tSNE and UMAP): sample x features
 #' @param ann annotation file of tumors and cell lines 
 #' @param input_sample a vector of one or multiple TCGA and/or CCLE IDs. 
 #' @param dist_top_n neighbors dataframe
+#' @param annot_value indicates the annotation column from the annotation table 'ann'. Values acceptes are: 'lineage' or 'subtype'
 #' @return an interactive plot that highlighting the tumor k nearest neighbors 
 
 get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n = NULL, annot_value = 'lineage') {
@@ -378,8 +380,6 @@ get_CL_strp_names <- function(combined_mat ,ann) {
 #'
 #' @import plotly
 #' @import dplyr
-#' @import scales
-#' @import RColorBrewer
 #' @param ann annotation file of tumors and cell lines 
 #' @param dist_top_n neighbors dataframe
 #' @return lineage and subtype distance distribution plot

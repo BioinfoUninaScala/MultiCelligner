@@ -2,19 +2,16 @@
 % Please edit documentation in R/find_neighbors.R
 \name{find_neighbors}
 \alias{find_neighbors}
-\title{Create an interactive plot that highlighting k nearest neighbors for the choosed query}
+\title{Create a data frame with the neighbors and related annotation of a query sample/s}
 \usage{
 find_neighbors(
   combined_mat,
   reduced_mat,
-  input_sample = NULL,
-  selected_samples = NULL,
-  type,
+  input_sample,
   k,
   ann,
-  omics_name,
-  red_method,
-  query_lineage
+  query_type,
+  query_lineage = "All"
 )
 }
 \arguments{
@@ -22,19 +19,13 @@ find_neighbors(
 
 \item{reduced_mat}{dimensionally reduced matrix (tSNE and UMAP): sample x features}
 
-\item{input_sample}{single TCGA or CCLE sample chosen by the user}
-
-\item{selected_samples}{multiple TCGA or CCLE samples chosen by the user}
-
-\item{type}{type of the k neighbors samples (Tumor or Cell Line)}
+\item{input_sample}{a vector of one or multiple TCGA and/or CCLE IDs.}
 
 \item{k}{number of the nearest neighbors}
 
 \item{ann}{annotation file of tumors and cell lines}
 
-\item{omics_name}{name of the shiny selected omics}
-
-\item{red_method}{dimensional reduction method}
+\item{query_type}{type of the k neighbors samples (Tumor or Cell Line)}
 
 \item{query_lineage}{limit the neighbors searching to that lineage/s}
 }
@@ -42,5 +33,5 @@ find_neighbors(
 an interactive plot that highlighting the tumor k nearest neighbors
 }
 \description{
-Create an interactive plot that highlighting k nearest neighbors for the choosed query
+Create a data frame with the neighbors and related annotation of a query sample/s
 }

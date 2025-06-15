@@ -489,7 +489,7 @@ server <- function(input, output, session) {
   l <-  shiny::reactiveVal(NULL)
   
   shiny::observe({
-    lin <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())]) %>% sort
+    lin <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())]) %>% sort()
     selected_linages(lin)
     
     sel <- l()
@@ -549,7 +549,7 @@ server <- function(input, output, session) {
         dplyr::filter(lineage %in% selected_lineage)
     }
     
-    choices <- point_ids %>% select(stripped_cell_line_name, sampleID) %>% deframe %>% as.list
+    choices <- point_ids %>% select(stripped_cell_line_name, sampleID) %>% tibble::deframe() %>% as.list()
     return(choices)
   })
   
@@ -756,7 +756,7 @@ server <- function(input, output, session) {
     sub_values <- lasso_selected_samples()
     
     selected <- ann_multiomics_v9 %>% filter(sampleID %in% sub_values) %>%
-      select(stripped_cell_line_name, sampleID) %>% deframe %>% as.list
+      select(stripped_cell_line_name, sampleID) %>% tibble::deframe() %>% as.list()
     
     shiny::updateSelectizeInput(
       session, "both_sample",
@@ -796,4 +796,4 @@ server <- function(input, output, session) {
   
 }
 
-shiny::shinyApp(ui, server)
+# shiny::shinyApp(ui, server)
