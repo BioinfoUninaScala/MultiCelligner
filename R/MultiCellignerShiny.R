@@ -75,7 +75,8 @@ ui <- fluidPage(
         shiny::column(6,
                       shiny::selectizeInput('sel_lineage',
                                      'Select lineage',
-                                     choices = NULL,
+                                     choices = c("", sort(unique(ann_multiomics_v9$lineage))),
+                                     selected = NULL,
                                      multiple = FALSE))
       ),
       
@@ -484,23 +485,9 @@ server <- function(input, output, session) {
   choices_CL <- setNames(a,b)
   shiny::updateSelectizeInput(session, "sel_type", choices = choices_CL, selected = c("Cell lines", "Tumors"))
   
-  ### select the lineage based on the selected matrix
-  selected_linages <-  shiny::reactiveVal(NULL)
-  l <-  shiny::reactiveVal(NULL)
-  
-  shiny::observe({
-    lin <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())]) %>% sort()
-    selected_linages(lin)
-    
-    sel <- l()
-    if (!is.null(sel) && sel %in% lin) {
-      shiny::updateSelectizeInput(session, "sel_lineage", choices = lin, selected = sel, server = TRUE)
-    } else {
-      shiny::updateSelectizeInput(session, "sel_lineage", choices = lin, selected = character(0), server = TRUE)
-    }
-  })
   
   ### update the value of l with the choice of the user
+  l <-  shiny::reactiveVal(NULL)
   shiny::observeEvent(input$subset_btn, {
     l(input$sel_lineage)
   })
@@ -554,8 +541,8 @@ server <- function(input, output, session) {
   })
   
   
-  shiny::observe({
-      shiny::updateSelectizeInput(session, "both_sample", choices = r_choices(), server = TRUE)
+  shiny::observeEvent(c(input$sel_type, input$sel_lineage),{
+      shiny::updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
   })
   
   

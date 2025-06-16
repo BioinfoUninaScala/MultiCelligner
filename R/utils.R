@@ -118,7 +118,7 @@ get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n
           .default = 'not'
         ),
         'size' = dplyr::if_else(show_it %in% c('show', 'input'), 16, 
-                                dplyr::if_else(type == "Tumor", 5, 9))
+                                dplyr::if_else(type == "Tumor", 5, 4))
       )
     
     data_res_3 <- data_res_2 %>% dplyr::left_join(dist_top_n, by = 'sampleID')  %>%
