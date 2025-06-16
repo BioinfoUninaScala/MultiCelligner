@@ -542,7 +542,8 @@ server <- function(input, output, session) {
   
   
   shiny::observeEvent(c(input$sel_type, input$sel_lineage),{
-      shiny::updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = selected_samples(), server = TRUE)
+    f_selected_samples <- selected_samples()[selected_samples() %in% r_choices()]
+    shiny::updateSelectizeInput(session, "both_sample", choices = r_choices(), selected = f_selected_samples, server = TRUE)
   })
   
   
@@ -783,4 +784,4 @@ server <- function(input, output, session) {
   
 }
 
-# shiny::shinyApp(ui, server)
+shiny::shinyApp(ui, server)

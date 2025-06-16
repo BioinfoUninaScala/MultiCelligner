@@ -117,8 +117,8 @@ get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n
           sampleID %in% input_sample ~ "input",
           .default = 'not'
         ),
-        'size' = dplyr::if_else(show_it %in% c('show', 'input'), 16, 
-                                dplyr::if_else(type == "Tumor", 5, 4))
+        'size' = dplyr::if_else(show_it %in% c('show', 'input'), 9, 
+                                dplyr::if_else(type == "Tumor", 5, 9))
       )
     
     data_res_3 <- data_res_2 %>% dplyr::left_join(dist_top_n, by = 'sampleID')  %>%
@@ -178,6 +178,7 @@ get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n
         stroke = ~show_it,
         strokes = c('show' = "red", 'input' = "green"),
         size = ~size,
+        sizes = c(10,35),
         
         hoverinfo = "text",
         hovertext = ~paste("ID:", sampleID,
@@ -186,8 +187,7 @@ get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n
                            '\nSubtype:', subtype_1,
                            '\nType:', type),
         marker = list(
-          line = list(
-            width = 3)),
+          line = list(width = 3)),
         height = 600
       )
       %>%
