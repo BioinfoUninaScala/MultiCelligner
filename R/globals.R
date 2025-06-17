@@ -1,0 +1,21 @@
+
+utils::globalVariables(
+  c(
+     '.',
+     'Freq',
+     'annot_neighbor',
+     'dist',
+     'label',
+     'lineage',
+     'percentage',
+     'position',
+     'ref_ID',
+     'sampleID',
+     'setNames',
+     'show_it',
+     'stripped_cell_line_name',
+     'subtype_1',
+     'type',
+     'type2'
+  )
+)
