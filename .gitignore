@@ -6,3 +6,6 @@ utils
 old_sysdata.rda 
 run_MultiCelligner.R
 MultiCelligner.Rproj
+R/old/find_neighbors.R
+R/old/utils.R
+R/old/oldMultiCellignerShiny.R
