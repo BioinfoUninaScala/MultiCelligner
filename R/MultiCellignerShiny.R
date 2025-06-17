@@ -75,7 +75,7 @@ ui <- fluidPage(
         shiny::column(6,
                       shiny::selectizeInput('sel_lineage',
                                      'Select lineage',
-                                     choices = c("", sort(unique(ann_multiomics_v9$lineage))),
+                                     choices = NULL,
                                      selected = NULL,
                                      multiple = FALSE))
       ),
@@ -286,6 +286,13 @@ server <- function(input, output, session) {
     else paste(input$reduction_method,paste(input$omics_plot, collapse=" "), input$multiomics_method)
   })
   
+  ##### Define the possible lineage selections
+  shiny::updateSelectizeInput(session = session, 
+                              inputId = 'sel_lineage',
+                              choices = c("", sort(unique(ann_multiomics_v9$lineage)))
+                              )
+  
+  
   ##################### Load low-dimensional combined matrix ###################
   selected_reduced_mat <- shiny::reactive({
     
@@ -471,7 +478,11 @@ server <- function(input, output, session) {
           s1 <- input$both_sample[!input$both_sample %in% rownames(pca_mat)]
           s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
           
-          msg <- paste("This sample/s:", paste(s2, collapse = ", "), "is not present in", omics, "layer")
+          if (length(s2) == 1)
+            msg <- paste("The sample:", paste(s2, collapse = ", "), "is not present in", omics, "layer")
+          else if (length(s2) > 1)
+            msg <- paste("The samples:", paste(s2, collapse = ", "), "are not present in", omics, "layer")
+            
           shiny::showNotification(msg, type = "warning", duration = 30)
           warning(msg)
         }
@@ -569,7 +580,11 @@ server <- function(input, output, session) {
         g1 <- selected_samples()[!selected_samples() %in% rownames(selected_combined_mat())]
         g2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% g1]
         
-        msg <- paste("There isn't this input sample/s:", paste(g2, collapse = ", "), "in this omics")
+        if (length(g2) == 1)
+          msg <- paste("The selected sample:", paste(g2, collapse = ", "), "is not present in the selected combined matrix")
+        else if (length(g2) > 1)
+          msg <- paste("The selected samples:", paste(g2, collapse = ", "), "are not present in the selected combined matrix")
+        
         showNotification(msg, type = "warning", duration = 30)
         warning(msg)
         
@@ -631,7 +646,7 @@ server <- function(input, output, session) {
                                 input_sample = input$both_sample)
         
         output$plot <-  shiny::renderUI({
-          x  
+          x
         })
         
         piechart <- get_piechart(combined_mat = selected_combined_mat(), 
@@ -737,8 +752,6 @@ server <- function(input, output, session) {
     req(lasso_selected_samples())
     req(input$sel_type)
     
-    # commento perchè se cambio selected_reduced_mat e riclicco load mi restituisce l'intersezione
-    # noi invece vogliamo continuare a vedere tutte le query come selected e usare il warning per stampare quelle assenti 
     # all_values <- colnames(selected_reduced_mat())
     # sub_values <- all_values[all_values %in% lasso_selected_samples()]
     sub_values <- lasso_selected_samples()
