@@ -21,12 +21,12 @@ get_piechart <- function(combined_mat, input_sample, type, ann, value, dist_top_
   
   annot_col <- ifelse(value == 'lineage', 'lineage', 'subtype_1')
   
-  dist_topk_1 <- dist_top_n %>% dplyr::select(sampleID) %>% distinct() %>% 
-    left_join(., ann[, c('sampleID', annot_col)], by = 'sampleID')
+  dist_topk_1 <- dist_top_n %>% dplyr::select(sampleID) %>% dplyr::distinct() %>% 
+    dplyr::left_join(., ann[, c('sampleID', annot_col)], by = 'sampleID')
   colnames(dist_topk_1) <- c('neighbor', 'annot_neighbor')
   
   dist_topk_2 <- 
-    dist_topk_1 %>% group_by(annot_neighbor) %>% 
+    dist_topk_1 %>% dplyr::group_by(annot_neighbor) %>% 
     dplyr::summarize(Freq = n()) %>%
     dplyr::mutate(percentage = Freq / sum(Freq) * 100,
                   label = paste0(round(percentage, 1), "%")) %>%
@@ -34,15 +34,15 @@ get_piechart <- function(combined_mat, input_sample, type, ann, value, dist_top_
   
     
   dist_topk_2 <- dist_topk_2 %>%
-    mutate(annot_neighbor = stringr::str_wrap(annot_neighbor, width = 14))
+    dplyr::mutate(annot_neighbor = stringr::str_wrap(annot_neighbor, width = 14))
   
   
-  ann <- ann %>% mutate(annot_neighbor = stringr::str_wrap(ann[[annot_col]], width = 14))
+  ann <- ann %>% dplyr::mutate(annot_neighbor = stringr::str_wrap(ann[[annot_col]], width = 14))
   annot_neighbor_levels <- sort(unique(ann$annot_neighbor))  
-  annot_neighbor_colors <- setNames(brewer_recycled("Dark2", length(annot_neighbor_levels)), annot_neighbor_levels)
+  annot_neighbor_colors <- stats::setNames(brewer_recycled("Dark2", length(annot_neighbor_levels)), annot_neighbor_levels)
   
   y <- dist_topk_2 %>% 
-    ggplot(., aes(x = "", y = Freq, fill = annot_neighbor)) +
+    ggplot2::ggplot(., aes(x = "", y = Freq, fill = annot_neighbor)) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start = 0) +
     scale_fill_manual(values = annot_neighbor_colors) +
@@ -142,6 +142,56 @@ get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n
   
   x_range <- range(shared$data()$COMP_1, na.rm = TRUE)
   y_range <- range(shared$data()$COMP_2, na.rm = TRUE)
+
+  alignPlot <- plot_ly(data = shared,
+                        x = ~COMP_1,
+                        y = ~COMP_2,
+                        source = 'A',
+                        type = 'scatter',
+                        mode = 'markers',
+                        color = ~factor(str_wrap_annot_col, levels = annot_levels),
+                        colors = annot_colors,
+                        symbol = ~type, 
+                        symbols = c('circle',"x"),
+                        stroke = ~show_it,
+                        strokes = c('show' = "red", 'input' = "green" ),
+                        size = ~size,
+                        sizes = c(10,25),
+                        hoverinfo = "text",
+                        hovertext = ~paste("ID:", sampleID,
+                                           '\nName:', stripped_cell_line_name, 
+                                           '\nLineage:', lineage,
+                                           '\nSubtype:', subtype_1,
+                                           '\nType:', type),
+                        marker = list(
+                          line = list(width = 3)),
+                        height = 600
+                      ) %>%
+                        layout(
+                          dragmode = "zoom",
+                          autosize = TRUE,
+                          xaxis = list(
+                            title = "",
+                            zeroline = FALSE,
+                            showticklabels = FALSE,
+                            showgrid = FALSE,
+                            range = x_range 
+                          ),
+                          yaxis = list(
+                            title = "",
+                            zeroline = FALSE,
+                            showticklabels = FALSE,
+                            showgrid = FALSE,
+                            range = y_range 
+                          ),
+                          legend = list(
+                            title = list(text = "Select lineage-type pair"),
+                            traceorder = "normal"
+                          )
+                        ) %>% 
+                        plotly::event_register("plotly_selected") %>% 
+                        plotly::highlight(on = "plotly_selected", off = "plotly_doubleclick", color = 'green', persistent = FALSE) %>% 
+                        plotly::highlight(on = "plotly_click", selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick', color = 'blue')
   
   row_1 <- bscols(
     widths = c(2, 10),
@@ -163,60 +213,9 @@ get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n
     
     div(
       style = "height: 600px; width: 100%;",  
-      plot_ly(
-        data = shared,
-        x = ~COMP_1,
-        y = ~COMP_2,
-        source = 'A',
-        type = 'scatter',
-        mode = 'markers',
-        
-        color = ~factor(str_wrap_annot_col, levels = annot_levels),
-        colors = annot_colors,
-        symbol = ~type, 
-        symbols = c('circle',"x"),
-        stroke = ~show_it,
-        strokes = c('show' = "red", 'input' = "green"),
-        size = ~size,
-        sizes = c(10,35),
-        
-        hoverinfo = "text",
-        hovertext = ~paste("ID:", sampleID,
-                           '\nName:', stripped_cell_line_name, 
-                           '\nLineage:', lineage,
-                           '\nSubtype:', subtype_1,
-                           '\nType:', type),
-        marker = list(
-          line = list(width = 3)),
-        height = 600
-      )
-      %>%
-        layout(
-          dragmode = "zoom",
-          autosize = TRUE,
-          xaxis = list(
-            title = "",
-            zeroline = FALSE,
-            showticklabels = FALSE,
-            showgrid = FALSE,
-            range = x_range 
-          ),
-          yaxis = list(
-            title = "",
-            zeroline = FALSE,
-            showticklabels = FALSE,
-            showgrid = FALSE,
-            range = y_range 
-          ),
-          legend = list(
-            title = list(text = "Select lineage-type pair"),
-            traceorder = "normal"
-          )
-        ) %>% 
-        plotly::event_register("plotly_selected") %>% 
-        plotly::highlight(on = "plotly_selected", off = "plotly_doubleclick", color = 'green', persistent = FALSE) %>% 
-        plotly::highlight(on = "plotly_click", selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick', color = 'blue')
-    ))
+      suppressWarnings(plotly_build(alignPlot))
+    )
+  )
   
   
   row_2 <- crosstalk::bscols(
@@ -405,7 +404,7 @@ c_distribution <- function(dist_top_n, ann) {
     geom_line(linewidth = 1.2, color = "steelblue") +
     geom_point(colour = 'black') +
     theme_minimal() +
-    ylab("Cumulative Distance") +
+    ylab("Distance") +
     xlab(NULL)
   
   lin_plt <- ggplot(df, aes(x = position, y = 1, fill = lineage, text = paste(
