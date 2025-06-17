@@ -1,2 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^Dockerfile
+^Rprofile.site
+^LICENSE
+^.github
