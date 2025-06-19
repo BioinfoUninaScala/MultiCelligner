@@ -1,16 +1,10 @@
 #' 
 #' Create a data frame with the neighbors and related annotation of a query sample/s
 #'
-#' @import plotly
-#' @import crosstalk
-#' @import reactable
-#' @import htmltools
-#' @import fontawesome
 #' @import dplyr
 #' @import magrittr
-#' @import reshape
-#' @import SNFtool
-#' @import reshape2
+#' @importFrom SNFtool dist2
+#' @importFrom reshape2 melt
 #' @param combined_mat combined_mat matrix samples x genes of corrected data by MNN
 #' @param reduced_mat dimensionally reduced matrix (tSNE and UMAP): sample x features
 #' @param input_sample a vector of one or multiple TCGA and/or CCLE IDs. 
@@ -25,14 +19,14 @@
 find_neighbors <- function(combined_mat, reduced_mat, input_sample, k, ann, query_type, query_lineage = 'All') {
 
   if ("All" %in% query_lineage && length(query_lineage) > 1) {
-    showNotification("Select only All or choose multiple lineage without All")
+    shiny::showNotification("Select only All or choose multiple lineage without All")
     warning("Select only All or choose multiple lineage without All")
     return(NULL)
   }
   
   ### when you switch omics with the sample, if the there isn't the sample in that omics will appear a notification!
   if(all(!input_sample %in% colnames(reduced_mat))) {
-    showNotification("There isn't this input sample(s) in this omics")
+    shiny::showNotification("There isn't this input sample(s) in this omics")
     warning("There isn't this input sample(s) in this omics")
     return(NULL)
   }
@@ -41,7 +35,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample, k, ann, quer
     dplyr::mutate(type = case_when(
       type == "Tumor" ~ "Tumors", 
       type == "CL" ~ "Cell lines")
-    ) %>% filter(type %in% query_type)
+    ) %>% dplyr::filter(type %in% query_type)
   
   if(all(query_lineage == 'All')) {
     ann_query <- ann
@@ -55,7 +49,7 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample, k, ann, quer
   combined_mat <- combined_mat[rownames(combined_mat) %in% ann_query2,]
   
   if(all(!input_sample %in% rownames(combined_mat))) {
-    showNotification("There isn't this input sample/s for this LINEAGE in this omics")
+    shiny::showNotification("There isn't this input sample/s for this LINEAGE in this omics")
     warning("There isn't this input sample/s for this LINEAGE in this omics")
     return(NULL)
   }
@@ -77,11 +71,11 @@ find_neighbors <- function(combined_mat, reduced_mat, input_sample, k, ann, quer
   colnames(dist_1)[c(1,2,3)] <- c('ref_ID', 'sampleID', 'dist')
   
   dist_top_n <- dist_1 %>% 
-    arrange(dist)  %>% 
-    group_by(ref_ID) %>%                  
-    arrange(dist) %>%  
-    slice_head(n = k) %>% 
-    ungroup()
+    dplyr::arrange(dist)  %>% 
+    dplyr::group_by(ref_ID) %>%                  
+    dplyr::arrange(dist) %>%  
+    dplyr::slice_head(n = k) %>% 
+    dplyr::ungroup()
   
   return(dist_top_n)
   
