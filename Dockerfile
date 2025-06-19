@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y libssl-dev libxml2-dev libfontconfig1-d
 
 # R packages
 
-RUN R -e "install.packages(c('remotes','devtools', 'fontawesome', 'htmltools','ggplot2','SNFtool','reactable','shiny', 'plotly', 'dplyr','stringr', 'reshape2','crosstalk', 'magrittr', 'reshape', 'shinyjs', 'shinycssloaders'))" 
+RUN R -e "install.packages(c('remotes','devtools', 'fontawesome', 'htmltools','ggplot2','SNFtool','reactable','shiny', 'plotly', 'dplyr','stringr', 'reshape2','crosstalk', 'magrittr', 'shinyjs', 'shinycssloaders'))" 
 RUN R -e "remotes::install_github('BioinfoUninaScala/MultiCelligner', build_vignettes=FALSE,dependencies=TRUE, type='source',upgrade = 'never')"
 
 COPY Rprofile.site /usr/local/lib/R/etc/
