@@ -4,10 +4,8 @@
 #' @import shinycssloaders
 #' @import shiny
 #' @import magrittr
-#' @import crosstalk
 #' @import htmltools
-#' @import fontawesome
-#' @import shinyjs
+#' @importFrom shinyjs enable disable useShinyjs
 #' @return Shiny app
 #' @export
 #'
@@ -50,7 +48,7 @@ ui <- fluidPage(
         shiny::column(6, 
                       div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
                           shiny::selectInput('reduction_method', "Reduction:",
-                                      choices = c('UMAP', "tSNE"),
+                                      choices = c('UMAP', "tSNE", 'PCA'),
                                       selected = 'UMAP',
                                       width = "150px"))
         ),
@@ -58,8 +56,7 @@ ui <- fluidPage(
         shiny::column(6,
                       div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
                           shiny::selectInput('multiomics_method', 'Integration method:',
-                                      choices = c('MoNETA','MOFA','SNF'),
-                                      selected = 'MoNETA'))
+                                      choices = NULL))
         )),
       
       hr(),
@@ -220,11 +217,11 @@ ui <- fluidPage(
     }
   ")),
       
+      hr(),
+      
       shiny::tabsetPanel(
         type = "tabs",
         selected = 'Neighbors lineages',
-        
-        hr(),
         
         shiny::tabPanel("Neighbors lineages", 
                  shiny::plotOutput("piechart",height = "430px") , 
@@ -293,107 +290,36 @@ server <- function(input, output, session) {
                               )
   
   
+  shiny::observeEvent(input$omics_plot, {
+    if (length(input$omics_plot) == 1 | length(input$omics_plot) == 0){
+      shiny::updateSelectInput(session, 'multiomics_method',
+                         choices = '',
+                         selected = ''
+                         )
+    } else if (length(input$omics_plot) > 1){
+      shiny::updateSelectInput(session, 'multiomics_method',
+                               choices = c('','MoNETA','MOFA','SNF'),
+                               selected = 'MoNETA'
+      )
+    }
+    
+  })
+  
+  
   ##################### Load low-dimensional combined matrix ###################
-  selected_reduced_mat <- shiny::reactive({
-    
-    if(length(input$omics_plot) == 1 & input$reduction_method == 'UMAP') {
+  selected_reduced_mat <- shiny::eventReactive(input$subset_btn, {
+    if (!is.null(input$omics_plot)) {
+      red_method <- input$reduction_method
+      int_method <- input$multiomics_method
+      omics_selected <- input$omics_plot %>% sort()
       
-      return(switch(input$omics_plot,
-                    "Expression" = exp_umap, 
-                    "Methylation" = meth_umap,
-                    "Mutational signature" = mut_umap))
+      red_int_omics_selected <- c(red_method, int_method, omics_selected)
+      red_int_omics_selected <- red_int_omics_selected[!is.na(red_int_omics_selected) & red_int_omics_selected != ""]
+      reduced_mat_comb <- paste(red_int_omics_selected, collapse = '_')
+      
+      red_mat <- get(final_comb_red_list[[reduced_mat_comb]])
+      return(red_mat)  
     }
-    
-    if(length(input$omics_plot) == 1 & input$reduction_method == 'tSNE') {
-      
-      return(switch(input$omics_plot,
-                    "Expression" = tsne_exp, 
-                    "Methylation" = tsne_meth,
-                    "Mutational signature" = tsne_mut))
-      
-    } else if (length(input$omics_plot) > 1) {
-      
-      if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'UMAP') {
-        
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(umap_exp_meth_mut)
-        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(umap_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(umap_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(umap_meth_mut)
-        }
-        
-      }
-      
-      if(input$multiomics_method == 'MoNETA' && input$reduction_method == 'tSNE') {
-        
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(tsne_exp_meth_mut)
-        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(tsne_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(tsne_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(tsne_meth_mut)
-        }
-        
-      }
-      
-      if(input$multiomics_method == 'MOFA' && input$reduction_method == 'UMAP') {
-        
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(mofa_umap_all)
-        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(mofa_umap_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(mofa_umap_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(mofa_umap_meth_mut)
-        }
-        
-      }
-      
-      if(input$multiomics_method == 'MOFA' && input$reduction_method == 'tSNE') {
-        
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(mofa_tsne_all)
-        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(mofa_tsne_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(mofa_tsne_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(mofa_tsne_meth_mut)
-        }
-      }
-      
-      if(input$multiomics_method == 'SNF' && input$reduction_method == 'UMAP') {
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(snf_umap_all)
-        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(snf_umap_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(snf_umap_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(snf_umap_meth_mut)
-        }
-      }
-      
-      if(input$multiomics_method == 'SNF' && input$reduction_method == 'tSNE') {
-        if(setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          return(snf_tsne_all)
-        } else if(setequal(input$omics_plot, c("Methylation","Expression"))) {
-          return(snf_tsne_exp_meth)
-        } else if(setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          return(snf_tsne_exp_mut)
-        } else if(setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          return(snf_tsne_meth_mut)
-        }
-      }
-      
-    }
-    
     return(NULL)  
   }) 
   
@@ -401,9 +327,9 @@ server <- function(input, output, session) {
   
   ##################### Nearest neighbor search: retrieve combined mat ###################
   last_combined_mat <- shiny::reactiveVal(NULL)
-  selected_combined_mat <- shiny::reactive({
+  selected_combined_mat <- shiny::eventReactive(input$subset_btn, {
     
-    ### if there is no omics selected will be use the last combined_mat: 
+    ### if there is no omics selected, the last combined_mat will be used: 
     ### this is for keep the sample in the search bar
     if (length(input$omics_plot) == 0) {
       return(last_combined_mat())
@@ -411,51 +337,15 @@ server <- function(input, output, session) {
     
     mat <- NULL
     
-    if (length(input$omics_plot) == 1) {
-      mat <- switch(input$omics_plot,
-                    "Expression" = pca_exp, 
-                    "Methylation" = pca_meth_1,
-                    "Mutational signature" = combined_mat_mut)
-    } else if (length(input$omics_plot) > 1) {
+    if (!is.null(input$omics_plot)) {
+      int_method <- input$multiomics_method
+      omics_selected <- input$omics_plot %>% sort()
       
-      if (input$multiomics_method == 'MoNETA') {
-        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          mat <- emb_exp_meth_mut_1
-        } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
-          mat <- emb_exp_meth_1
-        } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          mat <- emb_exp_mut_1
-        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          mat <- emb_meth_mut_1
-        }
-      }
+      int_omics_selected <- c(int_method, omics_selected)
+      int_omics_selected <- int_omics_selected[!is.na(int_omics_selected) & int_omics_selected != ""]
+      mat_comb <- paste(int_omics_selected, collapse = '_')
       
-      if (input$multiomics_method == 'MOFA') {
-        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          mat <- MOFA_mat_all
-        } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
-          mat <- MOFA_mat_exp_meth
-        } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          mat <- MOFA_mat_exp_mut
-        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          mat <- MOFA_mat_meth_mut
-        }
-      }
-      
-      if (input$multiomics_method == 'SNF') {
-        if (setequal(input$omics_plot, c("Methylation","Expression","Mutational signature"))) {
-          mat <- pca_snf_all
-        } else if (setequal(input$omics_plot, c("Methylation","Expression"))) {
-          mat <- pca_snf_exp_meth
-        } else if (setequal(input$omics_plot, c("Expression","Mutational signature"))) {
-          mat <- pca_snf_exp_mut
-        } else if (setequal(input$omics_plot, c("Methylation", "Mutational signature"))) {
-          mat <- pca_snf_meth_mut
-        }
-      }
-    }
-    
-    if (!is.null(mat)) {
+      mat <- get(final_comb_red_list[[mat_comb]])
       last_combined_mat(mat)
     }
     
@@ -468,14 +358,14 @@ server <- function(input, output, session) {
     if(input$multiomics_method == "MoNETA" & length(input$omics_plot) > 1){
       
       for (omics in input$omics_plot){
-        pca_mat <- switch(omics,
-                          "Expression" = pca_exp, 
-                          "Methylation" = pca_meth_1,
-                          "Mutational signature" = combined_mat_mut)
+        mat <- switch(omics,
+                          "Expression" = exp, 
+                          "Methylation" = meth,
+                          "Mutational signature" = mut)
         
-        if(!all(input$both_sample %in% rownames(pca_mat))){
+        if(!all(input$both_sample %in% rownames(mat))){
           
-          s1 <- input$both_sample[!input$both_sample %in% rownames(pca_mat)]
+          s1 <- input$both_sample[!input$both_sample %in% rownames(mat)]
           s2 <- ann_multiomics_v9$stripped_cell_line_name[ann_multiomics_v9$sampleID %in% s1]
           
           if (length(s2) == 1)
@@ -509,7 +399,8 @@ server <- function(input, output, session) {
   query_linages <- shiny::reactiveVal(NULL)
   
   shiny::observe({
-    lin_out <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
+    # lin_out <- unique(ann_multiomics_v9$lineage[ann_multiomics_v9$sampleID %in% rownames(selected_combined_mat())])
+    lin_out <- unique(ann_multiomics_v9$lineage)
     query_linages(lin_out)
     
     sel <- q()
@@ -595,6 +486,7 @@ server <- function(input, output, session) {
   
   
   ############################### Plot: visualization ##############################
+  plot_ready <- reactiveVal(FALSE)
   
   selected_plot <- shiny::eventReactive(input$subset_btn, {
     if (!is.null(selected_reduced_mat())){
@@ -608,8 +500,24 @@ server <- function(input, output, session) {
     
   })
   
-  #### This is important to not show the loading symbol whrn user opens the app
-  output$plot <-  shiny::renderUI({
+  #### This is important to not show the loading symbol when user opens the app
+  # plot_ready <- reactiveVal(FALSE)
+  
+  selected_plot <- shiny::eventReactive(input$subset_btn, {
+    if (!is.null(selected_reduced_mat())) {
+      print('Generate plot ')
+      plot <- get_alignment_plot(reduced_mat = selected_reduced_mat(),
+                                 ann = ann_multiomics_v9, 
+                                 annot_value = 'lineage')
+      
+      return(plot)
+    } else {
+      return(NULL)
+    }
+  })
+  
+  output$plot <- shiny::renderUI({
+    # plot_ready(TRUE)
     selected_plot()
   })
   
@@ -697,7 +605,10 @@ server <- function(input, output, session) {
   
   filtered_data <- shiny::reactiveVal()
   
-  shiny::observeEvent(plotly::event_data("plotly_selected"), {
+  shiny::observeEvent({
+    # req(plot_ready())
+    plotly::event_data("plotly_selected", source = "A")
+    },  {
     
     if(is.null(input$sel_type)) {
       shiny::showNotification("Select the model type and then load the samples from the plot")
@@ -710,7 +621,8 @@ server <- function(input, output, session) {
       warning("")
     }
     
-    selected_data <- plotly::event_data("plotly_selected")
+    selected_data <- plotly::event_data("plotly_selected", source = "A")
+    if (is.null(selected_data)) return()
     
     if (!is.null(selected_data)) {
       selected_samples <- selected_data$key ### these correspond to the stripped_cell_line_name
@@ -797,4 +709,4 @@ server <- function(input, output, session) {
   
 }
 
-# shiny::shinyApp(ui, server)
+shiny::shinyApp(ui, server)
