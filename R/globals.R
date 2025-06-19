@@ -16,6 +16,8 @@ utils::globalVariables(
      'stripped_cell_line_name',
      'subtype_1',
      'type',
-     'type2'
+     'type2',
+     'xlab',
+     'aes'
   )
 )

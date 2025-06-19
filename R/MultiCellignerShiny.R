@@ -56,7 +56,7 @@ ui <- fluidPage(
         shiny::column(6,
                       div(style = "display: flex; flex-direction: shiny::column; align-items: center; justify-content: center; height: 100%;",
                           shiny::selectInput('multiomics_method', 'Integration method:',
-                                      choices = NULL))
+                                      choices = 'None'))
         )),
       
       hr(),
@@ -291,30 +291,34 @@ server <- function(input, output, session) {
   
   
   shiny::observeEvent(input$omics_plot, {
+   
     if (length(input$omics_plot) == 1 | length(input$omics_plot) == 0){
       shiny::updateSelectInput(session, 'multiomics_method',
-                         choices = '',
-                         selected = ''
+                         choices = 'None',
+                         selected = 'None'
                          )
+      
     } else if (length(input$omics_plot) > 1){
       shiny::updateSelectInput(session, 'multiomics_method',
-                               choices = c('','MoNETA','MOFA','SNF'),
+                               choices = c('MoNETA','MOFA','SNF'),
                                selected = 'MoNETA'
       )
+      
     }
-    
+
   })
   
   
   ##################### Load low-dimensional combined matrix ###################
   selected_reduced_mat <- shiny::eventReactive(input$subset_btn, {
+    # browser()
     if (!is.null(input$omics_plot)) {
       red_method <- input$reduction_method
       int_method <- input$multiomics_method
       omics_selected <- input$omics_plot %>% sort()
       
       red_int_omics_selected <- c(red_method, int_method, omics_selected)
-      red_int_omics_selected <- red_int_omics_selected[!is.na(red_int_omics_selected) & red_int_omics_selected != ""]
+      red_int_omics_selected <- red_int_omics_selected[!is.na(red_int_omics_selected) & red_int_omics_selected != "None"]
       reduced_mat_comb <- paste(red_int_omics_selected, collapse = '_')
       
       red_mat <- get(final_comb_red_list[[reduced_mat_comb]])
@@ -342,7 +346,7 @@ server <- function(input, output, session) {
       omics_selected <- input$omics_plot %>% sort()
       
       int_omics_selected <- c(int_method, omics_selected)
-      int_omics_selected <- int_omics_selected[!is.na(int_omics_selected) & int_omics_selected != ""]
+      int_omics_selected <- int_omics_selected[!is.na(int_omics_selected) & int_omics_selected !=  "None"]
       mat_comb <- paste(int_omics_selected, collapse = '_')
       
       mat <- get(final_comb_red_list[[mat_comb]])
@@ -697,7 +701,7 @@ server <- function(input, output, session) {
     }
   })
   
-  ### allow multiomics research when is selected almost two omics
+  ## allow multiomics research when is selected almost two omics
   observe({
     if(length(input$omics_plot) <= 1) {
       shinyjs::disable(id = "multiomics_method")
@@ -706,7 +710,7 @@ server <- function(input, output, session) {
       shinyjs::enable(id = "multiomics_method")
     }
   })
-  
+
 }
 
 # shiny::shinyApp(ui, server)
