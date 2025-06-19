@@ -2,9 +2,6 @@
 #' Create a pie chart that illustrates the percentage of lineage or subtype belong to the k nearest neighbors 
 #' 
 #' @import dplyr
-#' @import ggplot2
-#' @import reshape
-#' @import reshape2
 #' @import magrittr
 #' @import SNFtool
 #' @import stringr
@@ -43,17 +40,17 @@ get_piechart <- function(combined_mat, input_sample, type, ann, value, dist_top_
   
   y <- dist_topk_2 %>% 
     ggplot2::ggplot(., aes(x = "", y = Freq, fill = annot_neighbor)) +
-    geom_bar(width = 1, stat = "identity") +
-    coord_polar("y", start = 0) +
-    scale_fill_manual(values = annot_neighbor_colors) +
-    theme_void() +
-    theme(axis.text.x = element_blank(),
-          plot.title = element_text(size = 12, face = "bold", hjust = 0.5)) +
-    geom_text(aes(label = label),
-              position = position_stack(vjust = 0.5),
+    ggplot2::geom_bar(width = 1, stat = "identity") +
+    ggplot2::coord_polar("y", start = 0) +
+    ggplot2::scale_fill_manual(values = annot_neighbor_colors) +
+    ggplot2::theme_void() +
+    ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+          plot.title = ggplot2::element_text(size = 12, face = "bold", hjust = 0.5)) +
+    ggplot2::geom_text(aes(label = label),
+              position = ggplot2::position_stack(vjust = 0.5),
               size = 3) +
-    labs(title = paste("Neighbors", value, "distribution")) +
-    guides(fill = guide_legend(title = stringr::str_to_title(value)))
+    ggplot2::labs(title = paste("Neighbors", value, "distribution")) +
+    ggplot2::guides(fill = ggplot2::guide_legend(title = stringr::str_to_title(value)))
   
   return(y)
   
@@ -65,15 +62,13 @@ get_piechart <- function(combined_mat, input_sample, type, ann, value, dist_top_
 #' Create an interactive plot that highlighting k nearest neighbors for the choosed query
 #'
 #' @import plotly
-#' @import crosstalk
+#' @importFrom crosstalk filter_checkbox filter_select filter_select bscols
 #' @import reactable
 #' @import htmltools
 #' @import fontawesome
 #' @import dplyr
 #' @import magrittr
-#' @import reshape
 #' @import SNFtool
-#' @import reshape2
 #' @importFrom tibble rownames_to_column
 #' @param reduced_mat dimensionally reduced matrix (tSNE and UMAP): sample x features
 #' @param ann annotation file of tumors and cell lines 
@@ -87,7 +82,7 @@ get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n
   annot_col <- ifelse(annot_value == 'lineage', 'lineage', 'subtype_1')
   ann <- ann %>% mutate(str_wrap_annot_col = stringr::str_wrap(ann[[annot_col]], width = 14))
   annot_levels <- sort(unique(ann$str_wrap_annot_col))  
-  annot_colors <- setNames(brewer_recycled("Dark2", length(annot_levels)), annot_levels)
+  annot_colors <- stats::setNames(brewer_recycled("Dark2", length(annot_levels)), annot_levels)
   
   data_res <- reduced_mat %>% t() %>% 
     as.data.frame() %>% 
@@ -143,55 +138,47 @@ get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n
   x_range <- range(shared$data()$COMP_1, na.rm = TRUE)
   y_range <- range(shared$data()$COMP_2, na.rm = TRUE)
 
-  alignPlot <- plot_ly(data = shared,
-                        x = ~COMP_1,
-                        y = ~COMP_2,
-                        source = 'A',
-                        type = 'scatter',
-                        mode = 'markers',
-                        color = ~factor(str_wrap_annot_col, levels = annot_levels),
-                        colors = annot_colors,
-                        symbol = ~type, 
-                        symbols = c('circle',"x"),
-                        stroke = ~show_it,
-                        strokes = c('show' = "red", 'input' = "green" ),
-                        size = ~size,
-                        sizes = c(10,25),
-                        hoverinfo = "text",
-                        hovertext = ~paste("ID:", sampleID,
-                                           '\nName:', stripped_cell_line_name, 
-                                           '\nLineage:', lineage,
-                                           '\nSubtype:', subtype_1,
-                                           '\nType:', type),
-                        marker = list(
-                          line = list(width = 3)),
-                        height = 600
-                      ) %>%
-                        layout(
-                          dragmode = "zoom",
-                          autosize = TRUE,
-                          xaxis = list(
-                            title = "",
-                            zeroline = FALSE,
-                            showticklabels = FALSE,
-                            showgrid = FALSE,
-                            range = x_range 
-                          ),
-                          yaxis = list(
-                            title = "",
-                            zeroline = FALSE,
-                            showticklabels = FALSE,
-                            showgrid = FALSE,
-                            range = y_range 
-                          ),
-                          legend = list(
-                            title = list(text = "Select lineage-type pair"),
-                            traceorder = "normal"
-                          )
-                        ) %>% 
-                        plotly::event_register("plotly_selected") %>% 
-                        plotly::highlight(on = "plotly_selected", off = "plotly_doubleclick", color = 'green', persistent = FALSE) %>% 
-                        plotly::highlight(on = "plotly_click", selectize = TRUE, persistent = TRUE, off = 'plotly_doubleclick', color = 'blue')
+  alignPlot <- withCallingHandlers({
+    
+    plot_ly(data = shared,
+            x = ~COMP_1,
+            y = ~COMP_2,
+            source = 'A',
+            type = 'scatter',
+            mode = 'markers',
+            color = ~factor(str_wrap_annot_col, levels = annot_levels),
+            colors = annot_colors,
+            symbol = ~type, 
+            symbols = c('circle',"x"),
+            stroke = ~show_it,
+            strokes = c('show' = "red", 'input' = "green"),
+            size = ~size,
+            sizes = c(10, 25),
+            hoverinfo = "text",
+            hovertext = ~paste("ID:", sampleID,
+                               '\nName:', stripped_cell_line_name, 
+                               '\nLineage:', lineage,
+                               '\nSubtype:', subtype_1,
+                               '\nType:', type),
+            marker = list(line = list(width = 3)),
+            height = 600
+    ) %>%
+      layout(
+        dragmode = "zoom",
+        autosize = TRUE,
+        xaxis = list(title = "", zeroline = FALSE, showticklabels = FALSE, showgrid = FALSE, range = x_range),
+        yaxis = list(title = "", zeroline = FALSE, showticklabels = FALSE, showgrid = FALSE, range = y_range),
+        legend = list(title = list(text = "Select lineage-type pair"), traceorder = "normal")
+      ) %>% 
+      plotly::event_register("plotly_selected") %>% 
+      plotly::highlight(on = "plotly_selected", off = "plotly_doubleclick", color = 'green', persistent = FALSE) %>% 
+      plotly::highlight(on = "plotly_click", selectize = TRUE, persistent = TRUE, off = "plotly_doubleclick", color = "blue")
+    
+  }, message = function(m) {
+    if (grepl("We recommend setting `persistent` to `FALSE`", conditionMessage(m))) {
+      invokeRestart("muffleMessage")  # sopprime solo quel messaggio
+    }
+  })
   
   row_1 <- bscols(
     widths = c(2, 10),
@@ -386,54 +373,54 @@ get_CL_strp_names <- function(combined_mat ,ann) {
 c_distribution <- function(dist_top_n, ann) {
   
   df <- dist_top_n %>%
-    arrange(dist)
+    dplyr::arrange(dist)
   df$position <- 1:nrow(df)
   
   df <- df %>%
-    left_join(., ann, by = join_by(sampleID))
+    dplyr::left_join(., ann, by = join_by(sampleID))
   df$to_sum <- c(0, df$dist[-length(df$dist)])
   df$cum_dist <- df$dist + df$to_sum
   
   lineage_levels <- sort(unique(ann$lineage))  
-  lineage_colors <- setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
+  lineage_colors <- stats::setNames(brewer_recycled("Dark2", length(lineage_levels)), lineage_levels)
   
   subtype_levels <- sort(unique(ann$subtype_1))  
-  subtype_colors <- setNames(brewer_recycled("Dark2", length(subtype_levels)), subtype_levels)
+  subtype_colors <- stats::setNames(brewer_recycled("Dark2", length(subtype_levels)), subtype_levels)
   
-  main_plt <- ggplot(df, aes(x = position, y = dist)) +
-    geom_line(linewidth = 1.2, color = "steelblue") +
-    geom_point(colour = 'black') +
-    theme_minimal() +
-    ylab("Distance") +
+  main_plt <- ggplot2::ggplot(df, aes(x = position, y = dist)) +
+    ggplot2::geom_line(linewidth = 1.2, color = "steelblue") +
+    ggplot2::geom_point(colour = 'black') +
+    ggplot2::theme_minimal() +
+    ggplot2::ylab("Distance") +
     xlab(NULL)
   
-  lin_plt <- ggplot(df, aes(x = position, y = 1, fill = lineage, text = paste(
+  lin_plt <- ggplot2::ggplot(df, aes(x = position, y = 1, fill = lineage, text = paste(
     "Position:", position,
     "\nID:", sampleID,
     "\nName:", stripped_cell_line_name,
     "\nLineage:", lineage,
     "\nSubtype:", subtype_1
   ))) +
-    geom_tile() +
-    scale_y_continuous(expand = c(0, 0)) +
-    theme_void() +
-    scale_fill_manual(values = lineage_colors) +
-    theme(legend.position = "right") +
-    guides(fill = guide_legend(title = 'Lineage'))
+    ggplot2::geom_tile() +
+    ggplot2::scale_y_continuous(expand = c(0, 0)) +
+    ggplot2::theme_void() +
+    ggplot2::scale_fill_manual(values = lineage_colors) +
+    ggplot2::theme(legend.position = "right") +
+    ggplot2::guides(fill = ggplot2::guide_legend(title = 'Lineage'))
   
-  subtype_plt <- ggplot(df, aes(x = position, y = 1, fill = subtype_1, text = paste(
+  subtype_plt <- ggplot2::ggplot(df, aes(x = position, y = 1, fill = subtype_1, text = paste(
     "Position:", position,
     "\nID:", sampleID,
     "\nName:", stripped_cell_line_name,
     "\nLineage:", lineage,
     "\nSubtype:", subtype_1
   ))) +
-    geom_tile() +
-    scale_y_continuous(expand = c(0, 0)) +
-    theme_void() +
-    scale_fill_manual(values = subtype_colors) +
-    theme(legend.position = "bottom") +
-    guides(fill = guide_legend(title = 'Subtype'))
+    ggplot2::geom_tile() +
+    ggplot2::scale_y_continuous(expand = c(0, 0)) +
+    ggplot2::theme_void() +
+    ggplot2::scale_fill_manual(values = subtype_colors) +
+    ggplot2::theme(legend.position = "bottom") +
+    ggplot2::guides(fill = ggplot2::guide_legend(title = 'Subtype'))
   
   main_plotly <- ggplotly(main_plt)
   lin_plotly <- ggplotly(lin_plt, tooltip = "text")
