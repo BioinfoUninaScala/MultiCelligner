@@ -39,14 +39,14 @@ get_piechart <- function(combined_mat, input_sample, type, ann, value, dist_top_
   annot_neighbor_colors <- stats::setNames(brewer_recycled("Dark2", length(annot_neighbor_levels)), annot_neighbor_levels)
   
   y <- dist_topk_2 %>% 
-    ggplot2::ggplot(., aes(x = "", y = Freq, fill = annot_neighbor)) +
+    ggplot2::ggplot(., ggplot2::aes(x = "", y = Freq, fill = annot_neighbor)) +
     ggplot2::geom_bar(width = 1, stat = "identity") +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::scale_fill_manual(values = annot_neighbor_colors) +
     ggplot2::theme_void() +
     ggplot2::theme(axis.text.x = ggplot2::element_blank(),
           plot.title = ggplot2::element_text(size = 12, face = "bold", hjust = 0.5)) +
-    ggplot2::geom_text(aes(label = label),
+    ggplot2::geom_text(ggplot2::aes(label = label),
               position = ggplot2::position_stack(vjust = 0.5),
               size = 3) +
     ggplot2::labs(title = paste("Neighbors", value, "distribution")) +
@@ -387,14 +387,14 @@ c_distribution <- function(dist_top_n, ann) {
   subtype_levels <- sort(unique(ann$subtype_1))  
   subtype_colors <- stats::setNames(brewer_recycled("Dark2", length(subtype_levels)), subtype_levels)
   
-  main_plt <- ggplot2::ggplot(df, aes(x = position, y = dist)) +
+  main_plt <- ggplot2::ggplot(df, ggplot2::aes(x = position, y = dist)) +
     ggplot2::geom_line(linewidth = 1.2, color = "steelblue") +
     ggplot2::geom_point(colour = 'black') +
     ggplot2::theme_minimal() +
     ggplot2::ylab("Distance") +
-    xlab(NULL)
+    ggplot2::xlab(NULL)
   
-  lin_plt <- ggplot2::ggplot(df, aes(x = position, y = 1, fill = lineage, text = paste(
+  lin_plt <- ggplot2::ggplot(df, ggplot2::aes(x = position, y = 1, fill = lineage, text = paste(
     "Position:", position,
     "\nID:", sampleID,
     "\nName:", stripped_cell_line_name,
@@ -408,7 +408,7 @@ c_distribution <- function(dist_top_n, ann) {
     ggplot2::theme(legend.position = "right") +
     ggplot2::guides(fill = ggplot2::guide_legend(title = 'Lineage'))
   
-  subtype_plt <- ggplot2::ggplot(df, aes(x = position, y = 1, fill = subtype_1, text = paste(
+  subtype_plt <- ggplot2::ggplot(df, ggplot2::aes(x = position, y = 1, fill = subtype_1, text = paste(
     "Position:", position,
     "\nID:", sampleID,
     "\nName:", stripped_cell_line_name,
