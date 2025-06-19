@@ -13,11 +13,14 @@
 
 ### Introduction
 
-MultiCelligner is a Celligner-based pipeline for aligning tumor and cell
-line expression, methylation and mutational signature data.
-MultiCelligner also provides a Shiny App that allows users to explore
-dimensionality reduction projections in order to find the best cell line
-model for a tumor sample or for a set of them also at the subtype resolution.
+MultiCelligner propose direct comparisons of tumor and cell line based on 
+different unsupervised alignment among transcriptional profile, methylation 
+profile and mutational signature catalogues. Furthermore, MultiCelligner 
+features alignments built on multi-omics integrations of MNN-corrected matrix 
+empower complete and precise comparison. Exploit that, MultiCelligner Shiny 
+enable user to seek along each omics or multi-omics alignment the best 
+cell line model for a given set of tumors or the top k tumors that best 
+recapitulate the omic profile of a specific cell line model. 
 
 ------------------------------------------------------------------------
 
@@ -54,7 +57,15 @@ $ docker run --rm -p 8585:3838 bioinfouninascala/MultiCelligner
 Finally, use MultiCelligner shiny in a browser by typing http://localhost:8585 (if you are on a local machine) or https://server_name:8585 (if you are on a server machine).
 <br/>
 
-----------
+------------------------------------------------------------------------
+
+<p align="center">
+
+<img src="inst/www/MultiCelligner_tool.png" width="1000"/>
+
+</p>
+
+------------------------------------------------------------------------
 
 ### Disclaimer
 This tool is currently in beta. It is still under active development and may contain bugs, errors, or incomplete features. 
