@@ -305,6 +305,7 @@ get_alignment_plot <- function(reduced_mat, ann, input_sample = NULL, dist_top_n
                                subtype = reactable::colDef(name = "Subtype"),
                                subtype_1 = reactable::colDef(name = 'Subtype code'),
                                dist = reactable::colDef(name = "Distance"),
+                               str_wrap_annot_col = reactable::colDef(show = FALSE),
                                COMP_1 = reactable::colDef(show = FALSE),
                                COMP_2 = reactable::colDef(show = FALSE),
                                link = reactable::colDef(show = FALSE),
